@@ -9,67 +9,71 @@ const STATS = [
     label: "المشاريع الخيرية",
     value: 33210,
     icon: "https://emch.ae/WebsiteNewContent/images/combined-shape1.svg",
-    // Card 1: blue-first (blue-right bg) + yellow-first (yellow-left bg)
     blueBg: "https://emch.ae/WebsiteNewContent/images/ballon-blue-right.svg",
     yellowBg: "https://emch.ae/WebsiteNewContent/images/ballon-yellow-left.svg",
     isTop100: false,
-    layout: "blue-right-yellow-left"
+    layout: "blue-right-yellow-left",
+    floatDuration: 4.2
   },
   {
     id: 2,
     label: "كفالة",
     value: 8952,
     icon: "https://emch.ae/WebsiteNewContent/images/combined-shape2.svg",
-    // Card 2: yellow-second (yellow-right bg) + blue-second (blue-left bg) - top-100 dipped
     yellowBg: "https://emch.ae/WebsiteNewContent/images/ballon-yellow-right.svg",
     blueBg: "https://emch.ae/WebsiteNewContent/images/ballon-blue-left.svg",
     isTop100: true,
-    layout: "yellow-right-blue-left"
+    layout: "yellow-right-blue-left",
+    floatDuration: 4.8
   },
   {
     id: 3,
     label: "البرامج الخيرية",
     value: 60487,
     icon: "https://emch.ae/WebsiteNewContent/images/combined-shape1.svg",
-    // Card 3: blue-first (blue-right bg) + yellow-first (yellow-left bg) - top-100 dipped
     blueBg: "https://emch.ae/WebsiteNewContent/images/ballon-blue-right.svg",
     yellowBg: "https://emch.ae/WebsiteNewContent/images/ballon-yellow-left.svg",
     isTop100: true,
-    layout: "blue-right-yellow-left"
+    layout: "blue-right-yellow-left",
+    floatDuration: 5.2
   },
   {
     id: 4,
     label: "الأسر المستفيدة",
     value: 16025,
     icon: "https://emch.ae/WebsiteNewContent/images/combined-shape4.svg",
-    // Card 4: yellow-second (yellow-right bg) + blue-second (blue-left bg)
     yellowBg: "https://emch.ae/WebsiteNewContent/images/ballon-yellow-right.svg",
     blueBg: "https://emch.ae/WebsiteNewContent/images/ballon-blue-left.svg",
     isTop100: false,
-    layout: "yellow-right-blue-left"
+    layout: "yellow-right-blue-left",
+    floatDuration: 4.5
   }
 ];
 
 function Counter({ value }: { value: number }) {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true });
+  const inView = useInView(ref, { once: true, margin: "-50px" });
 
   useEffect(() => {
     if (inView) {
       let start = 0;
       const end = value;
-      const duration = 2000;
-      const increment = Math.max(1, Math.floor(end / (duration / 16)));
+      const duration = 2200; // 2.2 seconds animation
+      const steps = 60;
+      const stepTime = duration / steps;
+      const increment = end / steps;
+
       const timer = setInterval(() => {
         start += increment;
         if (start >= end) {
           setCount(end);
           clearInterval(timer);
         } else {
-          setCount(start);
+          setCount(Math.floor(start));
         }
-      }, 16);
+      }, stepTime);
+
       return () => clearInterval(timer);
     }
   }, [inView, value]);
@@ -81,7 +85,7 @@ export function Achievements() {
   return (
     <section 
       id="third-section" 
-      className="relative w-full py-16 overflow-hidden font-sans"
+      className="relative w-full py-20 overflow-hidden font-sans"
       style={{ 
         backgroundImage: 'url(https://emch.ae/WebsiteNewContent/images/pattern_1.png)',
         backgroundRepeat: 'repeat',
@@ -91,11 +95,11 @@ export function Achievements() {
       <div className="container mx-auto px-4 max-w-7xl">
         
         {/* Heading Section matching computed styles */}
-        <div className="text-center mb-12 flex flex-col items-center justify-center">
+        <div className="text-center mb-16 flex flex-col items-center justify-center">
           
           {/* Circle icon wrapper */}
           <div 
-            className="w-24 h-24 flex items-center justify-center mb-2 bg-no-repeat bg-contain bg-center"
+            className="w-24 h-24 flex items-center justify-center mb-2 bg-no-repeat bg-contain bg-center animate-pulse"
             style={{ backgroundImage: 'url("https://emch.ae/WebsiteNewContent/images/circle_bg.svg")' }}
           >
             <img 
@@ -114,8 +118,8 @@ export function Achievements() {
           </h4>
         </div>
 
-        {/* Balloon Counters Grid with U-Arc Dip */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 items-start justify-items-center min-h-[260px] pt-4">
+        {/* Balloon Counters Grid with U-Arc Dip & Continuous Floating Motion */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 items-start justify-items-center min-h-[280px] pt-4">
           {STATS.map((stat, i) => {
             return (
               <motion.div
@@ -124,59 +128,73 @@ export function Achievements() {
                 whileInView={{ rotateY: 0, opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, delay: i * 0.15 }}
-                className={`w-[255px] h-[160px] flex items-end justify-center transition-all duration-500 hover:scale-105 ${
+                className={`w-[255px] h-[160px] flex items-end justify-center transition-all duration-500 hover:scale-110 ${
                   stat.isTop100 ? 'lg:translate-y-24' : 'lg:translate-y-0'
                 }`}
               >
-                {stat.layout === 'blue-right-yellow-left' ? (
-                  /* Layout 1 & 3: Blue-First (right) + Yellow-First (left) */
-                  <div className="flex items-end justify-center w-[255px] h-[160px] font-bold">
-                    
-                    {/* Blue First (Right balloon containing Icon & Label) */}
-                    <div 
-                      className="w-[120px] h-[160px] pt-6 text-center text-white flex flex-col items-center justify-start bg-no-repeat bg-full"
-                      style={{ backgroundImage: `url("${stat.blueBg}")`, backgroundSize: '100%' }}
-                    >
-                      <img src={stat.icon} alt="icon" className="w-[40px] h-[40px] mb-1" />
-                      <p className="m-0 text-xs font-bold w-[120px] leading-tight text-white">{stat.label}</p>
-                    </div>
+                {/* Continuous Floating Flight Animation */}
+                <motion.div
+                  animate={{
+                    y: [0, -10, 0, 10, 0],
+                    rotate: [0, 1.5, 0, -1.5, 0],
+                  }}
+                  transition={{
+                    duration: stat.floatDuration,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                  className="w-full flex items-end justify-center drop-shadow-xl"
+                >
+                  {stat.layout === 'blue-right-yellow-left' ? (
+                    /* Layout 1 & 3: Blue-First (right) + Yellow-First (left) */
+                    <div className="flex items-end justify-center w-[255px] h-[160px] font-bold cursor-pointer">
+                      
+                      {/* Blue First (Right balloon containing Icon & Label) */}
+                      <div 
+                        className="w-[120px] h-[160px] pt-6 text-center text-white flex flex-col items-center justify-start bg-no-repeat bg-full"
+                        style={{ backgroundImage: `url("${stat.blueBg}")`, backgroundSize: '100%' }}
+                      >
+                        <img src={stat.icon} alt="icon" className="w-[40px] h-[40px] mb-1" />
+                        <p className="m-0 text-xs font-bold w-[120px] leading-tight text-white">{stat.label}</p>
+                      </div>
 
-                    {/* Yellow First (Left balloon containing Number) */}
-                    <div 
-                      className="w-[90px] h-[120px] pt-7 text-center text-white flex items-center justify-center bg-no-repeat bg-contain"
-                      style={{ backgroundImage: `url("${stat.yellowBg}")` }}
-                    >
-                      <span className="text-[22px] leading-[33px] font-bold tracking-tight text-white font-sans">
-                        <Counter value={stat.value} />
-                      </span>
-                    </div>
+                      {/* Yellow First (Left balloon containing Number) */}
+                      <div 
+                        className="w-[90px] h-[120px] pt-7 text-center text-white flex items-center justify-center bg-no-repeat bg-contain"
+                        style={{ backgroundImage: `url("${stat.yellowBg}")` }}
+                      >
+                        <span className="text-[22px] leading-[33px] font-bold tracking-tight text-white font-sans">
+                          <Counter value={stat.value} />
+                        </span>
+                      </div>
 
-                  </div>
-                ) : (
-                  /* Layout 2 & 4: Yellow-Second (right) + Blue-Second (left) */
-                  <div className="flex items-end justify-center w-[255px] h-[160px] font-bold">
-                    
-                    {/* Yellow Second (Right balloon containing Number) */}
-                    <div 
-                      className="w-[90px] h-[120px] pt-7 text-center text-white flex items-center justify-center bg-no-repeat"
-                      style={{ backgroundImage: `url("${stat.yellowBg}")`, backgroundSize: '100%' }}
-                    >
-                      <span className="text-[22px] leading-[33px] font-bold tracking-tight text-white font-sans">
-                        <Counter value={stat.value} />
-                      </span>
                     </div>
+                  ) : (
+                    /* Layout 2 & 4: Yellow-Second (right) + Blue-Second (left) */
+                    <div className="flex items-end justify-center w-[255px] h-[160px] font-bold cursor-pointer">
+                      
+                      {/* Yellow Second (Right balloon containing Number) */}
+                      <div 
+                        className="w-[90px] h-[120px] pt-7 text-center text-white flex items-center justify-center bg-no-repeat"
+                        style={{ backgroundImage: `url("${stat.yellowBg}")`, backgroundSize: '100%' }}
+                      >
+                        <span className="text-[22px] leading-[33px] font-bold tracking-tight text-white font-sans">
+                          <Counter value={stat.value} />
+                        </span>
+                      </div>
 
-                    {/* Blue Second (Left balloon containing Icon & Label) */}
-                    <div 
-                      className="w-[120px] h-[160px] pt-6 text-center text-white flex flex-col items-center justify-start bg-no-repeat bg-contain"
-                      style={{ backgroundImage: `url("${stat.blueBg}")` }}
-                    >
-                      <img src={stat.icon} alt="icon" className="w-[40px] h-[40px] mb-1" />
-                      <p className="m-0 text-xs font-bold w-[120px] leading-tight text-white">{stat.label}</p>
+                      {/* Blue Second (Left balloon containing Icon & Label) */}
+                      <div 
+                        className="w-[120px] h-[160px] pt-6 text-center text-white flex flex-col items-center justify-start bg-no-repeat bg-contain"
+                        style={{ backgroundImage: `url("${stat.blueBg}")` }}
+                      >
+                        <img src={stat.icon} alt="icon" className="w-[40px] h-[40px] mb-1" />
+                        <p className="m-0 text-xs font-bold w-[120px] leading-tight text-white">{stat.label}</p>
+                      </div>
+
                     </div>
-
-                  </div>
-                )}
+                  )}
+                </motion.div>
               </motion.div>
             );
           })}

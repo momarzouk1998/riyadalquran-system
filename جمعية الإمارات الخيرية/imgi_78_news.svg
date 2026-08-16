@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="54" height="43" viewBox="0 0 54 43">
+    <defs>
+        <linearGradient id="a" x1="99.836%" x2="0%" y1="50%" y2="50%">
+            <stop offset=".082%" stop-color="#246c74"/>
+            <stop offset="100%" stop-color="#246c74"/>
+        </linearGradient>
+        <linearGradient id="b" x1="99.836%" x2="0%" y1="50%" y2="50%">
+            <stop offset=".082%" stop-color="#246c74"/>
+            <stop offset="100%" stop-color="#246c74"/>
+        </linearGradient>
+        <linearGradient id="c" x1="99.974%" x2="0%" y1="37.368%" y2="60.355%">
+            <stop offset=".013%" stop-color="#FB7206"/>
+            <stop offset="100%" stop-color="#FDB73D"/>
+        </linearGradient>
+        <linearGradient id="d" x1="99.974%" x2="0%" y1="49.674%" y2="50.267%">
+            <stop offset=".013%" stop-color="#FB7206"/>
+            <stop offset="100%" stop-color="#FDB73D"/>
+        </linearGradient>
+        <linearGradient id="e" x1="99.974%" x2="0%" y1="49.936%" y2="50.053%">
+            <stop offset=".013%" stop-color="#FB7206"/>
+            <stop offset="100%" stop-color="#FDB73D"/>
+        </linearGradient>
+    </defs>
+    <g fill="none" fill-rule="nonzero">
+        <path fill="url(#a)" d="M48.16 42.56H5.6a1.12 1.12 0 0 1 0-2.24h42.56a3.364 3.364 0 0 0 3.36-3.36V5.6a3.364 3.364 0 0 0-3.36-3.36H10.08A3.364 3.364 0 0 0 6.72 5.6v31.36a1.12 1.12 0 0 1-2.24 0V5.6c0-3.089 2.511-5.6 5.6-5.6h38.08c3.089 0 5.6 2.511 5.6 5.6v31.36c0 3.089-2.511 5.6-5.6 5.6z"/>
+        <path fill="url(#b)" d="M10.08 42.56H5.6a5.605 5.605 0 0 1-5.6-5.6V12.32c0-3.089 2.511-5.6 5.6-5.6a1.12 1.12 0 0 1 0 2.24 3.364 3.364 0 0 0-3.36 3.36v24.64a3.364 3.364 0 0 0 3.36 3.36h4.48a1.12 1.12 0 0 1 0 2.24z"/>
+        <path fill="url(#c)" d="M28 35.84H10.08a1.12 1.12 0 0 1-1.12-1.12V21.28c0-.618.502-1.12 1.12-1.12H28c.618 0 1.12.502 1.12 1.12v13.44A1.12 1.12 0 0 1 28 35.84zM11.2 33.6h15.68V22.4H11.2v11.2z"/>
+        <path fill="url(#d)" d="M48.16 22.4H32.48a1.12 1.12 0 0 1 0-2.24h15.68a1.12 1.12 0 0 1 0 2.24zM48.16 29.12H32.48a1.12 1.12 0 0 1 0-2.24h15.68a1.12 1.12 0 0 1 0 2.24zM48.16 35.84H32.48a1.12 1.12 0 0 1 0-2.24h15.68a1.12 1.12 0 0 1 0 2.24z"/>
+        <path fill="url(#e)" d="M48.16 15.68H10.08a1.12 1.12 0 0 1 0-2.24h38.08a1.12 1.12 0 0 1 0 2.24zM48.16 8.96H10.08a1.12 1.12 0 0 1 0-2.24h38.08a1.12 1.12 0 0 1 0 2.24z"/>
+    </g>
+</svg>
