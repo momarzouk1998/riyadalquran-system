@@ -8,25 +8,30 @@ import {
   MapPin, LogIn, ArrowLeft, ShieldCheck, Gift, Activity, Waves,
   Copy, Check, CreditCard, Smartphone, Sparkles, ChevronLeft,
   Users, BarChart3, Star, CheckCircle, Eye, ArrowUpRight, Calculator,
-  TrendingUp, Shield, Layers, HelpCircle, Filter, CheckSquare
+  TrendingUp, Shield, Layers, HelpCircle, Filter, ShoppingBag, X,
+  Share2, ArrowRight
 } from 'lucide-react';
 import { createNurseryBooking } from '@/app/actions/admin';
 import { StudentGradesChart } from '@/components/StudentGradesChart';
 
 export default function LandingPage() {
   const [isPending, startTransition] = useTransition();
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [bookingError, setBookingError] = useState<string | null>(null);
+  
+  // Copy state
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   
   // Category Filter Tabs (Al-Nouri Style)
   const [activeCategory, setActiveCategory] = useState<string>('all');
   
-  // Interactive Donation Store Payment Method
-  const [activeDonationMethod, setActiveDonationMethod] = useState<'bank' | 'instapay' | 'vodafone'>('bank');
-  
-  // Quick Calculator Selection
-  const [selectedQuickAmount, setSelectedQuickAmount] = useState<number>(100);
+  // Instant Donation Modal State (Al-Nouri Checkout Style)
+  const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
+  const [modalProject, setModalProject] = useState<any | null>(null);
+  const [modalAmount, setModalAmount] = useState<number>(100);
+
+  // Active Payment Method in Modal
+  const [activePaymentMethod, setActivePaymentMethod] = useState<'bank' | 'instapay' | 'vodafone'>('bank');
 
   // Nursery Showcase Tab State
   const [activeNurseryTab, setActiveNurseryTab] = useState<'chart' | 'finance' | 'teachers'>('chart');
@@ -34,28 +39,34 @@ export default function LandingPage() {
   const handleCopy = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
     setCopiedKey(key);
-    setTimeout(() => setCopiedKey(null), 2000);
+    setTimeout(() => setCopiedKey(null), 2500);
+  };
+
+  const openDonationModal = (project: any, amount?: number) => {
+    setModalProject(project);
+    if (amount) setModalAmount(amount);
+    setIsDonationModalOpen(true);
   };
 
   const handleBookingSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(false);
+    setBookingError(null);
+    setBookingSuccess(false);
     
     const formData = new FormData(e.currentTarget);
     
     startTransition(async () => {
       const res = await createNurseryBooking(formData);
       if (res.success) {
-        setSuccess(true);
+        setBookingSuccess(true);
         (e.target as HTMLFormElement).reset();
       } else {
-        setError(res.error || 'حدث خطأ أثناء إرسال الطلب');
+        setBookingError(res.error || 'حدث خطأ أثناء إرسال الطلب');
       }
     });
   };
 
-  // Category Tabs List (Al-Nouri Style)
+  // Al-Nouri Category Filter Tabs
   const categoryTabs = [
     { id: 'all', label: '🌟 جميع المشاريع', count: 4 },
     { id: 'orphans', label: '🎁 كفالات الأيتام', count: 1 },
@@ -64,14 +75,14 @@ export default function LandingPage() {
     { id: 'water', label: '💧 سقيا الماء والآبار', count: 1 },
   ];
 
-  // E-Donation Store Projects Inspired by Al-Nouri & Noor Platform
+  // E-Donation Store Projects (Al-Nouri Masterpiece Style)
   const projects = [
     {
       id: 'orphans-1',
       categoryKey: 'orphans',
       title: 'مشروع كفالة اليتيم والكسوة المدرسية',
       category: 'كفالات شهرية',
-      desc: 'كفالة 21 أسرة يتيمة برواتب شهرية وتوفير ملابس العيد والحقائب المدرسية لجميع الأطفال.',
+      desc: 'كفالة 21 أسرة يتيمة برواتب شهرية وتوفير ملابس العيد والحقائب المدرسية الكاملة سنوياً.',
       targetPercent: 85,
       raised: '22,950',
       target: '27,000',
@@ -120,7 +131,7 @@ export default function LandingPage() {
     },
   ];
 
-  // Filter projects by active tab
+  // Filter projects by active category tab
   const filteredProjects = activeCategory === 'all' 
     ? projects 
     : projects.filter(p => p.categoryKey === activeCategory);
@@ -160,14 +171,14 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#f8faf9] flex flex-col font-tajawal text-slate-800">
       
-      {/* 1. Header & Navigation */}
+      {/* 1. Al-Nouri Style Institutional Header & Navigation */}
       <header className="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-slate-200/60 backdrop-blur-2xl">
         
         {/* Top Governance Ribbon */}
         <div className="bg-emerald-950 text-emerald-200 text-[11px] py-1.5 px-4 text-center font-bold flex items-center justify-center gap-3">
           <span className="flex items-center gap-1">
             <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-            منصة الجمعيات الرقمية المعتمدة • مشهرة برقم 1300 بالمنشأة الكبرى
+            منصة الجمعيات الرقمية المعتمدة • المشهرة برقم 1300 بالمنشأة الكبرى
           </span>
           <span className="hidden sm:inline text-emerald-600">|</span>
           <span className="hidden sm:inline text-emerald-300">ترخيص وزارة التضامن الاجتماعي • كفر شكر • القليوبية</span>
@@ -215,6 +226,14 @@ export default function LandingPage() {
               <span>تاب الحضانة</span>
             </a>
 
+            <button
+              onClick={() => openDonationModal(projects[0], 100)}
+              className="hidden sm:flex items-center gap-1.5 py-2.5 px-4 rounded-2xl bg-amber-400 hover:bg-amber-500 text-slate-950 text-xs font-black transition-all shadow-md cursor-pointer"
+            >
+              <ShoppingBag className="w-4 h-4 text-slate-950" />
+              <span>التبرع السريع</span>
+            </button>
+
             <Link 
               href="/parent/login" 
               className="flex items-center gap-2 py-2.5 px-5 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all shadow-lg shadow-emerald-700/20 hover:shadow-emerald-700/30"
@@ -258,7 +277,7 @@ export default function LandingPage() {
             
             <div className="badge-gold backdrop-blur-md">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>منصة رقمية متكاملة للحوكمة والتبرعات • المشهرة برقم 1300</span>
+              <span>منصة التبرعات الرقمية والحوكمة الكاملة • المشهرة برقم 1300</span>
             </div>
           </div>
 
@@ -318,7 +337,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 3. E-Donation Store (Inspired by Al-Nouri & Noor Style Category Filter Tabs) */}
+      {/* 3. E-Donation Store (Al-Nouri Masterpiece Category Filter Tabs Strip) */}
       <section id="store" className="max-w-7xl w-full mx-auto px-4 py-20 space-y-10">
         
         <div className="space-y-4 text-center max-w-3xl mx-auto">
@@ -353,31 +372,31 @@ export default function LandingPage() {
         <div className="card-modern p-6 bg-gradient-to-r from-emerald-900 via-emerald-950 to-slate-900 text-white border-emerald-500/30 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold shrink-0 shadow-lg shadow-amber-400/20">
-              {React.createElement(donationMethods[activeDonationMethod].icon, { className: "w-7 h-7" })}
+              {React.createElement(donationMethods[activePaymentMethod].icon, { className: "w-7 h-7" })}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-amber-300 font-bold">{donationMethods[activeDonationMethod].type}</span>
+                <span className="text-xs text-amber-300 font-bold">{donationMethods[activePaymentMethod].type}</span>
                 <div className="flex gap-1">
-                  <button onClick={() => setActiveDonationMethod('bank')} className={`text-[10px] px-2 py-0.5 rounded-lg border ${activeDonationMethod === 'bank' ? 'bg-amber-400 text-slate-950 font-bold' : 'bg-white/10 text-white'}`}>البنك الزراعي</button>
-                  <button onClick={() => setActiveDonationMethod('instapay')} className={`text-[10px] px-2 py-0.5 rounded-lg border ${activeDonationMethod === 'instapay' ? 'bg-amber-400 text-slate-950 font-bold' : 'bg-white/10 text-white'}`}>انستا باي</button>
-                  <button onClick={() => setActiveDonationMethod('vodafone')} className={`text-[10px] px-2 py-0.5 rounded-lg border ${activeDonationMethod === 'vodafone' ? 'bg-amber-400 text-slate-950 font-bold' : 'bg-white/10 text-white'}`}>فودافون كاش</button>
+                  <button onClick={() => setActivePaymentMethod('bank')} className={`text-[10px] px-2 py-0.5 rounded-lg border ${activePaymentMethod === 'bank' ? 'bg-amber-400 text-slate-950 font-bold' : 'bg-white/10 text-white'}`}>البنك الزراعي</button>
+                  <button onClick={() => setActivePaymentMethod('instapay')} className={`text-[10px] px-2 py-0.5 rounded-lg border ${activePaymentMethod === 'instapay' ? 'bg-amber-400 text-slate-950 font-bold' : 'bg-white/10 text-white'}`}>انستا باي</button>
+                  <button onClick={() => setActivePaymentMethod('vodafone')} className={`text-[10px] px-2 py-0.5 rounded-lg border ${activePaymentMethod === 'vodafone' ? 'bg-amber-400 text-slate-950 font-bold' : 'bg-white/10 text-white'}`}>فودافون كاش</button>
                 </div>
               </div>
-              <h3 className="text-lg font-black mt-1">{donationMethods[activeDonationMethod].name}</h3>
-              <p className="text-xs text-emerald-200">{donationMethods[activeDonationMethod].desc}</p>
+              <h3 className="text-lg font-black mt-1">{donationMethods[activePaymentMethod].name}</h3>
+              <p className="text-xs text-emerald-200">{donationMethods[activePaymentMethod].desc}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 bg-white/10 p-3 rounded-2xl border border-white/15 w-full md:w-auto justify-between">
             <span className="font-mono text-xl font-black text-amber-300 tracking-widest px-2" dir="ltr">
-              {donationMethods[activeDonationMethod].account}
+              {donationMethods[activePaymentMethod].account}
             </span>
             <button
-              onClick={() => handleCopy(donationMethods[activeDonationMethod].account, activeDonationMethod)}
+              onClick={() => handleCopy(donationMethods[activePaymentMethod].account, activePaymentMethod)}
               className="px-4 py-2 bg-amber-400 hover:bg-amber-500 text-slate-950 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 shadow-md cursor-pointer"
             >
-              {copiedKey === activeDonationMethod ? (
+              {copiedKey === activePaymentMethod ? (
                 <>
                   <Check className="w-4 h-4 text-slate-950" />
                   <span>تم النسخ</span>
@@ -438,15 +457,12 @@ export default function LandingPage() {
 
                   {/* Quick Donation Amounts */}
                   <div>
-                    <span className="block text-[10px] font-bold text-slate-400 mb-2">تبرع سريع:</span>
+                    <span className="block text-[10px] font-bold text-slate-400 mb-2">اختر مبلغ التبرع:</span>
                     <div className="grid grid-cols-4 gap-1.5">
                       {p.amounts.map((amt) => (
                         <button
                           key={amt}
-                          onClick={() => {
-                            setSelectedQuickAmount(amt);
-                            handleCopy(donationMethods[activeDonationMethod].account, activeDonationMethod);
-                          }}
+                          onClick={() => openDonationModal(p, amt)}
                           className="py-1.5 px-2 bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 border border-slate-200 hover:border-emerald-300 rounded-xl text-xs font-black transition-all cursor-pointer text-center"
                         >
                           {amt}
@@ -454,6 +470,14 @@ export default function LandingPage() {
                       ))}
                     </div>
                   </div>
+
+                  <button
+                    onClick={() => openDonationModal(p)}
+                    className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold text-xs shadow-md shadow-emerald-700/10 transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
+                  >
+                    <Heart className="w-4 h-4 fill-white" />
+                    <span>تبرع الآن للمشروع</span>
+                  </button>
 
                 </div>
 
@@ -636,7 +660,7 @@ export default function LandingPage() {
         </div>
 
         {/* Success Confirmation Card */}
-        {success ? (
+        {bookingSuccess ? (
           <div className="card-modern p-8 bg-emerald-50 border-emerald-200 text-center space-y-4 animate-fade-in">
             <div className="mx-auto w-14 h-14 bg-emerald-700 text-white rounded-full flex items-center justify-center shadow-lg shadow-emerald-700/30">
               <CheckCircle2 className="w-7 h-7" />
@@ -650,9 +674,9 @@ export default function LandingPage() {
           </div>
         ) : (
           <div className="card-modern p-6 sm:p-10 bg-white border border-slate-200 shadow-2xl">
-            {error && (
+            {bookingError && (
               <div className="bg-red-50 border border-red-200 text-red-800 rounded-2xl p-4 text-xs mb-6">
-                {error}
+                {bookingError}
               </div>
             )}
             
@@ -733,7 +757,124 @@ export default function LandingPage() {
         )}
       </section>
 
-      {/* 6. Noor & Al-Nouri Style Institutional Footer */}
+      {/* 6. INSTANT DONATION CHECKOUT MODAL (Al-Nouri Checkout Experience) */}
+      {isDonationModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-200 relative overflow-hidden">
+            
+            {/* Close Button */}
+            <button
+              onClick={() => setIsDonationModalOpen(false)}
+              className="absolute top-4 left-4 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="text-center space-y-2 border-b border-slate-100 pb-4">
+              <div className="badge-emerald mx-auto">
+                <Heart className="w-3.5 h-3.5 text-emerald-600 fill-emerald-600" />
+                <span>إتمام التبرع المباشر</span>
+              </div>
+              <h3 className="font-black text-xl text-slate-900">
+                {modalProject?.title || 'التبرع السريع'}
+              </h3>
+              <p className="text-xs text-slate-500">اختر طريقة السداد لتحويل مبلغ التبرع مباشرة</p>
+            </div>
+
+            {/* Select Amount Box */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-700">مبلغ التبرع المحدد:</label>
+              <div className="grid grid-cols-4 gap-2">
+                {[50, 100, 250, 500].map((amt) => (
+                  <button
+                    key={amt}
+                    onClick={() => setModalAmount(amt)}
+                    className={`py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                      modalAmount === amt
+                        ? 'bg-emerald-700 text-white shadow-md'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    {amt}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Payment Method Selector */}
+            <div className="space-y-3">
+              <label className="block text-xs font-bold text-slate-700">اختر حساب التحويل:</label>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  onClick={() => setActivePaymentMethod('bank')}
+                  className={`py-3 px-2 rounded-2xl text-center text-xs font-bold border transition-all cursor-pointer ${
+                    activePaymentMethod === 'bank' ? 'bg-amber-50 border-amber-400 text-amber-900 shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-600'
+                  }`}
+                >
+                  💳 البنك الزراعي
+                </button>
+                <button
+                  onClick={() => setActivePaymentMethod('instapay')}
+                  className={`py-3 px-2 rounded-2xl text-center text-xs font-bold border transition-all cursor-pointer ${
+                    activePaymentMethod === 'instapay' ? 'bg-emerald-50 border-emerald-400 text-emerald-900 shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-600'
+                  }`}
+                >
+                  ⚡ انستا باي
+                </button>
+                <button
+                  onClick={() => setActivePaymentMethod('vodafone')}
+                  className={`py-3 px-2 rounded-2xl text-center text-xs font-bold border transition-all cursor-pointer ${
+                    activePaymentMethod === 'vodafone' ? 'bg-rose-50 border-rose-400 text-rose-900 shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-600'
+                  }`}
+                >
+                  📱 فودافون كاش
+                </button>
+              </div>
+            </div>
+
+            {/* Account Card & Copy Action */}
+            <div className="bg-slate-900 text-white rounded-2xl p-5 space-y-3 border border-slate-800">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-amber-400 font-bold">{donationMethods[activePaymentMethod].name}</span>
+                <span className="text-slate-400">{donationMethods[activePaymentMethod].type}</span>
+              </div>
+
+              <div className="bg-white/10 p-3 rounded-xl flex items-center justify-between">
+                <span className="font-mono text-xl font-black text-amber-300 tracking-widest" dir="ltr">
+                  {donationMethods[activePaymentMethod].account}
+                </span>
+                <button
+                  onClick={() => handleCopy(donationMethods[activePaymentMethod].account, `modal-${activePaymentMethod}`)}
+                  className="px-3.5 py-2 bg-amber-400 hover:bg-amber-500 text-slate-950 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer"
+                >
+                  {copiedKey === `modal-${activePaymentMethod}` ? (
+                    <>
+                      <Check className="w-4 h-4 text-slate-950" />
+                      <span>تم النسخ</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      <span>نسخ الرقم</span>
+                    </>
+                  )}
+                </button>
+              </div>
+              <p className="text-[10px] text-slate-400 text-center">حول مبلغ ({modalAmount}) برقم الحساب أو المحفظة مباشرةً</p>
+            </div>
+
+            <button
+              onClick={() => setIsDonationModalOpen(false)}
+              className="w-full py-3.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-2xl font-bold text-xs shadow-lg transition-all cursor-pointer"
+            >
+              تم التحويل والإنهاء
+            </button>
+
+          </div>
+        </div>
+      )}
+
+      {/* 7. Institutional Al-Nouri Footer */}
       <footer className="bg-slate-950 text-slate-400 py-16 px-4 mt-auto border-t border-slate-900 text-xs">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
           
