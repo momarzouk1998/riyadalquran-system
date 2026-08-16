@@ -39,7 +39,7 @@ export default function AdminLoginPage() {
             <div className="relative">
               <div className="absolute inset-0 bg-emerald-700/10 rounded-full blur-xl scale-150" />
               <Image
-                src="/RiyadAlquran Logo.png"
+                src="/logo.png"
                 alt="رياض القرآن"
                 width={80}
                 height={80}

@@ -57,7 +57,7 @@ export default async function NurseryPage() {
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
             <Image
-              src="/RiyadAlquran Logo.png"
+              src="/logo.png"
               alt="رياض القرآن"
               width={38}
               height={38}
@@ -302,7 +302,7 @@ export default async function NurseryPage() {
       <footer className="bg-emerald-950 text-emerald-400 py-6 px-4 border-t border-emerald-900">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2">
-            <Image src="/RiyadAlquran Logo.png" alt="" width={28} height={28} className="object-contain" />
+            <Image src="/logo.png" alt="" width={28} height={28} className="object-contain" />
             <span className="text-white font-bold">رياض القرآن الكريم</span>
             <span className="text-emerald-500">— المشهرة برقم ١٣٠٠</span>
           </div>

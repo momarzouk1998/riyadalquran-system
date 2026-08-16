@@ -105,7 +105,7 @@ export default async function ParentDashboardPage() {
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Image
-              src="/RiyadAlquran Logo.png"
+              src="/logo.png"
               alt="رياض القرآن"
               width={36}
               height={36}
@@ -450,7 +450,7 @@ export default async function ParentDashboardPage() {
       <footer className="mt-auto border-t border-emerald-100 bg-white py-4 px-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4 text-xs text-slate-400">
           <div className="flex items-center gap-2">
-            <Image src="/RiyadAlquran Logo.png" alt="" width={24} height={24} className="object-contain" />
+            <Image src="/logo.png" alt="" width={24} height={24} className="object-contain" />
             <span>رياض القرآن الكريم — بوابة أولياء الأمور</span>
           </div>
           <Link href="/" className="text-emerald-600 hover:underline font-semibold">

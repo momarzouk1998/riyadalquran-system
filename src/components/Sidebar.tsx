@@ -115,7 +115,7 @@ export function Sidebar({ adminName }: SidebarProps) {
           <Menu className="w-6 h-6" />
         </button>
         <div className="flex items-center gap-2">
-          <Image src="/RiyadAlquran Logo.png" alt="" width={30} height={30} className="object-contain" />
+          <Image src="/logo.png" alt="" width={30} height={30} className="object-contain" />
           <span className="font-black text-sm text-emerald-900">رياض القرآن</span>
         </div>
         <div className="w-8" />
@@ -138,7 +138,7 @@ export function Sidebar({ adminName }: SidebarProps) {
       `}>
         <div className="h-16 flex items-center justify-between px-4 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <Image src="/RiyadAlquran Logo.png" alt="" width={32} height={32} className="object-contain" />
+            <Image src="/logo.png" alt="" width={32} height={32} className="object-contain" />
             <span className="font-black text-sm text-emerald-900">رياض القرآن</span>
           </div>
           <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-slate-700 p-1">
@@ -160,7 +160,7 @@ export function Sidebar({ adminName }: SidebarProps) {
         {/* Brand header */}
         <div className="h-18 flex items-center gap-3 px-5 py-4 border-b border-slate-100">
           <Image
-            src="/RiyadAlquran Logo.png"
+            src="/logo.png"
             alt="رياض القرآن"
             width={40}
             height={40}
