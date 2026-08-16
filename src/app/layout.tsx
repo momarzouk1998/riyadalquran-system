@@ -15,6 +15,11 @@ export const metadata: Metadata = {
   title: "جمعية ونظام رياض القرآن الكريم",
   description: "الموقع الرسمي ونظام إدارة الحضانة والخدمات التعليمية بجمعية رياض القرآن بالمنشأة الكبرى",
   applicationName: "رياض القرآن",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
+  },
 };
 
 export const viewport: Viewport = {
