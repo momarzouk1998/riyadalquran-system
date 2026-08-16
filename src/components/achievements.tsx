@@ -85,9 +85,9 @@ export function Achievements() {
   return (
     <section 
       id="third-section" 
-      className="relative w-full py-20 overflow-hidden font-sans"
+      className="relative w-full py-20 overflow-hidden font-tajawal my-12"
       style={{ 
-        backgroundImage: 'url(https://emch.ae/WebsiteNewContent/images/pattern_1.png)',
+        backgroundImage: 'linear-gradient(to bottom, #ffffff, rgba(204, 204, 204, 0.3)), url(https://emch.ae/WebsiteNewContent/images/pattern_1.png)',
         backgroundRepeat: 'repeat',
         backgroundPosition: '0% 0%'
       }}
