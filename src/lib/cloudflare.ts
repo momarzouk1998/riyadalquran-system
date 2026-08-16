@@ -1,129 +1,147 @@
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+
 /**
- * Cloudflare Images utility
- * Docs: https://developers.cloudflare.com/images/
+ * Cloudflare R2 & Cloudflare Images Utility
  *
- * Setup:
- *  1. Cloudflare Dashboard → Images → Overview
- *  2. Copy Account ID  → CLOUDFLARE_ACCOUNT_ID
- *  3. My Profile → API Tokens → Create Token (Images: Edit) → CLOUDFLARE_IMAGES_API_TOKEN
- *  4. Images → Overview → Account Hash → NEXT_PUBLIC_CLOUDFLARE_IMAGES_HASH
+ * Cloudflare R2 Setup:
+ *  1. Cloudflare Dashboard -> R2 -> Manage R2 API Tokens -> Create API Token
+ *  2. Access Key ID     -> CLOUDFLARE_R2_ACCESS_KEY_ID
+ *  3. Secret Access Key -> CLOUDFLARE_R2_SECRET_ACCESS_KEY
+ *  4. Endpoint          -> CLOUDFLARE_R2_ENDPOINT (e.g. https://8bfa627acdc4c71f61e84c73116805e9.r2.cloudflarestorage.com)
+ *  5. Bucket Name       -> CLOUDFLARE_R2_BUCKET (default: riyadalquran)
+ *  6. Public URL Domain -> NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL (e.g. https://pub-xxx.r2.dev)
  */
 
-const ACCOUNT_ID   = process.env.CLOUDFLARE_ACCOUNT_ID;
-const API_TOKEN    = process.env.CLOUDFLARE_IMAGES_API_TOKEN;
-const IMAGES_HASH  = process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGES_HASH;
+const R2_ACCESS_KEY_ID = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID;
+const R2_SECRET_ACCESS_KEY = process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY;
+const R2_ENDPOINT = process.env.CLOUDFLARE_R2_ENDPOINT || 'https://8bfa627acdc4c71f61e84c73116805e9.r2.cloudflarestorage.com';
+const R2_BUCKET = process.env.CLOUDFLARE_R2_BUCKET || 'riyadalquran';
+const R2_PUBLIC_URL = process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL;
 
-/** Variants defined in your Cloudflare Images dashboard */
+// Cloudflare Images legacy environment variables fallback
+const ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
+const API_TOKEN = process.env.CLOUDFLARE_IMAGES_API_TOKEN;
+const IMAGES_HASH = process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGES_HASH;
+
+// Initialize S3 Client for Cloudflare R2
+const r2Client = (R2_ACCESS_KEY_ID && R2_SECRET_ACCESS_KEY)
+  ? new S3Client({
+      region: 'auto',
+      endpoint: R2_ENDPOINT,
+      credentials: {
+        accessKeyId: R2_ACCESS_KEY_ID,
+        secretAccessKey: R2_SECRET_ACCESS_KEY,
+      },
+    })
+  : null;
+
 export type CFVariant = 'public' | 'thumbnail' | 'avatar';
 
 /**
- * Build the CDN delivery URL for a stored image.
- * Returns null when env vars are missing (dev without CF configured).
- */
-export function getCFImageUrl(
-  imageId: string,
-  variant: CFVariant = 'public'
-): string | null {
-  if (!IMAGES_HASH || !imageId) return null;
-  // Standard Cloudflare Images URL pattern
-  return `https://imagedelivery.net/${IMAGES_HASH}/${imageId}/${variant}`;
-}
-
-/**
- * Upload a file (File | Blob) to Cloudflare Images.
- * Returns the image ID that you should store in the database.
- *
- * Call this server-side only (API route / Server Action).
+ * Upload a file to Cloudflare R2 (or fallback Cloudflare Images)
  */
 export async function uploadToCFImages(
   file: File | Blob,
   metadata?: Record<string, string>
 ): Promise<{ success: true; imageId: string; url: string } | { success: false; error: string }> {
-  if (!ACCOUNT_ID || !API_TOKEN) {
-    return {
-      success: false,
-      error:
-        'Cloudflare Images غير مُهيأ. أضف CLOUDFLARE_ACCOUNT_ID و CLOUDFLARE_IMAGES_API_TOKEN في ملف .env',
-    };
-  }
+  
+  // 1. Try Cloudflare R2 Upload first if R2 is configured
+  if (r2Client && R2_PUBLIC_URL) {
+    try {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const ext = file.type?.split('/')[1] || 'jpg';
+      const key = `students/${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
 
-  try {
-    const form = new FormData();
-    form.append('file', file);
+      await r2Client.send(
+        new PutObjectCommand({
+          Bucket: R2_BUCKET,
+          Key: key,
+          Body: buffer,
+          ContentType: file.type || 'image/jpeg',
+          Metadata: metadata,
+        })
+      );
 
-    if (metadata) {
-      form.append('metadata', JSON.stringify(metadata));
-    }
-
-    const response = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/images/v1`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${API_TOKEN}`,
-        },
-        body: form,
-      }
-    );
-
-    const data = await response.json();
-
-    if (!data.success) {
-      const msg = data.errors?.[0]?.message || 'خطأ من Cloudflare Images';
+      const url = `${R2_PUBLIC_URL.replace(/\/$/, '')}/${key}`;
+      return { success: true, imageId: key, url };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'خطأ أثناء الرفع إلى Cloudflare R2';
       return { success: false, error: msg };
     }
-
-    const imageId: string = data.result.id;
-    const url = getCFImageUrl(imageId) ?? data.result.variants?.[0] ?? '';
-
-    return { success: true, imageId, url };
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'خطأ غير معروف';
-    return { success: false, error: message };
   }
-}
 
-/**
- * Delete an image from Cloudflare Images by its ID.
- * Returns true on success.
- */
-export async function deleteCFImage(imageId: string): Promise<boolean> {
-  if (!ACCOUNT_ID || !API_TOKEN || !imageId) return false;
-
-  try {
-    const response = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/images/v1/${imageId}`,
-      {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${API_TOKEN}` },
+  // 2. Fallback to Cloudflare Images API if configured
+  if (ACCOUNT_ID && API_TOKEN) {
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      if (metadata) {
+        form.append('metadata', JSON.stringify(metadata));
       }
-    );
-    const data = await response.json();
-    return data.success === true;
-  } catch {
-    return false;
+
+      const response = await fetch(
+        `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/images/v1`,
+        {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${API_TOKEN}` },
+          body: form,
+        }
+      );
+
+      const data = await response.json();
+      if (!data.success) {
+        return { success: false, error: data.errors?.[0]?.message || 'خطأ من Cloudflare Images' };
+      }
+
+      const imageId: string = data.result.id;
+      const url = IMAGES_HASH ? `https://imagedelivery.net/${IMAGES_HASH}/${imageId}/public` : data.result.variants?.[0] ?? '';
+      return { success: true, imageId, url };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'خطأ غير معروف في Cloudflare Images';
+      return { success: false, error: msg };
+    }
   }
+
+  return {
+    success: false,
+    error: 'لم يتم تهيئة بيانات Cloudflare R2 في ملف .env (تحتاج R2_ACCESS_KEY_ID و R2_SECRET_ACCESS_KEY ورابط الـ Public URL).',
+  };
 }
 
 /**
- * Check if a string is a Cloudflare image ID (not a full URL).
- * IDs look like: "2cdc28f0-017a-49c4-9ed7-87056c83901d"
+ * Delete an object from Cloudflare R2
  */
-export function isCFImageId(value: string): boolean {
-  return /^[0-9a-f-]{36}$/i.test(value);
+export async function deleteCFImage(keyOrId: string): Promise<boolean> {
+  if (r2Client && keyOrId) {
+    try {
+      await r2Client.send(
+        new DeleteObjectCommand({
+          Bucket: R2_BUCKET,
+          Key: keyOrId,
+        })
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  return false;
 }
 
 /**
- * Given a stored value (could be a CF image ID or a full URL),
- * returns the best display URL.
+ * Resolve stored image URL
  */
 export function resolveImageUrl(
   stored: string | null | undefined,
   variant: CFVariant = 'public'
 ): string | null {
   if (!stored) return null;
-  // Already a full URL
   if (stored.startsWith('http')) return stored;
-  // Treat as CF image ID
-  return getCFImageUrl(stored, variant);
+  if (R2_PUBLIC_URL && !stored.includes('/')) {
+    return `${R2_PUBLIC_URL.replace(/\/$/, '')}/${stored}`;
+  }
+  if (IMAGES_HASH && !stored.includes('/')) {
+    return `https://imagedelivery.net/${IMAGES_HASH}/${stored}/${variant}`;
+  }
+  return stored;
 }
