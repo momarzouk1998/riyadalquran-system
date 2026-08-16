@@ -1,0 +1,125 @@
+// ========================================
+// Prisma Schema — RiyadAlQuran System (رياض القرآن)
+// Next.js + SQLite/PostgreSQL Database Schema
+// ========================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 1. Admin & Staff Users (المستخدمين والإداريين)
+model AdminUser {
+  id           String    @id @default(uuid())
+  username     String    @unique
+  passwordHash String
+  imageUrl     String?
+  role         String    @default("admin") // "admin" | "staff"
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+// 2. Teachers (المعلمات)
+model Teacher {
+  id          String              @id @default(uuid())
+  name        String              @unique // Name is unique to link with other CSV data
+  phone       String?
+  isActive    Boolean             @default(true)
+  createdAt   DateTime            @default(now())
+  students    Student[]
+  assessments TeacherAssessment[]
+}
+
+// 3. Students (الطلاب)
+model Student {
+  id               String          @id @default(uuid())
+  uid              String?         @unique // AppSheet UID (e.g. 1ec86d83)
+  sequence         String          @unique // Student number (e.g. 1102)
+  startDate        DateTime?
+  category         String?         // Level: "KG1" | "KG2" | etc.
+  name             String
+  phone            String?         // Parent phone number
+  address          String?
+  age              Int?
+  imageUrl         String?
+  birthCertUrl     String?
+  password         String          // Password for parents login (e.g. RQ1102)
+  paidWay          String?
+  paidAmount       Float           @default(0)
+  remainingAmount  Float           @default(0)
+  notes            String?
+  isActive         Boolean         @default(true)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  // Relations
+  teacherId        String?
+  teacher          Teacher?        @relation(fields: [teacherId], references: [id])
+  grades           StudentGrades[]
+}
+
+// 4. Student Monthly Grades (درجات الطلاب الشهرية)
+model StudentGrades {
+  id         String   @id @default(uuid())
+  studentId  String
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  month      String   // E.g. "9", "10", "11", "12", "2", "3", "4", "5"
+  quran      Int      @default(0)
+  azkar      Int      @default(0)
+  nourAlbian Int      @default(0)
+  math       Int      @default(0)
+  english    Int      @default(0)
+
+  @@unique([studentId, month])
+}
+
+// 5. Teacher Monthly Assessments (تقييم المعلمات)
+model TeacherAssessment {
+  id              String   @id @default(uuid())
+  teacherId       String
+  teacher         Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  date            DateTime @default(now())
+  month           String   // E.g. "7 2023", "8 2023"
+  day             String?  // E.g. "الجمعة", "السبت"
+  dateOnBoard     Int      @default(0) // الشرح على السبورة (max 5 or 10)
+  absence         Int      @default(0) // الغياب
+  cleaning        Int      @default(0) // النظافة
+  commitment      Int      @default(0) // الالتزام
+  prepBook        Int      @default(0) // دفتر التحضير
+  curriculum      Int      @default(0) // المنهج
+  homework        Int      @default(0) // الواجب
+  quran           Int      @default(0) // أداء تحفيظ القرآن
+  azkar           Int      @default(0) // أداء تحفيظ الأذكار
+  nourAlbian      Int      @default(0) // أداء نور البيان
+  math            Int      @default(0) // أداء الحساب
+  english         Int      @default(0) // أداء الإنجليزي
+  total           Int      @default(0) // المجموع الكلي
+  createdAt       DateTime @default(now())
+}
+
+// 6. Nursery Bookings (حجز الحضانة من الموقع)
+model NurseryBooking {
+  id          String   @id @default(uuid())
+  parentName  String
+  phone       String
+  studentName String
+  age         Int?
+  notes       String?
+  status      String   @default("pending") // "pending" | "approved" | "rejected"
+  createdAt   DateTime @default(now())
+}
+
+// 7. Charity Association General Info (بيانات الجمعية الخيرية)
+model AssociationInfo {
+  id          String   @id @default(uuid())
+  category    String   // "orphans" (الايتام) | "sick" (المرضى) | "poor" (الحالات الفقيرة)
+  name        String
+  phone       String?
+  monthlyCost Float    @default(0)
+  notes       String?
+  createdAt   DateTime @default(now())
+}

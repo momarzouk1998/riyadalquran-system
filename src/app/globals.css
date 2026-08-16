@@ -1,26 +1,81 @@
 @import "tailwindcss";
 
+@theme {
+  --font-cairo: "Cairo", sans-serif;
+  --color-brand-primary: #137d54;
+  --color-brand-secondary: #c5a880;
+  --color-brand-dark: #0f5132;
+  --color-brand-light: #e8f5e9;
+  --color-brand-accent: #d4af37;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #f8fafc;
+  --foreground: #0f172a;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Cairo", sans-serif;
+}
+
+/* Custom design system utility classes */
+.card {
+  background-color: #ffffff;
+  border-radius: 0.75rem; /* 12px */
+  border-width: 1px;
+  border-color: #f1f5f9; /* border-slate-100 */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05); /* shadow-sm */
+}
+
+.table-header {
+  background-color: #f8fafc; /* bg-slate-50 */
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding-left: 0.625rem;
+  padding-right: 0.625rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-width: 1px;
+}
+
+/* Form input styling */
+.form-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border-width: 1px;
+  border-color: #cbd5e1;
+  background-color: #ffffff;
+  outline: none;
+  transition-property: all;
+  transition-duration: 200ms;
+}
+
+.form-input:focus {
+  border-color: #137d54;
+  box-shadow: 0 0 0 2px rgba(19, 125, 84, 0.15);
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
