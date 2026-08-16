@@ -4,42 +4,50 @@ import { motion, useInView } from "motion/react";
 import { useRef, useState, useEffect } from "react";
 
 const STATS = [
-  { 
-    id: 1, 
-    label: "المشاريع الخيرية", 
-    value: 21, 
-    suffix: "مشروع معتمد",
-    icon: "https://emch.ae/WebsiteNewContent/images/combined-shape1.svg", 
-    isOffset: false,
-    topType: "teal", // teal top (icon + label), gold bottom (number)
+  {
+    id: 1,
+    label: "المشاريع الخيرية",
+    value: 33210,
+    icon: "https://emch.ae/WebsiteNewContent/images/combined-shape1.svg",
+    // Card 1: blue-first (blue-right bg) + yellow-first (yellow-left bg)
+    blueBg: "https://emch.ae/WebsiteNewContent/images/ballon-blue-right.svg",
+    yellowBg: "https://emch.ae/WebsiteNewContent/images/ballon-yellow-left.svg",
+    isTop100: false,
+    layout: "blue-right-yellow-left"
   },
-  { 
-    id: 2, 
-    label: "كفالة الأيتام", 
-    value: 21, 
-    suffix: "أسرة مكفولة",
-    icon: "https://emch.ae/WebsiteNewContent/images/combined-shape2.svg", 
-    isOffset: true, // staggered top offset like original top-100
-    topType: "gold", // gold top (number), teal bottom (icon + label)
+  {
+    id: 2,
+    label: "كفالة",
+    value: 8952,
+    icon: "https://emch.ae/WebsiteNewContent/images/combined-shape2.svg",
+    // Card 2: yellow-second (yellow-right bg) + blue-second (blue-left bg) - top-100 dipped
+    yellowBg: "https://emch.ae/WebsiteNewContent/images/ballon-yellow-right.svg",
+    blueBg: "https://emch.ae/WebsiteNewContent/images/ballon-blue-left.svg",
+    isTop100: true,
+    layout: "yellow-right-blue-left"
   },
-  { 
-    id: 3, 
-    label: "بنك الطعام المصري", 
-    value: 121, 
-    suffix: "حالة شهرياً",
-    icon: "https://emch.ae/WebsiteNewContent/images/combined-shape1.svg", 
-    isOffset: false,
-    topType: "teal",
+  {
+    id: 3,
+    label: "البرامج الخيرية",
+    value: 60487,
+    icon: "https://emch.ae/WebsiteNewContent/images/combined-shape1.svg",
+    // Card 3: blue-first (blue-right bg) + yellow-first (yellow-left bg) - top-100 dipped
+    blueBg: "https://emch.ae/WebsiteNewContent/images/ballon-blue-right.svg",
+    yellowBg: "https://emch.ae/WebsiteNewContent/images/ballon-yellow-left.svg",
+    isTop100: true,
+    layout: "blue-right-yellow-left"
   },
-  { 
-    id: 4, 
-    label: "رقم الإشهار الرسمي", 
-    value: 1300, 
-    suffix: "البنك الزراعي",
-    icon: "https://emch.ae/WebsiteNewContent/images/combined-shape4.svg", 
-    isOffset: true,
-    topType: "gold",
-  },
+  {
+    id: 4,
+    label: "الأسر المستفيدة",
+    value: 16025,
+    icon: "https://emch.ae/WebsiteNewContent/images/combined-shape4.svg",
+    // Card 4: yellow-second (yellow-right bg) + blue-second (blue-left bg)
+    yellowBg: "https://emch.ae/WebsiteNewContent/images/ballon-yellow-right.svg",
+    blueBg: "https://emch.ae/WebsiteNewContent/images/ballon-blue-left.svg",
+    isTop100: false,
+    layout: "yellow-right-blue-left"
+  }
 ];
 
 function Counter({ value }: { value: number }) {
@@ -73,110 +81,105 @@ export function Achievements() {
   return (
     <section 
       id="third-section" 
-      className="py-28 bg-[#f9fafb] relative overflow-hidden font-tajawal"
+      className="relative w-full py-16 overflow-hidden font-sans"
       style={{ 
         backgroundImage: 'url(https://emch.ae/WebsiteNewContent/images/pattern_1.png)',
         backgroundRepeat: 'repeat',
-        backgroundSize: '350px'
+        backgroundPosition: '0% 0%'
       }}
     >
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-4 max-w-7xl">
         
-        {/* Header Heading matching emch.ae original */}
-        <div className="text-center mb-20 space-y-3">
-          <motion.div
-            initial={{ y: -20, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="inline-block"
+        {/* Heading Section matching computed styles */}
+        <div className="text-center mb-12 flex flex-col items-center justify-center">
+          
+          {/* Circle icon wrapper */}
+          <div 
+            className="w-24 h-24 flex items-center justify-center mb-2 bg-no-repeat bg-contain bg-center"
+            style={{ backgroundImage: 'url("https://emch.ae/WebsiteNewContent/images/circle_bg.svg")' }}
           >
             <img 
               src="https://emch.ae/WebsiteNewContent/images/loving-home.svg" 
-              alt="loving home icon" 
-              className="mx-auto w-16 h-16 mb-2"
+              alt="loving home" 
+              className="w-14 h-13 object-contain"
             />
-          </motion.div>
-          
-          <motion.h2 
-            initial={{ y: 20, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-4xl sm:text-5xl font-black text-slate-900"
-          >
-            إنجازاتنا
-          </motion.h2>
+          </div>
 
-          <motion.h4 
-            initial={{ y: 20, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-sm sm:text-lg text-slate-600 max-w-2xl mx-auto font-medium"
-          >
-            نمد جسور الإنسانية بين المحسن والمحتاج بالمنشأة الكبرى لينمو العطاء
-          </motion.h4>
+          <h2 className="text-[26px] font-bold text-[#bd9d54] leading-[31.2px] mb-1 -mt-2">
+            إنجازاتنا
+          </h2>
+
+          <h4 className="text-[17px] font-medium text-[#b9c7d4] leading-[27.2px] max-w-xl">
+            نمد جسور الإنسانية بين المحسن والمحتاج لينمو العطاء
+          </h4>
         </div>
 
-        {/* 4 Staggered Two-Tone Counter Pill Containers matching emch.ae flipInY wrappers */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto items-center">
-          {STATS.map((stat, i) => (
-            <motion.div
-              key={stat.id}
-              initial={{ rotateY: 90, opacity: 0 }}
-              whileInView={{ rotateY: 0, opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: i * 0.15 }}
-              className={`flex flex-col items-center justify-center ${stat.isOffset ? 'lg:-translate-y-6' : ''}`}
-            >
-              <div className="w-56 rounded-[3.5rem] overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-105 group border-2 border-white/40">
-                
-                {stat.topType === 'teal' ? (
-                  <>
-                    {/* Top Teal Half (blue-first) */}
-                    <div className="bg-[#246c74] text-white p-8 text-center flex flex-col items-center justify-center space-y-2 border-b border-white/10">
-                      <img 
-                        src={stat.icon} 
-                        alt="icon" 
-                        className="w-12 h-12 invert group-hover:scale-110 transition-transform duration-300"
-                      />
-                      <p className="font-bold text-sm leading-snug">{stat.label}</p>
+        {/* Balloon Counters Grid with U-Arc Dip */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 items-start justify-items-center min-h-[260px] pt-4">
+          {STATS.map((stat, i) => {
+            return (
+              <motion.div
+                key={stat.id}
+                initial={{ rotateY: 90, opacity: 0 }}
+                whileInView={{ rotateY: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: i * 0.15 }}
+                className={`w-[255px] h-[160px] flex items-end justify-center transition-all duration-500 hover:scale-105 ${
+                  stat.isTop100 ? 'lg:translate-y-24' : 'lg:translate-y-0'
+                }`}
+              >
+                {stat.layout === 'blue-right-yellow-left' ? (
+                  /* Layout 1 & 3: Blue-First (right) + Yellow-First (left) */
+                  <div className="flex items-end justify-center w-[255px] h-[160px] font-bold">
+                    
+                    {/* Blue First (Right balloon containing Icon & Label) */}
+                    <div 
+                      className="w-[120px] h-[160px] pt-6 text-center text-white flex flex-col items-center justify-start bg-no-repeat bg-full"
+                      style={{ backgroundImage: `url("${stat.blueBg}")`, backgroundSize: '100%' }}
+                    >
+                      <img src={stat.icon} alt="icon" className="w-[40px] h-[40px] mb-1" />
+                      <p className="m-0 text-xs font-bold w-[120px] leading-tight text-white">{stat.label}</p>
                     </div>
 
-                    {/* Bottom Gold Half (yellow-first) */}
-                    <div className="bg-[#bd9d54] text-white p-6 text-center flex flex-col items-center justify-center">
-                      <span className="text-4xl font-black tracking-tight drop-shadow-md">
+                    {/* Yellow First (Left balloon containing Number) */}
+                    <div 
+                      className="w-[90px] h-[120px] pt-7 text-center text-white flex items-center justify-center bg-no-repeat bg-contain"
+                      style={{ backgroundImage: `url("${stat.yellowBg}")` }}
+                    >
+                      <span className="text-[22px] leading-[33px] font-bold tracking-tight text-white font-sans">
                         <Counter value={stat.value} />
                       </span>
-                      <span className="text-[11px] font-bold text-amber-100 mt-1">{stat.suffix}</span>
                     </div>
-                  </>
+
+                  </div>
                 ) : (
-                  <>
-                    {/* Top Gold Half (yellow-second) */}
-                    <div className="bg-[#bd9d54] text-white p-6 text-center flex flex-col items-center justify-center border-b border-white/10">
-                      <span className="text-4xl font-black tracking-tight drop-shadow-md">
+                  /* Layout 2 & 4: Yellow-Second (right) + Blue-Second (left) */
+                  <div className="flex items-end justify-center w-[255px] h-[160px] font-bold">
+                    
+                    {/* Yellow Second (Right balloon containing Number) */}
+                    <div 
+                      className="w-[90px] h-[120px] pt-7 text-center text-white flex items-center justify-center bg-no-repeat"
+                      style={{ backgroundImage: `url("${stat.yellowBg}")`, backgroundSize: '100%' }}
+                    >
+                      <span className="text-[22px] leading-[33px] font-bold tracking-tight text-white font-sans">
                         <Counter value={stat.value} />
                       </span>
-                      <span className="text-[11px] font-bold text-amber-100 mt-1">{stat.suffix}</span>
                     </div>
 
-                    {/* Bottom Teal Half (blue-second) */}
-                    <div className="bg-[#246c74] text-white p-8 text-center flex flex-col items-center justify-center space-y-2">
-                      <img 
-                        src={stat.icon} 
-                        alt="icon" 
-                        className="w-12 h-12 invert group-hover:scale-110 transition-transform duration-300"
-                      />
-                      <p className="font-bold text-sm leading-snug">{stat.label}</p>
+                    {/* Blue Second (Left balloon containing Icon & Label) */}
+                    <div 
+                      className="w-[120px] h-[160px] pt-6 text-center text-white flex flex-col items-center justify-start bg-no-repeat bg-contain"
+                      style={{ backgroundImage: `url("${stat.blueBg}")` }}
+                    >
+                      <img src={stat.icon} alt="icon" className="w-[40px] h-[40px] mb-1" />
+                      <p className="m-0 text-xs font-bold w-[120px] leading-tight text-white">{stat.label}</p>
                     </div>
-                  </>
+
+                  </div>
                 )}
-
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
 
       </div>
