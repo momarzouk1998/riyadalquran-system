@@ -8,6 +8,8 @@ import {
 import { 
   createStudent, updateStudent, deleteStudent, updateStudentGrades 
 } from '@/app/actions/admin';
+import { ImageUploader } from '@/components/ImageUploader';
+import { resolveImageUrl } from '@/lib/cloudflare';
 
 interface Teacher {
   id: string;
@@ -508,12 +510,11 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
 
               <div>
                 <label className="block text-[10px] font-bold text-slate-500 mb-1">رابط صورة الطالب (على Cloudflare)</label>
-                <input
-                  type="text"
-                  name="imageUrl"
-                  defaultValue={selectedStudent?.imageUrl || ''}
-                  className="form-input text-xs text-left"
-                  placeholder="https://..."
+                <ImageUploader
+                  currentValue={selectedStudent?.imageUrl}
+                  inputName="imageUrl"
+                  studentId={selectedStudent?.id}
+                  label="صورة الطالب"
                 />
               </div>
 

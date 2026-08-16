@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lock, User, AlertCircle } from 'lucide-react';
+import Image from 'next/image';
+import { Lock, User, AlertCircle, ArrowRight, ShieldCheck } from 'lucide-react';
 import { adminLogin } from '@/app/actions/auth';
 
 export default function AdminLoginPage() {
@@ -14,10 +15,8 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-
     const formData = new FormData(e.currentTarget);
     const res = await adminLogin(formData);
-
     if (res.success) {
       router.push('/admin/dashboard');
       router.refresh();
@@ -28,90 +27,106 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-brand-primary/5 via-white to-brand-secondary/5 px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-100 p-8 space-y-6">
-        
+    <div
+      className="min-h-screen flex items-center justify-center px-4 py-12 font-cairo"
+      style={{ backgroundColor: '#fafaf7' }}
+    >
+      <div className="w-full max-w-md space-y-6">
+
         {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="mx-auto w-16 h-16 rounded-full bg-brand-primary/10 flex items-center justify-center text-3xl">
-            🕌
+        <div className="text-center space-y-4">
+          <div className="flex justify-center">
+            <div className="relative">
+              <div className="absolute inset-0 bg-emerald-700/10 rounded-full blur-xl scale-150" />
+              <Image
+                src="/RiyadAlquran Logo.png"
+                alt="رياض القرآن"
+                width={80}
+                height={80}
+                className="object-contain relative z-10"
+              />
+            </div>
           </div>
-          <h1 className="text-2xl font-bold text-slate-800 tracking-wide">
-            بوابة الإدارة والمشرفين
-          </h1>
-          <p className="text-sm text-slate-500">
-            جمعية رياض القرآن الكريم بالمنشأة الكبرى
-          </p>
+          <div>
+            <h1 className="text-2xl font-black text-emerald-900">لوحة الإدارة</h1>
+            <p className="text-slate-500 text-sm mt-1">جمعية رياض القرآن الكريم — مشرفو النظام فقط</p>
+          </div>
         </div>
 
-        {/* Error Alert */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-800 rounded-xl p-4 flex items-start gap-3 text-sm">
-            <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+        {/* Card */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-lg p-8 space-y-5">
+
+          {/* Security badge */}
+          <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2.5 text-xs text-emerald-800">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span className="font-semibold">منطقة محمية — للمسؤولين والمشرفين فقط</span>
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3 text-sm">
+              <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold text-red-800">فشل تسجيل الدخول</p>
+                <p className="text-xs text-red-600 mt-0.5">{error}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <p className="font-semibold">فشل تسجيل الدخول</p>
-              <p className="text-xs text-red-700 mt-0.5">{error}</p>
+              <label className="block text-xs font-bold text-slate-600 mb-2">اسم المستخدم</label>
+              <div className="relative">
+                <span className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 pointer-events-none">
+                  <User className="w-4 h-4" />
+                </span>
+                <input
+                  type="text"
+                  name="username"
+                  required
+                  autoComplete="username"
+                  className="w-full pr-10 pl-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-600/15 outline-none transition-all text-sm"
+                  placeholder="ادخل اسم المستخدم"
+                />
+              </div>
             </div>
-          </div>
-        )}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1.5 mr-1">
-              اسم المستخدم
-            </label>
-            <div className="relative">
-              <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">
-                <User className="w-5 h-5" />
-              </span>
-              <input
-                type="text"
-                name="username"
-                required
-                className="w-full pl-3 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:border-brand-primary focus:bg-white focus:ring-2 focus:ring-brand-primary/15 outline-none transition-all text-sm"
-                placeholder="ادخل اسم المستخدم (مثال: Aza)"
-              />
+            <div>
+              <label className="block text-xs font-bold text-slate-600 mb-2">كلمة المرور</label>
+              <div className="relative">
+                <span className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 pointer-events-none">
+                  <Lock className="w-4 h-4" />
+                </span>
+                <input
+                  type="password"
+                  name="password"
+                  required
+                  autoComplete="current-password"
+                  className="w-full pr-10 pl-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-600/15 outline-none transition-all text-sm font-mono"
+                  placeholder="••••••••"
+                />
+              </div>
             </div>
-          </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1.5 mr-1">
-              كلمة المرور
-            </label>
-            <div className="relative">
-              <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">
-                <Lock className="w-5 h-5" />
-              </span>
-              <input
-                type="password"
-                name="password"
-                required
-                className="w-full pl-3 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:border-brand-primary focus:bg-white focus:ring-2 focus:ring-brand-primary/15 outline-none transition-all text-sm"
-                placeholder="••••••"
-              />
-            </div>
-          </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full btn-green py-3 text-sm flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                'دخول لوحة الإدارة'
+              )}
+            </button>
+          </form>
+        </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 bg-brand-primary hover:bg-brand-dark text-white rounded-xl font-semibold shadow-md shadow-brand-primary/15 transition-all text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              'تسجيل الدخول'
-            )}
-          </button>
-        </form>
-
-        {/* Footer info */}
+        {/* Back link */}
         <div className="text-center">
-          <a
-            href="/"
-            className="text-xs text-brand-primary hover:underline font-semibold"
-          >
+          <a href="/" className="inline-flex items-center gap-1.5 text-xs text-emerald-700 hover:text-emerald-900 font-semibold transition-colors">
+            <ArrowRight className="w-3.5 h-3.5" />
             العودة للموقع الرئيسي
           </a>
         </div>
