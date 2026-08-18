@@ -36,7 +36,7 @@ export function EServices() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 max-w-6xl mx-auto">
           {[
             { title: "بوابة متابعة الطفل بالرياض", icon: "newfifthsection-1.svg", color: "bg-white/10", btn: "دخول ولي الأمر", href: "/parent/login", desc: "متابعة درجات الطفل شهرياً وموقفه المالي" },
-            { title: "بوابة المساعدات الخيرية", icon: "newfifthsection-2.svg", color: "bg-white/20", btn: "حجز مقعد حضانة", href: "/nursery", desc: "تقديم طلب حجز جديد لطفلك بالجمعية" },
+            { title: "بوابة المساعدات الخيرية", icon: "newfifthsection-2.svg", color: "bg-white/20", btn: "حجز مقعد حضانة", href: "#booking-form", desc: "تقديم طلب حجز جديد لطفلك بالجمعية" },
             { title: "بوابة المشرفين والإدارة", icon: "newfifthsection-3.svg", color: "bg-white/10", btn: "دخول الإدارة", href: "/admin/login", desc: "لوحة التحكم ورصد درجات المعلمات والطلاب" },
           ].map((gate, i) => (
             <motion.div 

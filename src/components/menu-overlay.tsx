@@ -1,20 +1,19 @@
 'use client';
 
 import { motion, AnimatePresence } from "motion/react";
-import { X, Home, Gift, Award, Heart, BookOpen, Users, PhoneCall, Shield, Phone } from "lucide-react";
+import { X, Home, Gift, Award, Heart, BookOpen, Users, Phone } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 const MENU_LINKS = [
   { title: "الرئيسية", icon: Home, href: "/" },
-  { title: "عن الجمعية المشهرة", icon: Shield, href: "#about" },
   { title: "متجر المشاريع والتبرعات", icon: Gift, href: "#store" },
-  { title: "تاب الحضانة والدرجات", icon: Award, href: "#nursery-platform" },
+  { title: "بوابة ونظام الحضانة", icon: Award, href: "/nursery" },
   { title: "كفالات الأيتام (21 أسرة)", icon: Heart, href: "#orphans" },
   { title: "سلال بنك الطعام (121 حالة)", icon: BookOpen, href: "#food" },
-  { title: "بوابة أولياء الأمور", icon: Users, href: "/parent/login" },
+  { title: "بوابة أولياء الأمور والدرجات", icon: Users, href: "/parent/login" },
   { title: "بوابة الإدارة والمشرفين", icon: Users, href: "/admin/login" },
-  { title: "تواصل معنا", icon: Phone, href: "#contact" },
+  { title: "تواصل معنا (واتساب)", icon: Phone, href: "https://wa.me/201010453630" },
 ];
 
 export function MenuOverlay({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
@@ -47,7 +46,7 @@ export function MenuOverlay({ isOpen, onClose }: { isOpen: boolean; onClose: () 
               </button>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
               {MENU_LINKS.map((link, i) => {
                 const Icon = link.icon;
                 return (
