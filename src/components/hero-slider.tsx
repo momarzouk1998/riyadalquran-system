@@ -2,20 +2,19 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronRight, ChevronLeft, Heart, ArrowLeft, ShieldCheck, Sparkles } from "lucide-react";
+import { ChevronRight, ChevronLeft, Heart, ArrowLeft, Sparkles } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 
 const SLIDES = [
   { 
     id: 1, 
-    image: "https://emch.ae/WebsiteNewContent/images/slide-1.jpg", 
+    image: "/images/hero-1.png", 
     title: "جمعية ونظام رياض القرآن الكريم", 
     subtitle: "نمد جسور الإنسانية والتكافل بين المحسن والمحتاج وتأسيس راقٍ لأطفالكم بالمنشأة الكبرى" 
   },
   { 
     id: 2, 
-    image: "https://emch.ae/WebsiteNewContent/images/slide-2.jpg", 
+    image: "/images/hero-2.png", 
     title: "عطاء بلا حدود بالمنشأة الكبرى", 
     subtitle: "كفالة الأيتام، رعاية الحالات المرضية، طرود بنك الطعام، وتأسيس تعليمي متميز بالحضانة" 
   },

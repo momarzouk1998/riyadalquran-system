@@ -2,50 +2,43 @@
 
 import { motion, useInView } from "motion/react";
 import { useRef, useState, useEffect } from "react";
+import { Droplets, Heart, Sparkles, Users, Award } from "lucide-react";
 
 const STATS = [
   {
     id: 1,
     label: "المشاريع الخيرية",
     value: 33210,
-    icon: "https://emch.ae/WebsiteNewContent/images/combined-shape1.svg",
-    blueBg: "https://emch.ae/WebsiteNewContent/images/ballon-blue-right.svg",
-    yellowBg: "https://emch.ae/WebsiteNewContent/images/ballon-yellow-left.svg",
-    isTop100: false,
-    layout: "blue-right-yellow-left",
+    icon: Droplets,
+    color: "from-blue-600 to-cyan-500",
+    badgeColor: "bg-blue-50 text-blue-700 border-blue-200",
     floatDuration: 4.2
   },
   {
     id: 2,
-    label: "كفالة",
+    label: "كفالة الأيتام والطلاب",
     value: 8952,
-    icon: "https://emch.ae/WebsiteNewContent/images/combined-shape2.svg",
-    yellowBg: "https://emch.ae/WebsiteNewContent/images/ballon-yellow-right.svg",
-    blueBg: "https://emch.ae/WebsiteNewContent/images/ballon-blue-left.svg",
-    isTop100: true,
-    layout: "yellow-right-blue-left",
+    icon: Heart,
+    color: "from-amber-500 to-orange-400",
+    badgeColor: "bg-amber-50 text-amber-700 border-amber-200",
     floatDuration: 4.8
   },
   {
     id: 3,
-    label: "البرامج الخيرية",
+    label: "البرامج والمساعدات",
     value: 60487,
-    icon: "https://emch.ae/WebsiteNewContent/images/combined-shape1.svg",
-    blueBg: "https://emch.ae/WebsiteNewContent/images/ballon-blue-right.svg",
-    yellowBg: "https://emch.ae/WebsiteNewContent/images/ballon-yellow-left.svg",
-    isTop100: true,
-    layout: "blue-right-yellow-left",
+    icon: Sparkles,
+    color: "from-emerald-600 to-teal-500",
+    badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200",
     floatDuration: 5.2
   },
   {
     id: 4,
     label: "الأسر المستفيدة",
     value: 16025,
-    icon: "https://emch.ae/WebsiteNewContent/images/combined-shape4.svg",
-    yellowBg: "https://emch.ae/WebsiteNewContent/images/ballon-yellow-right.svg",
-    blueBg: "https://emch.ae/WebsiteNewContent/images/ballon-blue-left.svg",
-    isTop100: false,
-    layout: "yellow-right-blue-left",
+    icon: Users,
+    color: "from-purple-600 to-indigo-500",
+    badgeColor: "bg-purple-50 text-purple-700 border-purple-200",
     floatDuration: 4.5
   }
 ];
@@ -59,7 +52,7 @@ function Counter({ value }: { value: number }) {
     if (inView) {
       let start = 0;
       const end = value;
-      const duration = 2200; // 2.2 seconds animation
+      const duration = 2000;
       const steps = 60;
       const stepTime = duration / steps;
       const increment = end / steps;
@@ -85,115 +78,68 @@ export function Achievements() {
   return (
     <section 
       id="third-section" 
-      className="relative w-full py-20 overflow-hidden font-tajawal my-12"
-      style={{ 
-        backgroundImage: 'linear-gradient(to bottom, #ffffff, rgba(204, 204, 204, 0.3)), url(https://emch.ae/WebsiteNewContent/images/pattern_1.png)',
-        backgroundRepeat: 'repeat',
-        backgroundPosition: '0% 0%'
-      }}
+      className="relative w-full py-24 overflow-hidden font-tajawal bg-gradient-to-b from-slate-50 via-white to-slate-50 border-y border-slate-100"
     >
-      <div className="container mx-auto px-4 max-w-7xl">
+      <div className="container mx-auto px-4 max-w-7xl relative z-10">
         
-        {/* Heading Section matching computed styles */}
-        <div className="text-center mb-16 flex flex-col items-center justify-center">
-          
-          {/* Circle icon wrapper */}
-          <div 
-            className="w-24 h-24 flex items-center justify-center mb-2 bg-no-repeat bg-contain bg-center animate-pulse"
-            style={{ backgroundImage: 'url("https://emch.ae/WebsiteNewContent/images/circle_bg.svg")' }}
-          >
-            <img 
-              src="https://emch.ae/WebsiteNewContent/images/loving-home.svg" 
-              alt="loving home" 
-              className="w-14 h-13 object-contain"
-            />
+        {/* Heading Section */}
+        <div className="text-center mb-16 flex flex-col items-center justify-center space-y-3">
+          <div className="w-16 h-16 rounded-2xl bg-amber-100/80 border border-amber-300/50 flex items-center justify-center shadow-md animate-pulse">
+            <Award className="w-8 h-8 text-amber-600" />
           </div>
 
-          <h2 className="text-[26px] font-bold text-[#bd9d54] leading-[31.2px] mb-1 -mt-2">
-            إنجازاتنا
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-900">
+            إنجازاتنا بالمنشأة الكبرى
           </h2>
 
-          <h4 className="text-[17px] font-medium text-[#b9c7d4] leading-[27.2px] max-w-xl">
-            نمد جسور الإنسانية بين المحسن والمحتاج لينمو العطاء
-          </h4>
+          <p className="text-sm sm:text-base font-medium text-slate-500 max-w-xl">
+            نمد جسور الإنسانية بين المحسن والمحتاج لينمو العطاء ويزهر الأثر
+          </p>
         </div>
 
-        {/* Balloon Counters Grid with U-Arc Dip & Continuous Floating Motion */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 items-start justify-items-center min-h-[280px] pt-4">
+        {/* Counters Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {STATS.map((stat, i) => {
+            const Icon = stat.icon;
             return (
               <motion.div
                 key={stat.id}
-                initial={{ rotateY: 90, opacity: 0 }}
-                whileInView={{ rotateY: 0, opacity: 1 }}
+                initial={{ y: 30, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: i * 0.15 }}
-                className={`w-[255px] h-[160px] flex items-end justify-center transition-all duration-500 hover:scale-110 ${
-                  stat.isTop100 ? 'lg:translate-y-24' : 'lg:translate-y-0'
-                }`}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                className="relative group"
               >
-                {/* Continuous Floating Flight Animation */}
                 <motion.div
                   animate={{
-                    y: [0, -10, 0, 10, 0],
-                    rotate: [0, 1.5, 0, -1.5, 0],
+                    y: [0, -8, 0],
                   }}
                   transition={{
                     duration: stat.floatDuration,
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                  className="w-full flex items-end justify-center drop-shadow-xl"
+                  className="bg-white rounded-[2rem] p-8 border border-slate-200/80 shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col items-center text-center relative overflow-hidden group-hover:-translate-y-1"
                 >
-                  {stat.layout === 'blue-right-yellow-left' ? (
-                    /* Layout 1 & 3: Blue-First (right) + Yellow-First (left) */
-                    <div className="flex items-end justify-center w-[255px] h-[160px] font-bold cursor-pointer">
-                      
-                      {/* Blue First (Right balloon containing Icon & Label) */}
-                      <div 
-                        className="w-[120px] h-[160px] pt-6 text-center text-white flex flex-col items-center justify-start bg-no-repeat bg-full"
-                        style={{ backgroundImage: `url("${stat.blueBg}")`, backgroundSize: '100%' }}
-                      >
-                        <img src={stat.icon} alt="icon" className="w-[40px] h-[40px] mb-1" />
-                        <p className="m-0 text-xs font-bold w-[120px] leading-tight text-white">{stat.label}</p>
-                      </div>
+                  {/* Top glowing gradient pill */}
+                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${stat.color} text-white flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                    <Icon className="w-8 h-8" />
+                  </div>
 
-                      {/* Yellow First (Left balloon containing Number) */}
-                      <div 
-                        className="w-[90px] h-[120px] pt-7 text-center text-white flex items-center justify-center bg-no-repeat bg-contain"
-                        style={{ backgroundImage: `url("${stat.yellowBg}")` }}
-                      >
-                        <span className="text-[22px] leading-[33px] font-bold tracking-tight text-white font-sans">
-                          <Counter value={stat.value} />
-                        </span>
-                      </div>
+                  <div className="font-mono text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-2">
+                    <Counter value={stat.value} />
+                    <span className="text-secondary text-2xl font-bold font-tajawal me-1">+</span>
+                  </div>
 
-                    </div>
-                  ) : (
-                    /* Layout 2 & 4: Yellow-Second (right) + Blue-Second (left) */
-                    <div className="flex items-end justify-center w-[255px] h-[160px] font-bold cursor-pointer">
-                      
-                      {/* Yellow Second (Right balloon containing Number) */}
-                      <div 
-                        className="w-[90px] h-[120px] pt-7 text-center text-white flex items-center justify-center bg-no-repeat"
-                        style={{ backgroundImage: `url("${stat.yellowBg}")`, backgroundSize: '100%' }}
-                      >
-                        <span className="text-[22px] leading-[33px] font-bold tracking-tight text-white font-sans">
-                          <Counter value={stat.value} />
-                        </span>
-                      </div>
+                  <p className="text-xs sm:text-sm font-bold text-slate-600 leading-tight mb-4">
+                    {stat.label}
+                  </p>
 
-                      {/* Blue Second (Left balloon containing Icon & Label) */}
-                      <div 
-                        className="w-[120px] h-[160px] pt-6 text-center text-white flex flex-col items-center justify-start bg-no-repeat bg-contain"
-                        style={{ backgroundImage: `url("${stat.blueBg}")` }}
-                      >
-                        <img src={stat.icon} alt="icon" className="w-[40px] h-[40px] mb-1" />
-                        <p className="m-0 text-xs font-bold w-[120px] leading-tight text-white">{stat.label}</p>
-                      </div>
+                  <div className={`px-3 py-1 rounded-full text-[10px] font-bold border ${stat.badgeColor}`}>
+                    موثق ومسجل رسمياً
+                  </div>
 
-                    </div>
-                  )}
+                  <div className="absolute -bottom-12 -right-12 w-28 h-28 bg-slate-100 rounded-full blur-2xl group-hover:bg-amber-100/50 transition-colors" />
                 </motion.div>
               </motion.div>
             );

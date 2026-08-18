@@ -1,6 +1,6 @@
 'use client';
 
-import { PlayCircle, Phone, Mail, MapPin, Smartphone, Zap } from "lucide-react";
+import { PlayCircle, Phone, Mail, MapPin, Smartphone, Zap, HeartHandshake } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -40,7 +40,7 @@ export function Footer() {
 
           <div>
             <div className="flex items-center gap-2 mb-6">
-              <img src="https://emch.ae/WebsiteNewContent/images/footer-care.svg" className="w-5" alt="icon" />
+              <HeartHandshake className="w-5 h-5 text-primary" />
               <h3 className="text-xl font-bold text-slate-900"><span className="text-primary">عن</span> الجمعية والمشاريع</h3>
             </div>
             <ul className="space-y-3 text-muted text-xs font-semibold">
@@ -53,7 +53,7 @@ export function Footer() {
 
           <div>
             <div className="flex items-center gap-2 mb-6">
-              <img src="https://emch.ae/WebsiteNewContent/images/footer-startup.svg" className="w-5" alt="icon" />
+              <Zap className="w-5 h-5 text-primary" />
               <h3 className="text-xl font-bold text-slate-900"><span className="text-primary">روابط</span> سريعة</h3>
             </div>
             <ul className="space-y-3 text-muted text-xs font-semibold">
