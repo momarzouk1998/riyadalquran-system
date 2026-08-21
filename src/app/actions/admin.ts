@@ -10,12 +10,12 @@ import { db } from '@/lib/db';
 export async function createStudent(formData: FormData) {
   try {
     const name = formData.get('name') as string;
-    const sequence = formData.get('sequence') as string;
+    let sequence = (formData.get('sequence') as string || '').trim();
     const nationalId = formData.get('nationalId') as string;
     const password = formData.get('password') as string;
     const category = formData.get('category') as string;
     const teacherId = formData.get('teacherId') as string;
-    const phone = formData.get('phone') as string;
+    const phone = (formData.get('phone') as string || '').trim();
     const address = formData.get('address') as string;
     const ageRaw = formData.get('age') as string;
     const ageText = formData.get('ageText') as string;
@@ -25,12 +25,22 @@ export async function createStudent(formData: FormData) {
     const notes = formData.get('notes') as string;
     const imageUrl = formData.get('imageUrl') as string;
 
-    if (!name || !sequence) {
-      return { success: false, error: 'اسم الطالب وكود الطالب مطلوبان' };
+    if (!name) {
+      return { success: false, error: 'اسم الطالب مطلوب' };
+    }
+
+    if (!phone) {
+      return { success: false, error: 'رقم محمول ولي الأمر مطلوب وإجباري' };
     }
 
     if (!nationalId || nationalId.trim().length !== 14) {
       return { success: false, error: 'الرقم القومي لشهادة الميلاد مطلوب (14 رقم)' };
+    }
+
+    // Auto-generate sequence code if not provided
+    if (!sequence) {
+      const count = await db.student.count();
+      sequence = (1100 + count + 1).toString();
     }
 
     // Check duplicate sequence
@@ -38,7 +48,7 @@ export async function createStudent(formData: FormData) {
       where: { sequence },
     });
     if (existing) {
-      return { success: false, error: 'كود الطالب مسجل بالفعل لطالب آخر' };
+      sequence = `${sequence}_${Date.now().toString().slice(-3)}`;
     }
 
     const age = ageRaw ? parseInt(ageRaw, 10) : null;
@@ -50,7 +60,7 @@ export async function createStudent(formData: FormData) {
         name,
         sequence,
         nationalId: nationalId || null,
-        password: password || `RQ${sequence}`,
+        password: password || '123456',
         category: category || null,
         teacherId: teacherId && teacherId !== '' ? teacherId : null,
         phone: phone || null,
@@ -82,7 +92,7 @@ export async function updateStudent(id: string, formData: FormData) {
     const password = formData.get('password') as string;
     const category = formData.get('category') as string;
     const teacherId = formData.get('teacherId') as string;
-    const phone = formData.get('phone') as string;
+    const phone = (formData.get('phone') as string || '').trim();
     const address = formData.get('address') as string;
     const ageRaw = formData.get('age') as string;
     const ageText = formData.get('ageText') as string;
@@ -92,20 +102,16 @@ export async function updateStudent(id: string, formData: FormData) {
     const notes = formData.get('notes') as string;
     const imageUrl = formData.get('imageUrl') as string;
 
-    if (!name || !sequence) {
-      return { success: false, error: 'اسم الطالب وكود الطالب مطلوبان' };
+    if (!name) {
+      return { success: false, error: 'اسم الطالب مطلوب' };
+    }
+
+    if (!phone) {
+      return { success: false, error: 'رقم محمول ولي الأمر مطلوب وإجباري' };
     }
 
     if (!nationalId || nationalId.trim().length !== 14) {
       return { success: false, error: 'الرقم القومي لشهادة الميلاد مطلوب (14 رقم)' };
-    }
-
-    // Check duplicate sequence for another student
-    const existing = await db.student.findFirst({
-      where: { sequence, id: { not: id } },
-    });
-    if (existing) {
-      return { success: false, error: 'كود الطالب مسجل بالفعل لطالب آخر' };
     }
 
     const age = ageRaw ? parseInt(ageRaw, 10) : null;
@@ -116,7 +122,7 @@ export async function updateStudent(id: string, formData: FormData) {
       where: { id },
       data: {
         name,
-        sequence,
+        sequence: sequence || undefined,
         nationalId: nationalId || null,
         password: password || undefined,
         category: category || null,

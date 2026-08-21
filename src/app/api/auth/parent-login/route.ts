@@ -54,44 +54,69 @@ async function ensureStudents() {
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
-    const sequenceInput = (body.sequence || body.code || '').trim();
+    const phoneInput = (body.phone || body.sequence || body.code || '').trim();
     const passwordInput = (body.password || '').trim();
 
-    if (!sequenceInput || !passwordInput) {
+    if (!phoneInput || !passwordInput) {
       return NextResponse.json(
-        { success: false, error: 'الرجاء إدخال كود الطالب وكلمة المرور' },
+        { success: false, error: 'الرجاء إدخال رقم محمول ولي الأمر وكلمة المرور' },
         { status: 400 }
       );
     }
 
     await ensureStudents();
 
-    // Query student strictly by sequence code
-    const student = await db.student.findFirst({
+    // Query students by phone number OR sequence OR national ID
+    let matchingStudents = await db.student.findMany({
       where: {
         OR: [
-          { sequence: sequenceInput },
-          { nationalId: sequenceInput },
+          { phone: phoneInput },
+          { sequence: phoneInput },
+          { nationalId: phoneInput },
         ],
+      },
+      include: {
+        teacher: true,
       },
     });
 
-    if (!student) {
+    if (matchingStudents.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'كود الطالب غير موجود بالنظام' },
+        { success: false, error: 'رقم المحمول غير مسجل بالنظام' },
         { status: 401 }
       );
     }
 
-    const isMatch = passwordInput === '123456' || student.password === passwordInput || !student.password;
-    if (!isMatch) {
+    const validStudents = matchingStudents.filter(
+      (s) => passwordInput === '123456' || s.password === passwordInput || !s.password
+    );
+
+    if (validStudents.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'كلمة المرور غير صحيحة' },
+        { success: false, error: 'رقم المحمول أو كلمة المرور غير صحيحة' },
         { status: 401 }
       );
     }
 
-    // Set session cookie
+    // Multiple children under the same phone number -> Show selection cards
+    if (validStudents.length > 1) {
+      return NextResponse.json({
+        success: true,
+        multiple: true,
+        students: validStudents.map((s) => ({
+          id: s.id,
+          name: s.name,
+          sequence: s.sequence,
+          category: s.category || 'الحضانة',
+          teacherName: s.teacher?.name || 'غير محدد',
+          imageUrl: s.imageUrl,
+          ageText: s.ageText || (s.age ? `${s.age} سنوات` : ''),
+        })),
+      });
+    }
+
+    // Single student -> Log in immediately
+    const student = validStudents[0];
     const token = await createSessionToken({
       studentId: student.id,
       studentName: student.name,
@@ -110,6 +135,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
+      multiple: false,
       student: {
         id: student.id,
         name: student.name,

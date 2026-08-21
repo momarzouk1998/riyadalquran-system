@@ -498,27 +498,16 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
                   <span>1. البيانات الأساسية للطالب</span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">اسم الطالب رباعي *</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">اسم الطالب رباعي * (إجباري)</label>
                     <input
                       type="text"
                       name="name"
                       required
                       defaultValue={selectedStudent?.name || ''}
                       className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-600/10 outline-none text-xs font-bold"
-                      placeholder="ادخل الاسم الكامل"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">كود الطالب (الرقم التسلسلي) * (إجباري)</label>
-                    <input
-                      type="text"
-                      name="sequence"
-                      required
-                      defaultValue={selectedStudent?.sequence || ''}
-                      className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-600/10 outline-none text-xs text-center font-black tracking-wider"
-                      placeholder="مثال: 1102"
+                      placeholder="ادخل الاسم الكامل للطالب"
                     />
                   </div>
                 </div>
@@ -554,10 +543,11 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">رقم محمول ولي الأمر (اختياري)</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">رقم محمول ولي الأمر * (إجباري)</label>
                     <input
                       type="text"
                       name="phone"
+                      required
                       defaultValue={selectedStudent?.phone || ''}
                       className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-600/10 outline-none text-xs font-bold font-mono text-center"
                       placeholder="010xxxxxxxx"
