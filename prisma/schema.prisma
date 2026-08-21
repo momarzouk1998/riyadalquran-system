@@ -40,15 +40,17 @@ model Student {
   id               String          @id @default(uuid())
   uid              String?         @unique // AppSheet UID (e.g. 1ec86d83)
   sequence         String          @unique // Student number (e.g. 1102)
+  nationalId       String?         // الرقم القومي 14 رقم من شهادة الميلاد
   startDate        DateTime?
   category         String?         // Level: "KG1" | "KG2" | etc.
   name             String
   phone            String?         // Parent phone number
   address          String?
   age              Int?
+  ageText          String?         // العمر المفصل (مثال: 4 سنوات و 3 أشهر)
   imageUrl         String?
   birthCertUrl     String?
-  password         String          // Password for parents login (e.g. RQ1102)
+  password         String          // Password for parents login (e.g. RQ1102 / 123456)
   paidWay          String?
   paidAmount       Float           @default(0)
   remainingAmount  Float           @default(0)

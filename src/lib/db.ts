@@ -79,12 +79,14 @@ export async function ensureDatabaseTables() {
       "id" TEXT PRIMARY KEY,
       "uid" TEXT UNIQUE,
       "sequence" TEXT UNIQUE NOT NULL,
+      "nationalId" TEXT,
       "startDate" DATETIME,
       "category" TEXT,
       "name" TEXT NOT NULL,
       "phone" TEXT,
       "address" TEXT,
       "age" INTEGER,
+      "ageText" TEXT,
       "imageUrl" TEXT,
       "birthCertUrl" TEXT,
       "password" TEXT NOT NULL,
@@ -159,6 +161,20 @@ export async function ensureDatabaseTables() {
       await db.$executeRawUnsafe(sql);
     } catch (err) {
       console.error('Error creating table:', err);
+    }
+  }
+
+  // Self-heal additional columns for existing SQLite tables if created earlier
+  const migrations = [
+    `ALTER TABLE "Student" ADD COLUMN "nationalId" TEXT;`,
+    `ALTER TABLE "Student" ADD COLUMN "ageText" TEXT;`
+  ];
+
+  for (const sql of migrations) {
+    try {
+      await db.$executeRawUnsafe(sql);
+    } catch (err) {
+      // Column already exists, safe to ignore
     }
   }
 

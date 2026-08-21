@@ -4,7 +4,7 @@ import React, { useState, useTransition } from 'react';
 import { 
   Plus, Search, Edit, Trash2, Calendar, Phone, MapPin, 
   BookOpen, DollarSign, Award, X, Check, Eye, User, Lock,
-  ShieldCheck, CreditCard, Sparkles, AlertCircle
+  ShieldCheck, CreditCard, Sparkles, AlertCircle, Fingerprint
 } from 'lucide-react';
 import { 
   createStudent, updateStudent, deleteStudent, updateStudentGrades 
@@ -32,12 +32,14 @@ interface Student {
   id: string;
   uid: string | null;
   sequence: string;
+  nationalId: string | null;
   startDate: Date | null;
   category: string | null;
   name: string;
   phone: string | null;
   address: string | null;
   age: number | null;
+  ageText: string | null;
   imageUrl: string | null;
   birthCertUrl: string | null;
   password: string;
@@ -56,6 +58,54 @@ interface StudentsClientViewProps {
   teachers: Teacher[];
 }
 
+export function calculateAgeFromNationalId(nidInput: string) {
+  const nid = (nidInput || '').trim();
+  if (nid.length !== 14 || !/^\d{14}$/.test(nid)) {
+    return { ageYears: null, ageText: '' };
+  }
+
+  const centuryDigit = parseInt(nid[0], 10);
+  const yearTwoDigits = parseInt(nid.substring(1, 3), 10);
+  const month = parseInt(nid.substring(3, 5), 10);
+  const day = parseInt(nid.substring(5, 7), 10);
+
+  const fullYear = (centuryDigit === 3 ? 2000 : 1900) + yearTwoDigits;
+
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return { ageYears: null, ageText: '' };
+  }
+
+  const birthDate = new Date(fullYear, month - 1, day);
+  const today = new Date();
+
+  let years = today.getFullYear() - birthDate.getFullYear();
+  let months = today.getMonth() - birthDate.getMonth();
+  let days = today.getDate() - birthDate.getDate();
+
+  if (days < 0) {
+    months -= 1;
+  }
+
+  if (months < 0) {
+    years -= 1;
+    months += 12;
+  }
+
+  let ageText = '';
+  if (years > 0) {
+    ageText += `${years} ${years === 1 ? 'سنة' : years === 2 ? 'سنتان' : years <= 10 ? 'سنوات' : 'سنة'}`;
+  }
+  if (months > 0) {
+    if (ageText) ageText += ' و ';
+    ageText += `${months} ${months === 1 ? 'شهر' : months === 2 ? 'شهران' : months <= 10 ? 'أشهر' : 'شهر'}`;
+  }
+  if (!ageText) {
+    ageText = 'أقل من شهر';
+  }
+
+  return { ageYears: years, ageText };
+}
+
 export function StudentsClientView({ initialStudents, teachers }: StudentsClientViewProps) {
   const [students, setStudents] = useState<Student[]>(initialStudents);
   const [searchTerm, setSearchTerm] = useState('');
@@ -69,7 +119,12 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
   // Selected Student state
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [selectedMonth, setSelectedMonth] = useState('9');
-  
+
+  // Interactive Form National ID & Age State
+  const [nationalIdInput, setNationalIdInput] = useState('');
+  const [computedAgeText, setComputedAgeText] = useState('');
+  const [computedAgeYears, setComputedAgeYears] = useState<number | null>(null);
+
   const [isPending, startTransition] = useTransition();
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [formError, setFormError] = useState<string | null>(null);
@@ -88,6 +143,7 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
     const matchesSearch = 
       student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.sequence.includes(searchTerm) ||
+      (student.nationalId && student.nationalId.includes(searchTerm)) ||
       (student.phone && student.phone.includes(searchTerm));
     
     const matchesCategory = 
@@ -96,9 +152,19 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
     return matchesSearch && matchesCategory;
   });
 
+  const handleNationalIdChange = (val: string) => {
+    setNationalIdInput(val);
+    const { ageYears, ageText } = calculateAgeFromNationalId(val);
+    setComputedAgeText(ageText);
+    setComputedAgeYears(ageYears);
+  };
+
   const handleOpenCreateModal = () => {
     setModalMode('create');
     setSelectedStudent(null);
+    setNationalIdInput('');
+    setComputedAgeText('');
+    setComputedAgeYears(null);
     setFormError(null);
     setIsStudentModalOpen(true);
   };
@@ -106,6 +172,16 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
   const handleOpenEditModal = (student: Student) => {
     setModalMode('edit');
     setSelectedStudent(student);
+    const nid = student.nationalId || '';
+    setNationalIdInput(nid);
+    if (nid) {
+      const { ageYears, ageText } = calculateAgeFromNationalId(nid);
+      setComputedAgeText(student.ageText || ageText);
+      setComputedAgeYears(student.age ?? ageYears);
+    } else {
+      setComputedAgeText(student.ageText || '');
+      setComputedAgeYears(student.age || null);
+    }
     setFormError(null);
     setIsStudentModalOpen(true);
   };
@@ -114,7 +190,6 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
     setSelectedStudent(student);
     setFormError(null);
     
-    // Default or existing grades for selected month
     const existing = student.grades.find((g) => g.month === selectedMonth);
     setGradeInput({
       quran: existing?.quran || 0,
@@ -162,7 +237,16 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
   const handleStudentFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormError(null);
+
+    if (!nationalIdInput || nationalIdInput.trim().length !== 14) {
+      setFormError('الرقم القومي من شهادة الميلاد إجباري ويجب أن يتكون من 14 رقم بالكامل');
+      return;
+    }
+
     const formData = new FormData(e.currentTarget);
+    formData.set('nationalId', nationalIdInput);
+    formData.set('ageText', computedAgeText);
+    formData.set('age', computedAgeYears !== null ? String(computedAgeYears) : '');
 
     startTransition(async () => {
       let res;
@@ -237,7 +321,7 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
             </span>
             <input
               type="text"
-              placeholder="البحث باسم الطالب، كود التسجيل، أو رقم المحمول..."
+              placeholder="البحث باسم الطالب، كود التسجيل، أو الرقم القومي..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-3 pr-10 py-2.5 bg-white border border-slate-200 rounded-2xl focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 outline-none text-xs font-bold"
@@ -288,11 +372,12 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
           <table className="w-full text-right table-auto" dir="rtl">
             <thead className="bg-slate-100/70 border-b border-slate-200 text-slate-700 text-xs font-black">
               <tr>
-                <th className="px-4 py-3.5 whitespace-nowrap">كود الطالب</th>
+                <th className="px-4 py-3.5 whitespace-nowrap">كود الطالب *</th>
                 <th className="px-4 py-3.5 whitespace-nowrap">الاسم بالكامل</th>
+                <th className="px-4 py-3.5 whitespace-nowrap">الرقم القومي</th>
+                <th className="px-4 py-3.5 whitespace-nowrap">السن المحسوب</th>
                 <th className="px-4 py-3.5 whitespace-nowrap">المستوى</th>
                 <th className="px-4 py-3.5 whitespace-nowrap">المعلمة</th>
-                <th className="px-4 py-3.5 whitespace-nowrap">رقم ولي الأمر</th>
                 <th className="px-4 py-3.5 whitespace-nowrap">المدفوع</th>
                 <th className="px-4 py-3.5 whitespace-nowrap">المتبقي</th>
                 <th className="px-4 py-3.5 whitespace-nowrap text-center">العمليات والدرجات</th>
@@ -301,7 +386,7 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
             <tbody className="divide-y divide-slate-100 text-slate-700 text-xs">
               {filteredStudents.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-slate-400 font-semibold">
+                  <td colSpan={9} className="px-4 py-12 text-center text-slate-400 font-semibold">
                     لا يوجد طلاب يطابقون خيارات البحث الحالية.
                   </td>
                 </tr>
@@ -318,6 +403,12 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
                     <td className="px-4 py-4 whitespace-nowrap font-bold text-slate-900">
                       {student.name}
                     </td>
+                    <td className="px-4 py-4 whitespace-nowrap font-mono font-bold text-slate-600">
+                      {student.nationalId || '—'}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap font-bold text-emerald-900">
+                      {student.ageText || (student.age ? `${student.age} سنوات` : '—')}
+                    </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className="px-2.5 py-1 rounded-xl text-[11px] font-extrabold bg-emerald-100/80 text-emerald-900 border border-emerald-200">
                         {student.category || 'غير محدد'}
@@ -325,9 +416,6 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap font-semibold">
                       {student.teacher?.name || 'غير محدد'}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap font-mono font-bold text-slate-700">
-                      {student.phone || '—'}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap font-black text-emerald-600">
                       {student.paidAmount} ج.م
@@ -383,7 +471,7 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
                   <h3 className="font-black text-base text-white">
                     {modalMode === 'create' ? 'إضافة طالب جديد للحضانة' : 'تعديل بيانات الطالب المسجل'}
                   </h3>
-                  <p className="text-[11px] text-emerald-200 mt-0.5">ادخل البيانات المطلوبة مع حفظ التغييرات فورياً</p>
+                  <p className="text-[11px] text-emerald-200 mt-0.5">ادخل البيانات المطلوبة مع إجبارية كود الطالب والرقم القومي</p>
                 </div>
               </div>
               <button 
@@ -423,7 +511,7 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">كود الطالب (الرقم التسلسلي) *</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">كود الطالب (الرقم التسلسلي) * (إجباري)</label>
                     <input
                       type="text"
                       name="sequence"
@@ -435,9 +523,38 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* National ID & Automatic Age Calculator */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">رقم محمول ولي الأمر</label>
+                    <label className="block text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
+                      <Fingerprint className="w-3.5 h-3.5 text-emerald-700" />
+                      <span>الرقم القومي (من شهادة الميلاد - 14 رقم) * (إجباري)</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      maxLength={14}
+                      value={nationalIdInput}
+                      onChange={(e) => handleNationalIdChange(e.target.value)}
+                      className="w-full py-2.5 px-3.5 bg-white border border-slate-300 rounded-2xl focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 outline-none text-xs font-mono font-bold text-center tracking-widest text-slate-900"
+                      placeholder="32005151234567"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1.5">السن المحسوب تلقائياً من شهادة الميلاد</label>
+                    <input
+                      type="text"
+                      readOnly
+                      value={computedAgeText || 'سيتم حسابه عند إدخال 14 رقم'}
+                      className="w-full py-2.5 px-3.5 bg-emerald-100/80 border border-emerald-300 rounded-2xl text-xs font-black text-emerald-950 text-center outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">رقم محمول ولي الأمر (اختياري)</label>
                     <input
                       type="text"
                       name="phone"
@@ -447,22 +564,12 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">العمر (بالسنوات)</label>
-                    <input
-                      type="number"
-                      name="age"
-                      defaultValue={selectedStudent?.age || ''}
-                      className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-600/10 outline-none text-xs text-center font-bold"
-                      placeholder="مثال: 4"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">العنوان المسجل</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">العنوان المسجل (افتراضي: المنشأة الكبرى)</label>
                     <input
                       type="text"
                       name="address"
-                      defaultValue={selectedStudent?.address || ''}
-                      className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-600/10 outline-none text-xs"
+                      defaultValue={selectedStudent?.address || 'المنشأة الكبرى'}
+                      className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-600/10 outline-none text-xs font-bold"
                       placeholder="المنشأة الكبرى"
                     />
                   </div>
@@ -558,7 +665,7 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
               {/* SECTION 4: Image & Notes */}
               <div className="space-y-3 pt-2">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">صورة الطالب الشخصية</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">صورة الطالب الشخصية (رابط Cloudflare)</label>
                   <ImageUploader
                     currentValue={selectedStudent?.imageUrl}
                     inputName="imageUrl"
@@ -731,6 +838,14 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
               {/* Data Fields */}
               <div className="grid grid-cols-2 gap-4 text-xs">
                 <div className="space-y-1">
+                  <span className="text-slate-400 block font-bold">الرقم القومي لشهادة الميلاد</span>
+                  <span className="font-mono font-black text-slate-900 bg-slate-100 py-1.5 px-3 rounded-xl block text-center">{selectedStudent.nationalId || 'غير مسجل'}</span>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-slate-400 block font-bold">السن المحسوب</span>
+                  <span className="font-bold text-emerald-900 bg-emerald-50 py-1.5 px-3 rounded-xl block text-center">{selectedStudent.ageText || (selectedStudent.age ? `${selectedStudent.age} سنوات` : '—')}</span>
+                </div>
+                <div className="space-y-1">
                   <span className="text-slate-400 block font-bold">كلمة المرور</span>
                   <span className="font-mono font-black text-emerald-900 bg-emerald-50 py-1.5 px-3 rounded-xl block text-center">{selectedStudent.password}</span>
                 </div>
@@ -743,8 +858,8 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
                   <span className="font-mono font-bold text-slate-800 py-1.5 px-3 bg-slate-50 rounded-xl block text-center">{selectedStudent.phone || '—'}</span>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-slate-400 block font-bold">العمر الحالي</span>
-                  <span className="font-bold text-slate-800 py-1.5 px-3 bg-slate-50 rounded-xl block text-center">{selectedStudent.age ? `${selectedStudent.age} سنوات` : '—'}</span>
+                  <span className="text-slate-400 block font-bold">العنوان المسجل</span>
+                  <span className="font-bold text-slate-800 py-1.5 px-3 bg-slate-50 rounded-xl block text-center">{selectedStudent.address || 'المنشأة الكبرى'}</span>
                 </div>
                 <div className="space-y-1">
                   <span className="text-slate-400 block font-bold">المبلغ المدفوع</span>
@@ -753,10 +868,6 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
                 <div className="space-y-1">
                   <span className="text-slate-400 block font-bold">المبلغ المتبقي</span>
                   <span className="font-black text-rose-600 py-1.5 px-3 bg-rose-50 rounded-xl block text-center">{selectedStudent.remainingAmount} ج.م</span>
-                </div>
-                <div className="col-span-2 space-y-1">
-                  <span className="text-slate-400 block font-bold">العنوان المسجل</span>
-                  <span className="font-bold text-slate-800 py-1.5 px-3 bg-slate-50 rounded-xl block">{selectedStudent.address || 'غير مسجل'}</span>
                 </div>
               </div>
 

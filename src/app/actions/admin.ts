@@ -11,12 +11,14 @@ export async function createStudent(formData: FormData) {
   try {
     const name = formData.get('name') as string;
     const sequence = formData.get('sequence') as string;
+    const nationalId = formData.get('nationalId') as string;
     const password = formData.get('password') as string;
     const category = formData.get('category') as string;
     const teacherId = formData.get('teacherId') as string;
     const phone = formData.get('phone') as string;
     const address = formData.get('address') as string;
     const ageRaw = formData.get('age') as string;
+    const ageText = formData.get('ageText') as string;
     const paidWay = formData.get('paidWay') as string;
     const paidAmountRaw = formData.get('paidAmount') as string;
     const remainingAmountRaw = formData.get('remainingAmount') as string;
@@ -24,7 +26,11 @@ export async function createStudent(formData: FormData) {
     const imageUrl = formData.get('imageUrl') as string;
 
     if (!name || !sequence) {
-      return { success: false, error: 'الاسم وكود الطالب مطلوبان' };
+      return { success: false, error: 'اسم الطالب وكود الطالب مطلوبان' };
+    }
+
+    if (!nationalId || nationalId.trim().length !== 14) {
+      return { success: false, error: 'الرقم القومي لشهادة الميلاد مطلوب (14 رقم)' };
     }
 
     // Check duplicate sequence
@@ -43,12 +49,14 @@ export async function createStudent(formData: FormData) {
       data: {
         name,
         sequence,
+        nationalId: nationalId || null,
         password: password || `RQ${sequence}`,
         category: category || null,
         teacherId: teacherId && teacherId !== '' ? teacherId : null,
         phone: phone || null,
-        address: address || null,
+        address: address || 'المنشأة الكبرى',
         age: isNaN(age as number) ? null : age,
+        ageText: ageText || null,
         paidWay: paidWay || null,
         paidAmount: isNaN(paidAmount) ? 0 : paidAmount,
         remainingAmount: isNaN(remainingAmount) ? 0 : remainingAmount,
@@ -70,12 +78,14 @@ export async function updateStudent(id: string, formData: FormData) {
   try {
     const name = formData.get('name') as string;
     const sequence = formData.get('sequence') as string;
+    const nationalId = formData.get('nationalId') as string;
     const password = formData.get('password') as string;
     const category = formData.get('category') as string;
     const teacherId = formData.get('teacherId') as string;
     const phone = formData.get('phone') as string;
     const address = formData.get('address') as string;
     const ageRaw = formData.get('age') as string;
+    const ageText = formData.get('ageText') as string;
     const paidWay = formData.get('paidWay') as string;
     const paidAmountRaw = formData.get('paidAmount') as string;
     const remainingAmountRaw = formData.get('remainingAmount') as string;
@@ -83,7 +93,11 @@ export async function updateStudent(id: string, formData: FormData) {
     const imageUrl = formData.get('imageUrl') as string;
 
     if (!name || !sequence) {
-      return { success: false, error: 'الاسم وكود الطالب مطلوبان' };
+      return { success: false, error: 'اسم الطالب وكود الطالب مطلوبان' };
+    }
+
+    if (!nationalId || nationalId.trim().length !== 14) {
+      return { success: false, error: 'الرقم القومي لشهادة الميلاد مطلوب (14 رقم)' };
     }
 
     // Check duplicate sequence for another student
@@ -103,12 +117,14 @@ export async function updateStudent(id: string, formData: FormData) {
       data: {
         name,
         sequence,
+        nationalId: nationalId || null,
         password: password || undefined,
         category: category || null,
         teacherId: teacherId && teacherId !== '' ? teacherId : null,
         phone: phone || null,
-        address: address || null,
+        address: address || 'المنشأة الكبرى',
         age: isNaN(age as number) ? null : age,
+        ageText: ageText || null,
         paidWay: paidWay || null,
         paidAmount: isNaN(paidAmount) ? 0 : paidAmount,
         remainingAmount: isNaN(remainingAmount) ? 0 : remainingAmount,

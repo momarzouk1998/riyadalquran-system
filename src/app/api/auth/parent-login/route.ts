@@ -19,11 +19,13 @@ async function ensureStudents() {
         update: {},
         create: {
           sequence: '1102',
+          nationalId: '32005151234567',
           name: 'محمد أحمد محمود علي',
           category: 'KG1',
           phone: '01009587565',
-          address: 'المنشأة الكبرى كفر شكر قليوبية',
+          address: 'المنشأة الكبرى',
           age: 4,
+          ageText: '4 سنوات و 3 أشهر',
           password: '123456',
           paidAmount: 500,
           teacherId: teacher.id,
@@ -43,22 +45,6 @@ async function ensureStudents() {
           english: 40,
         },
       });
-
-      await db.student.upsert({
-        where: { sequence: '1187' },
-        update: {},
-        create: {
-          sequence: '1187',
-          name: 'على حسن نور',
-          category: 'KG2',
-          phone: '01009587565', // Same phone number to test multiple students feature
-          address: 'المنشأة الكبرى',
-          age: 5,
-          password: '123456',
-          paidAmount: 450,
-          teacherId: teacher.id,
-        },
-      });
     }
   } catch (err) {
     console.error('Error auto-seeding students:', err);
@@ -68,74 +54,44 @@ async function ensureStudents() {
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
-    const phoneInput = (body.phone || body.sequence || body.code || '').trim();
+    const sequenceInput = (body.sequence || body.code || '').trim();
     const passwordInput = (body.password || '').trim();
 
-    if (!phoneInput || !passwordInput) {
+    if (!sequenceInput || !passwordInput) {
       return NextResponse.json(
-        { success: false, error: 'الرجاء إدخال رقم المحمول أو كود الطالب وكلمة المرور' },
+        { success: false, error: 'الرجاء إدخال كود الطالب وكلمة المرور' },
         { status: 400 }
       );
     }
 
     await ensureStudents();
 
-    // Query students by phone number OR sequence code
-    let matchingStudents = await db.student.findMany({
+    // Query student strictly by sequence code
+    const student = await db.student.findFirst({
       where: {
         OR: [
-          { phone: phoneInput },
-          { sequence: phoneInput },
+          { sequence: sequenceInput },
+          { nationalId: sequenceInput },
         ],
-      },
-      include: {
-        teacher: true,
       },
     });
 
-    // If no exact match by phone, fallback to all students if search term matches partially or sequence
-    if (matchingStudents.length === 0) {
-      matchingStudents = await db.student.findMany({
-        where: {
-          sequence: { contains: phoneInput },
-        },
-        include: {
-          teacher: true,
-        },
-      });
-    }
-
-    // Filter students where password matches OR default password '123456' is used
-    const validStudents = matchingStudents.filter(
-      (s) => passwordInput === '123456' || s.password === passwordInput || !s.password
-    );
-
-    if (validStudents.length === 0) {
+    if (!student) {
       return NextResponse.json(
-        { success: false, error: 'رقم المحمول أو كلمة المرور غير صحيحة' },
+        { success: false, error: 'كود الطالب غير موجود بالنظام' },
         { status: 401 }
       );
     }
 
-    // Case A: Multiple students found under the same phone number
-    if (validStudents.length > 1) {
-      return NextResponse.json({
-        success: true,
-        multiple: true,
-        students: validStudents.map((s) => ({
-          id: s.id,
-          name: s.name,
-          sequence: s.sequence,
-          category: s.category || 'الحضانة',
-          teacherName: s.teacher?.name || 'غير محدد',
-          imageUrl: s.imageUrl,
-          age: s.age,
-        })),
-      });
+    const isMatch = passwordInput === '123456' || student.password === passwordInput || !student.password;
+    if (!isMatch) {
+      return NextResponse.json(
+        { success: false, error: 'كلمة المرور غير صحيحة' },
+        { status: 401 }
+      );
     }
 
-    // Case B: Exactly 1 student found -> Log in immediately
-    const student = validStudents[0];
+    // Set session cookie
     const token = await createSessionToken({
       studentId: student.id,
       studentName: student.name,
@@ -148,13 +104,12 @@ export async function POST(req: Request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 30 * 24 * 60 * 60, // 30 days
+      maxAge: 30 * 24 * 60 * 60,
       path: '/',
     });
 
     return NextResponse.json({
       success: true,
-      multiple: false,
       student: {
         id: student.id,
         name: student.name,
