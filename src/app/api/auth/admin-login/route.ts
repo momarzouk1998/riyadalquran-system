@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import bcrypt from 'bcryptjs';
-import { db } from '@/lib/db';
+import { db, ensureDatabaseTables } from '@/lib/db';
 import { createSessionToken } from '@/lib/auth';
 
 async function ensureAdminUsers() {
   try {
+    await ensureDatabaseTables();
     const count = await db.adminUser.count();
     if (count === 0) {
       const defaultHash = await bcrypt.hash('123456', 10);

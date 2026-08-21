@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { db } from '@/lib/db';
+import { db, ensureDatabaseTables } from '@/lib/db';
 import { createSessionToken } from '@/lib/auth';
 
 async function ensureStudents() {
   try {
+    await ensureDatabaseTables();
     const count = await db.student.count();
     if (count === 0) {
       const teacher = await db.teacher.upsert({
