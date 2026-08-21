@@ -1,15 +1,42 @@
 import { PrismaClient } from '@prisma/client';
+import path from 'path';
+import fs from 'fs';
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
   isDbInitialized: boolean | undefined;
 };
 
-// Ensure SQLite database URL has file: protocol and correct path
-let databaseUrl = process.env.DATABASE_URL || 'file:./prisma/dev.db';
-if (databaseUrl && !databaseUrl.startsWith('file:')) {
-  databaseUrl = `file:${databaseUrl}`;
+function getDatabaseUrl(): string {
+  let envUrl = process.env.DATABASE_URL;
+  if (!envUrl || envUrl.trim() === '') {
+    envUrl = 'file:./prisma/dev.db';
+  }
+  
+  if (!envUrl.startsWith('file:')) {
+    envUrl = `file:${envUrl}`;
+  }
+
+  // Ensure target directory exists for SQLite database file
+  const filePath = envUrl.replace(/^file:/, '');
+  if (filePath && !filePath.startsWith(':memory:')) {
+    const absolutePath = path.isAbsolute(filePath)
+      ? filePath
+      : path.join(process.cwd(), 'prisma', path.basename(filePath));
+    const dir = path.dirname(absolutePath);
+    try {
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+    } catch (e) {
+      console.error('Failed to ensure directory for SQLite database:', e);
+    }
+  }
+
+  return envUrl;
 }
+
+const databaseUrl = getDatabaseUrl();
 
 export const db =
   globalForPrisma.prisma ??
