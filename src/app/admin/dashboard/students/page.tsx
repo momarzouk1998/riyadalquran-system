@@ -1,10 +1,12 @@
 import React from 'react';
-import { db } from '@/lib/db';
+import { db, ensureDatabaseTables } from '@/lib/db';
 import { StudentsClientView } from './StudentsClientView';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminStudentsPage() {
+  await ensureDatabaseTables();
+
   // Fetch students, teachers, and grades to display
   const students = await db.student.findMany({
     orderBy: { sequence: 'asc' },

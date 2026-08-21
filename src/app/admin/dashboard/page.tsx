@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { db } from '@/lib/db';
+import { db, ensureDatabaseTables } from '@/lib/db';
 import { 
   Users, UserCheck, BookOpen, Clock, Heart, 
   HelpCircle, Activity, ArrowLeft 
@@ -9,6 +9,8 @@ import {
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
+  await ensureDatabaseTables();
+
   // Fetch stats from Database
   const studentCount = await db.student.count();
   const teacherCount = await db.teacher.count();
