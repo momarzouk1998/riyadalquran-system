@@ -56,8 +56,8 @@ export async function adminLogin(formData: FormData) {
 // 2. Parent / Student Login Action
 export async function parentLogin(formData: FormData) {
   try {
-    const sequence = formData.get('sequence') as string;
-    const password = formData.get('password') as string;
+    const sequence = ((formData.get('sequence') || formData.get('code')) as string)?.trim();
+    const password = (formData.get('password') as string)?.trim();
 
     if (!sequence || !password) {
       return { success: false, error: 'الرجاء إدخال كود الطالب والرقم السري' };
