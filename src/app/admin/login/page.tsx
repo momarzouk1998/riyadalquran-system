@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Lock, User, AlertCircle, ArrowRight, ShieldCheck } from 'lucide-react';
-import { adminLogin } from '@/app/actions/auth';
 
 export default function AdminLoginPage() {
   const [error, setError] = useState<string | null>(null);
@@ -15,13 +14,29 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const formData = new FormData(e.currentTarget);
-    const res = await adminLogin(formData);
-    if (res.success) {
-      router.push('/admin/dashboard');
-      router.refresh();
-    } else {
-      setError(res.error || 'حدث خطأ غير متوقع');
+
+    try {
+      const formData = new FormData(e.currentTarget);
+      const username = formData.get('username') as string;
+      const password = formData.get('password') as string;
+
+      const res = await fetch('/api/auth/admin-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok && data.success) {
+        window.location.href = '/admin/dashboard';
+      } else {
+        setError(data.error || 'اسم المستخدم أو كلمة المرور غير صحيحة');
+        setLoading(false);
+      }
+    } catch (err: any) {
+      console.error('Login request error:', err);
+      setError('تعذر الاتصال بالسيرفر، يرجى المحاولة مرة أخرى');
       setLoading(false);
     }
   };
@@ -87,7 +102,7 @@ export default function AdminLoginPage() {
                   required
                   autoComplete="username"
                   className="w-full pr-10 pl-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-600/15 outline-none transition-all text-sm"
-                  placeholder="ادخل اسم المستخدم"
+                  placeholder="ادخل اسم المستخدم (مثال: Sabry أو Aza)"
                 />
               </div>
             </div>
@@ -112,7 +127,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-green py-3 text-sm flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full btn-green py-3 text-sm flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
             >
               {loading ? (
                 <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />

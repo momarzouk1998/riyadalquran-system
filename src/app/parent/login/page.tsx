@@ -1,32 +1,45 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { LogIn, ArrowRight, Sparkles, User, Lock } from 'lucide-react';
-import { parentLogin } from '@/app/actions/auth';
+import { LogIn, ArrowRight, User, Lock } from 'lucide-react';
 
 export default function ParentLoginPage() {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
 
-    const formData = new FormData(e.currentTarget);
+    try {
+      const formData = new FormData(e.currentTarget);
+      const sequence = (formData.get('sequence') as string)?.trim();
+      const password = (formData.get('password') as string)?.trim();
 
-    startTransition(async () => {
-      const res = await parentLogin(formData);
-      if (res.success) {
-        router.push('/parent/dashboard');
-        router.refresh();
+      const res = await fetch('/api/auth/parent-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sequence, password }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok && data.success) {
+        window.location.href = '/parent/dashboard';
       } else {
-        setError(res.error || 'فشل تسجيل الدخول، يرجى التأكد من البيانات');
+        setError(data.error || 'كود الطالب أو الرقم السري غير صحيح');
+        setLoading(false);
       }
-    });
+    } catch (err: any) {
+      console.error('Parent login request error:', err);
+      setError('تعذر الاتصال بالسيرفر، يرجى المحاولة مرة أخرى');
+      setLoading(false);
+    }
   };
 
   return (
@@ -80,7 +93,7 @@ export default function ParentLoginPage() {
               <div className="relative">
                 <input
                   type="text"
-                  name="code"
+                  name="sequence"
                   required
                   className="w-full py-3.5 px-4 pr-11 rounded-2xl bg-white/10 border border-white/15 text-white placeholder-slate-400 text-xs font-bold focus:outline-none focus:border-amber-400 transition-all text-center tracking-widest"
                   placeholder="مثال: 1102"
@@ -106,10 +119,10 @@ export default function ParentLoginPage() {
 
             <button
               type="submit"
-              disabled={isPending}
+              disabled={loading}
               className="w-full py-4 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 rounded-2xl font-black shadow-xl shadow-amber-500/20 text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50 mt-2"
             >
-              {isPending ? (
+              {loading ? (
                 <span className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
