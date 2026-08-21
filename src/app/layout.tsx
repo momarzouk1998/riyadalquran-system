@@ -1,9 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Cairo } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/navbar";
-import { SocialBar } from "@/components/social-bar";
-import { Footer } from "@/components/footer";
+import { LayoutElements } from "@/components/layout-elements";
 
 const cairo = Cairo({
   subsets: ["arabic", "latin"],
@@ -23,7 +21,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#246c74", // primary brand color
+  themeColor: "#246c74",
   width: "device-width",
   initialScale: 1,
 };
@@ -36,10 +34,7 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" className={`${cairo.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans bg-white text-gray-900 selection:bg-primary selection:text-white">
-        <Navbar />
-        <SocialBar />
-        <main>{children}</main>
-        <Footer />
+        <LayoutElements>{children}</LayoutElements>
       </body>
     </html>
   );

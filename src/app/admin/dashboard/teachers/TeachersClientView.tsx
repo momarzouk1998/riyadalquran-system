@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useTransition } from 'react';
-import { Plus, Search, Edit, Trash2, X, Phone } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, X, Phone, UserCheck, Check, AlertCircle } from 'lucide-react';
 import { createTeacher, updateTeacher, deleteTeacher } from '@/app/actions/admin';
 
 interface Teacher {
@@ -28,7 +28,8 @@ export function TeachersClientView({ initialTeachers }: TeachersClientViewProps)
   const [isPending, startTransition] = useTransition();
 
   const filteredTeachers = teachers.filter((t) =>
-    t.name.toLowerCase().includes(searchTerm.toLowerCase())
+    t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (t.phone && t.phone.includes(searchTerm))
   );
 
   const handleOpenCreateModal = () => {
@@ -74,31 +75,31 @@ export function TeachersClientView({ initialTeachers }: TeachersClientViewProps)
       if (res.success) {
         window.location.reload();
       } else {
-        setFormError(res.error || 'حدث خطأ ما');
+        setFormError(res.error || 'حدث خطأ ما أثناء حفظ البيانات');
       }
     });
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-cairo">
       {/* Search and Add */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="relative flex-1 max-w-md">
-          <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">
-            <Search className="w-4 h-4" />
+          <span className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400">
+            <Search className="w-4 h-4 text-emerald-700" />
           </span>
           <input
             type="text"
-            placeholder="البحث باسم المعلمة..."
+            placeholder="البحث باسم المعلمة أو رقم الهاتف..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-3 pr-10 py-2 bg-white border border-slate-200 rounded-xl focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10 outline-none text-xs"
+            className="w-full pl-3 pr-10 py-2.5 bg-white border border-slate-200 rounded-2xl focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 outline-none text-xs font-bold"
           />
         </div>
 
         <button
           onClick={handleOpenCreateModal}
-          className="flex items-center justify-center gap-2 py-2 px-4 bg-brand-primary hover:bg-brand-dark text-white rounded-xl text-xs font-bold shadow-md shadow-brand-primary/10 transition-all cursor-pointer whitespace-nowrap"
+          className="flex items-center justify-center gap-2 py-2.5 px-5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-2xl text-xs font-black shadow-lg shadow-emerald-700/20 transition-all cursor-pointer whitespace-nowrap"
         >
           <Plus className="w-4 h-4" />
           <span>إضافة معلمة جديدة</span>
@@ -106,42 +107,42 @@ export function TeachersClientView({ initialTeachers }: TeachersClientViewProps)
       </div>
 
       {/* Teachers Table */}
-      <div className="card overflow-hidden">
+      <div className="card overflow-hidden border border-slate-200/80 rounded-3xl shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-right table-auto" dir="rtl">
-            <thead className="table-header border-b border-slate-100 text-slate-500 text-xs font-bold">
+            <thead className="bg-slate-100/70 border-b border-slate-200 text-slate-700 text-xs font-black">
               <tr>
-                <th className="px-6 py-3 whitespace-nowrap">اسم المعلمة</th>
-                <th className="px-6 py-3 whitespace-nowrap">رقم الهاتف</th>
-                <th className="px-6 py-3 whitespace-nowrap">عدد الطلاب بالحقيبة</th>
-                <th className="px-6 py-3 whitespace-nowrap">الحالة في الحضانة</th>
-                <th className="px-6 py-3 whitespace-nowrap text-center">الإجراءات</th>
+                <th className="px-6 py-3.5 whitespace-nowrap">اسم المعلمة</th>
+                <th className="px-6 py-3.5 whitespace-nowrap">رقم الهاتف</th>
+                <th className="px-6 py-3.5 whitespace-nowrap">عدد الطلاب المسجلين</th>
+                <th className="px-6 py-3.5 whitespace-nowrap">الحالة في الحضانة</th>
+                <th className="px-6 py-3.5 whitespace-nowrap text-center">الإجراءات</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700 text-xs">
               {filteredTeachers.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
-                    لا يوجد معلمات حالياً.
+                  <td colSpan={5} className="px-6 py-12 text-center text-slate-400 font-semibold">
+                    لا يوجد معلمات يطابقن البحث.
                   </td>
                 </tr>
               ) : (
                 filteredTeachers.map((teacher) => (
-                  <tr key={teacher.id} className="hover:bg-slate-50/30 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap font-bold text-slate-800">
+                  <tr key={teacher.id} className="hover:bg-emerald-50/30 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap font-black text-slate-900">
                       {teacher.name}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap" dir="ltr">
+                    <td className="px-6 py-4 whitespace-nowrap font-mono font-bold text-slate-700">
                       {teacher.phone || '—'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap font-semibold">
+                    <td className="px-6 py-4 whitespace-nowrap font-black text-emerald-800">
                       {teacher._count.students} طلاب
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`badge ${
+                      <span className={`px-3 py-1 rounded-xl text-[11px] font-black border ${
                         teacher.isActive 
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
-                          : 'bg-red-50 text-red-700 border-red-100'
+                          ? 'bg-emerald-100/80 text-emerald-900 border-emerald-300' 
+                          : 'bg-rose-100/80 text-rose-900 border-rose-300'
                       }`}>
                         {teacher.isActive ? 'نشطة بالعمل' : 'غير نشطة'}
                       </span>
@@ -150,15 +151,17 @@ export function TeachersClientView({ initialTeachers }: TeachersClientViewProps)
                       <div className="flex items-center justify-center gap-3">
                         <button
                           onClick={() => handleOpenEditModal(teacher)}
-                          className="text-blue-600 hover:text-blue-800"
+                          className="text-blue-600 hover:text-blue-800 p-1.5 hover:bg-blue-50 rounded-xl transition-colors"
+                          title="تعديل"
                         >
-                          <Edit className="w-4.5 h-4.5" />
+                          <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(teacher.id, teacher.name)}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-red-600 hover:text-red-800 p-1.5 hover:bg-red-50 rounded-xl transition-colors"
+                          title="حذف المعلمة"
                         >
-                          <Trash2 className="w-4.5 h-4.5" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </td>
@@ -170,58 +173,72 @@ export function TeachersClientView({ initialTeachers }: TeachersClientViewProps)
         </div>
       </div>
 
-      {/* CREATE/EDIT MODAL */}
+      {/* ── REDESIGNED CREATE/EDIT MODAL FOR TEACHERS ── */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md border border-slate-100 flex flex-col">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="font-bold text-slate-800 text-sm">
-                {modalMode === 'create' ? 'إضافة معلمة جديدة' : 'تعديل بيانات المعلمة'}
-              </h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md border border-slate-100 flex flex-col overflow-hidden animate-fade-in">
+            
+            {/* Header */}
+            <div className="bg-gradient-to-r from-emerald-950 via-emerald-900 to-slate-900 text-white px-6 py-5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-emerald-800/80 rounded-2xl border border-white/10">
+                  <UserCheck className="w-5 h-5 text-amber-300" />
+                </div>
+                <div>
+                  <h3 className="font-black text-base text-white">
+                    {modalMode === 'create' ? 'إضافة معلمة جديدة' : 'تعديل بيانات المعلمة'}
+                  </h3>
+                  <p className="text-[11px] text-emerald-200 mt-0.5">سجل بيانات المعلمة لحقيبة الحضانة</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsModalOpen(false)} 
+                className="text-emerald-200 hover:text-white p-1 rounded-xl hover:bg-white/10 transition-colors"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               {formError && (
-                <div className="bg-red-50 border border-red-200 text-red-800 rounded-xl p-3 text-xs">
-                  {formError}
+                <div className="bg-red-50 border border-red-200 text-red-800 rounded-2xl p-4 text-xs font-bold flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                  <span>{formError}</span>
                 </div>
               )}
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 mb-1">اسم المعلمة ثنائي/ثلاثي</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">اسم المعلمة ثنائي أو ثلاثي *</label>
                 <input
                   type="text"
                   name="name"
                   required
                   defaultValue={selectedTeacher?.name || ''}
-                  className="form-input text-xs"
-                  placeholder="مثال: أسماء"
+                  className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-600/10 outline-none text-xs font-bold"
+                  placeholder="مثال: أستاذة أسماء"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 mb-1">رقم الهاتف</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">رقم المحمول والواتساب</label>
                 <input
                   type="text"
                   name="phone"
                   defaultValue={selectedTeacher?.phone || ''}
-                  className="form-input text-xs"
-                  placeholder="مثال: 010xxxxxxxx"
+                  className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-600/10 outline-none text-xs font-mono font-bold text-center"
+                  placeholder="010xxxxxxxx"
                 />
               </div>
 
               {modalMode === 'edit' && (
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 mb-1">الحالة في العمل</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">الحالة بالعمل</label>
                   <select
                     name="isActive"
                     defaultValue={selectedTeacher?.isActive ? 'true' : 'false'}
-                    className="form-input text-xs"
+                    className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white outline-none text-xs font-bold"
                   >
-                    <option value="true">نشطة بالعمل</option>
+                    <option value="true">نشطة بالعمل الحالي</option>
                     <option value="false">غير نشطة</option>
                   </select>
                 </div>
@@ -231,16 +248,23 @@ export function TeachersClientView({ initialTeachers }: TeachersClientViewProps)
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 border border-slate-200 text-slate-500 rounded-xl text-xs font-semibold hover:bg-slate-50"
+                  className="px-5 py-2.5 border border-slate-200 text-slate-600 rounded-2xl text-xs font-bold hover:bg-slate-50"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="px-4 py-2 bg-brand-primary text-white rounded-xl text-xs font-bold shadow-md shadow-brand-primary/10 hover:bg-brand-dark flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  className="px-6 py-2.5 bg-emerald-700 text-white rounded-2xl text-xs font-black shadow-lg shadow-emerald-700/20 hover:bg-emerald-800 flex items-center gap-2 cursor-pointer disabled:opacity-50"
                 >
-                  {isPending ? 'جاري الحفظ...' : 'حفظ البيانات'}
+                  {isPending ? (
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span>حفظ البيانات</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>

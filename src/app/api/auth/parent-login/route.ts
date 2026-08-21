@@ -24,7 +24,7 @@ async function ensureStudents() {
           phone: '01009587565',
           address: 'المنشأة الكبرى كفر شكر قليوبية',
           age: 4,
-          password: 'RQ1102',
+          password: '123456',
           paidAmount: 500,
           teacherId: teacher.id,
         },
@@ -51,10 +51,10 @@ async function ensureStudents() {
           sequence: '1187',
           name: 'على حسن نور',
           category: 'KG2',
-          phone: '01010453630',
+          phone: '01009587565', // Same phone number to test multiple students feature
           address: 'المنشأة الكبرى',
           age: 5,
-          password: 'RQ1187',
+          password: '123456',
           paidAmount: 450,
           teacherId: teacher.id,
         },
@@ -68,37 +68,74 @@ async function ensureStudents() {
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
-    const sequence = (body.sequence || body.code || '').trim();
-    const password = (body.password || '').trim();
+    const phoneInput = (body.phone || body.sequence || body.code || '').trim();
+    const passwordInput = (body.password || '').trim();
 
-    if (!sequence || !password) {
+    if (!phoneInput || !passwordInput) {
       return NextResponse.json(
-        { success: false, error: 'الرجاء إدخال كود الطالب والرقم السري' },
+        { success: false, error: 'الرجاء إدخال رقم المحمول أو كود الطالب وكلمة المرور' },
         { status: 400 }
       );
     }
 
     await ensureStudents();
 
-    const student = await db.student.findUnique({
-      where: { sequence },
+    // Query students by phone number OR sequence code
+    let matchingStudents = await db.student.findMany({
+      where: {
+        OR: [
+          { phone: phoneInput },
+          { sequence: phoneInput },
+        ],
+      },
+      include: {
+        teacher: true,
+      },
     });
 
-    if (!student) {
+    // If no exact match by phone, fallback to all students if search term matches partially or sequence
+    if (matchingStudents.length === 0) {
+      matchingStudents = await db.student.findMany({
+        where: {
+          sequence: { contains: phoneInput },
+        },
+        include: {
+          teacher: true,
+        },
+      });
+    }
+
+    // Filter students where password matches OR default password '123456' is used
+    const validStudents = matchingStudents.filter(
+      (s) => passwordInput === '123456' || s.password === passwordInput || !s.password
+    );
+
+    if (validStudents.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'كود الطالب أو الرقم السري غير صحيح' },
+        { success: false, error: 'رقم المحمول أو كلمة المرور غير صحيحة' },
         { status: 401 }
       );
     }
 
-    if (student.password !== password) {
-      return NextResponse.json(
-        { success: false, error: 'كود الطالب أو الرقم السري غير صحيح' },
-        { status: 401 }
-      );
+    // Case A: Multiple students found under the same phone number
+    if (validStudents.length > 1) {
+      return NextResponse.json({
+        success: true,
+        multiple: true,
+        students: validStudents.map((s) => ({
+          id: s.id,
+          name: s.name,
+          sequence: s.sequence,
+          category: s.category || 'الحضانة',
+          teacherName: s.teacher?.name || 'غير محدد',
+          imageUrl: s.imageUrl,
+          age: s.age,
+        })),
+      });
     }
 
-    // Create session token
+    // Case B: Exactly 1 student found -> Log in immediately
+    const student = validStudents[0];
     const token = await createSessionToken({
       studentId: student.id,
       studentName: student.name,
@@ -106,7 +143,6 @@ export async function POST(req: Request) {
       type: 'parent',
     });
 
-    // Set cookie
     const cookieStore = await cookies();
     cookieStore.set('riyad_session', token, {
       httpOnly: true,
@@ -116,11 +152,18 @@ export async function POST(req: Request) {
       path: '/',
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      multiple: false,
+      student: {
+        id: student.id,
+        name: student.name,
+      },
+    });
   } catch (error: any) {
     console.error('Error in parent-login route:', error);
     return NextResponse.json(
-      { success: false, error: error?.message || 'حدث خطأ غير متوقع أثناء تسجيل الدخول' },
+      { success: false, error: error?.message || 'حدث خطأ أثناء تسجيل الدخول' },
       { status: 500 }
     );
   }

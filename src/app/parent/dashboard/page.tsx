@@ -5,6 +5,7 @@ import { logout } from '@/app/actions/auth';
 import { db } from '@/lib/db';
 import { resolveImageUrl } from '@/lib/cloudflare';
 import { StudentGradesChart } from '@/components/StudentGradesChart';
+import { ParentHeaderActions } from '@/components/ParentHeaderActions';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -126,15 +127,11 @@ export default async function ParentDashboardPage() {
             <span className="text-slate-600 font-semibold">{student.name.split(' ')[0]}</span>
           </div>
 
-          <form action={handleSignOut}>
-            <button
-              type="submit"
-              className="flex items-center gap-1.5 py-1.5 px-3 rounded-lg border border-slate-200 text-slate-500 hover:bg-red-50 hover:text-red-700 hover:border-red-200 transition-colors text-xs font-semibold"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">خروج</span>
-            </button>
-          </form>
+          <ParentHeaderActions
+            studentName={student.name}
+            sequence={student.sequence}
+            handleSignOut={handleSignOut}
+          />
         </div>
       </header>
 

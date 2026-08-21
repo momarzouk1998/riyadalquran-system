@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCart, Home, Menu, User, ShieldCheck } from "lucide-react";
+import { ShoppingCart, Home, Menu, User } from "lucide-react";
 import { MenuOverlay } from "./menu-overlay";
 
 export function Navbar() {
@@ -19,18 +19,7 @@ export function Navbar() {
   return (
     <>
       <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${isScrolled ? "glass-nav py-2 shadow-lg" : "bg-white py-3 border-b border-gray-100"}`}>
-        
-        {/* Top Mini Governance Strip */}
-        <div className="bg-primary text-emerald-100 text-[11px] py-1 px-4 text-center font-bold flex items-center justify-center gap-3">
-          <span className="flex items-center gap-1">
-            <ShieldCheck className="w-3.5 h-3.5 text-secondary" />
-            منصة الجمعيات الرقمية • المشهرة برقم 1300 بالمنشأة الكبرى
-          </span>
-          <span className="hidden sm:inline text-white/30">|</span>
-          <span className="hidden sm:inline text-white/90">ترخيص التضامن الاجتماعي • كفر شكر • القليوبية</span>
-        </div>
-
-        <div className="container mx-auto px-4 flex items-center justify-between mt-1">
+        <div className="container mx-auto px-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 relative z-10 group">
             <div className="relative w-12 h-12 rounded-2xl overflow-hidden shadow-md shadow-primary/10 border border-primary/20 bg-white flex items-center justify-center p-1 group-hover:scale-105 transition-transform">
               <Image 
