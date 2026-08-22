@@ -71,6 +71,7 @@ export async function ensureDatabaseTables() {
       "id" TEXT PRIMARY KEY,
       "name" TEXT UNIQUE NOT NULL,
       "phone" TEXT,
+      "password" TEXT NOT NULL DEFAULT '123456',
       "isActive" BOOLEAN NOT NULL DEFAULT 1,
       "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     );`,
@@ -167,7 +168,8 @@ export async function ensureDatabaseTables() {
   // Self-heal additional columns for existing SQLite tables if created earlier
   const migrations = [
     `ALTER TABLE "Student" ADD COLUMN "nationalId" TEXT;`,
-    `ALTER TABLE "Student" ADD COLUMN "ageText" TEXT;`
+    `ALTER TABLE "Student" ADD COLUMN "ageText" TEXT;`,
+    `ALTER TABLE "Teacher" ADD COLUMN "password" TEXT NOT NULL DEFAULT '123456';`
   ];
 
   for (const sql of migrations) {

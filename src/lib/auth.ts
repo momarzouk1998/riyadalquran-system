@@ -20,7 +20,13 @@ export interface ParentSession {
   type: 'parent';
 }
 
-export type SessionPayload = AdminSession | ParentSession;
+export interface TeacherSession {
+  teacherId: string;
+  teacherName: string;
+  type: 'teacher';
+}
+
+export type SessionPayload = AdminSession | ParentSession | TeacherSession;
 
 export async function createSessionToken(payload: SessionPayload): Promise<string> {
   return await new SignJWT({ ...payload })
@@ -77,6 +83,26 @@ export async function getCurrentStudent() {
   });
 
   return student;
+}
+
+export async function getCurrentTeacher() {
+  const session = await getCurrentSession();
+  if (!session || session.type !== 'teacher') return null;
+
+  const teacher = await db.teacher.findUnique({
+    where: { id: session.teacherId },
+    include: {
+      students: {
+        where: { isActive: true },
+        orderBy: { sequence: 'asc' },
+        include: {
+          grades: true,
+        },
+      },
+    },
+  });
+
+  return teacher;
 }
 
 export async function clearSession() {

@@ -10,7 +10,8 @@ export function LayoutElements({ children }: { children: React.ReactNode }) {
   const isNurserySystem = 
     pathname.startsWith('/nursery') || 
     pathname.startsWith('/admin') || 
-    pathname.startsWith('/parent');
+    pathname.startsWith('/parent') ||
+    pathname.startsWith('/teacher');
 
   return (
     <>

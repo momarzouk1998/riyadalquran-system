@@ -188,6 +188,8 @@ export async function updateStudentGrades(
 
     revalidatePath('/admin/dashboard/students');
     revalidatePath(`/admin/dashboard/students/${studentId}`);
+    revalidatePath('/teacher/dashboard');
+    revalidatePath('/parent/dashboard');
     return { success: true };
   } catch (error: any) {
     console.error('Error updating student grades:', error);

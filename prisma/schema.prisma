@@ -29,6 +29,7 @@ model Teacher {
   id          String              @id @default(uuid())
   name        String              @unique // Name is unique to link with other CSV data
   phone       String?
+  password    String              @default("123456")
   isActive    Boolean             @default(true)
   createdAt   DateTime            @default(now())
   students    Student[]
@@ -50,7 +51,7 @@ model Student {
   ageText          String?         // العمر المفصل (مثال: 4 سنوات و 3 أشهر)
   imageUrl         String?
   birthCertUrl     String?
-  password         String          // Password for parents login (e.g. RQ1102 / 123456)
+  password         String          @default("123456") // Password for parents login
   paidWay          String?
   paidAmount       Float           @default(0)
   remainingAmount  Float           @default(0)
