@@ -7,20 +7,32 @@ import { createSessionToken } from '@/lib/auth';
 async function ensureAdminUsers() {
   try {
     await ensureDatabaseTables();
-    const count = await db.adminUser.count();
-    if (count === 0) {
-      const defaultHash = await bcrypt.hash('123456', 10);
-      await db.adminUser.upsert({
-        where: { username: 'Sabry' },
-        update: { passwordHash: defaultHash },
-        create: { username: 'Sabry', passwordHash: defaultHash, role: 'admin' },
-      });
-      await db.adminUser.upsert({
-        where: { username: 'Aza' },
-        update: { passwordHash: defaultHash },
-        create: { username: 'Aza', passwordHash: defaultHash, role: 'admin' },
-      });
-    }
+    const defaultHash = await bcrypt.hash('123456', 10);
+
+    // Seed main super admin: 01008977105 (محمد مرزوق - مدير عام)
+    await db.adminUser.upsert({
+      where: { username: '01008977105' },
+      update: { role: 'مدير عام', passwordHash: defaultHash },
+      create: { username: '01008977105', passwordHash: defaultHash, role: 'مدير عام' },
+    });
+
+    await db.adminUser.upsert({
+      where: { username: 'محمد مرزوق' },
+      update: { role: 'مدير عام', passwordHash: defaultHash },
+      create: { username: 'محمد مرزوق', passwordHash: defaultHash, role: 'مدير عام' },
+    });
+
+    await db.adminUser.upsert({
+      where: { username: 'Sabry' },
+      update: { passwordHash: defaultHash },
+      create: { username: 'Sabry', passwordHash: defaultHash, role: 'مدير عام' },
+    });
+
+    await db.adminUser.upsert({
+      where: { username: 'Aza' },
+      update: { passwordHash: defaultHash },
+      create: { username: 'Aza', passwordHash: defaultHash, role: 'مدير عام' },
+    });
   } catch (err) {
     console.error('Error ensuring admin users:', err);
   }
@@ -41,7 +53,7 @@ export async function POST(req: Request) {
 
     await ensureAdminUsers();
 
-    // Match by username or phone
+    // Match by username or id
     const admin = await db.adminUser.findFirst({
       where: {
         OR: [

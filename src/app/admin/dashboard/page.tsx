@@ -62,6 +62,13 @@ export default async function AdminDashboardPage() {
       color: 'bg-cyan-50 text-cyan-800 border-cyan-100 hover:bg-cyan-100/50',
     },
     {
+      title: 'إدارة المديرين والمشرفين',
+      desc: 'إضافة حسابات مديرين جُدد، تغيير الصلاحيات وكلمات المرور.',
+      emoji: '👑',
+      link: '/admin/dashboard/admins',
+      color: 'bg-purple-50 text-purple-800 border-purple-100 hover:bg-purple-100/50',
+    },
+    {
       title: 'الحالات الفقيرة',
       desc: 'مساعدات الأسر غير القادرة وترميم المنازل وتوزيع الملابس.',
       emoji: '💸',

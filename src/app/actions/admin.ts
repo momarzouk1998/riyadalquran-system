@@ -414,3 +414,56 @@ export async function updateBookingStatus(id: string, status: 'approved' | 'reje
     return { success: false, error: error.message || 'حدث خطأ أثناء تحديث حالة الطلب' };
   }
 }
+
+// ==========================================
+// 6. ADMIN USER MANAGEMENT ACTIONS
+// ==========================================
+
+export async function createAdminUser(formData: FormData) {
+  try {
+    const username = (formData.get('username') as string || '').trim();
+    const password = (formData.get('password') as string || '').trim();
+    const role = (formData.get('role') as string || 'مشرف').trim();
+
+    if (!username || !password) {
+      return { success: false, error: 'اسم المستخدم/رقم الهاتف وكلمة المرور مطلوبان' };
+    }
+
+    const existing = await db.adminUser.findUnique({
+      where: { username },
+    });
+    if (existing) {
+      return { success: false, error: 'اسم المستخدم/رقم الهاتف مسجل بالفعل لمدير آخر' };
+    }
+
+    const bcrypt = await import('bcryptjs');
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    await db.adminUser.create({
+      data: {
+        username,
+        passwordHash,
+        role: role || 'مشرف',
+      },
+    });
+
+    revalidatePath('/admin/dashboard/admins');
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error creating admin user:', error);
+    return { success: false, error: error.message || 'حدث خطأ أثناء إضافة الحساب الإداري' };
+  }
+}
+
+export async function deleteAdminUser(id: string) {
+  try {
+    await db.adminUser.delete({
+      where: { id },
+    });
+    revalidatePath('/admin/dashboard/admins');
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error deleting admin user:', error);
+    return { success: false, error: error.message || 'حدث خطأ أثناء حذف الحساب الإداري' };
+  }
+}
