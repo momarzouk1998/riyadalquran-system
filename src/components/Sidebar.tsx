@@ -16,11 +16,12 @@ interface SidebarProps {
 
 const menuItems = [
   { name: 'الرئيسية',          path: '/admin/dashboard',              icon: Home,        emoji: '🏠' },
+  { name: 'إدارة المديرين',    path: '/admin/dashboard/admins',         icon: User,        emoji: '👑', highlight: true },
   { name: 'الطلاب',            path: '/admin/dashboard/students',     icon: Users,       emoji: '👶' },
   { name: 'المعلمات',          path: '/admin/dashboard/teachers',     icon: User,        emoji: '👩‍🏫' },
   { name: 'تقييم المعلمات',    path: '/admin/dashboard/assessments',  icon: Award,       emoji: '📊' },
   { name: 'طلبات الحجز',       path: '/admin/dashboard/bookings',     icon: BookOpen,    emoji: '📝' },
-  { name: 'تاب الحضانة',       path: '/admin/dashboard/nursery',      icon: Baby,        emoji: '🏫', highlight: true },
+  { name: 'تاب الحضانة',       path: '/admin/dashboard/nursery',      icon: Baby,        emoji: '🏫' },
   { name: 'كفالة الأيتام',     path: '/admin/dashboard/orphans',      icon: Heart,       emoji: '🤝' },
   { name: 'المساعدات المرضية', path: '/admin/dashboard/medical',      icon: Activity,    emoji: '🩺' },
   { name: 'الحالات الفقيرة',   path: '/admin/dashboard/poor',         icon: HelpCircle,  emoji: '💸' },
