@@ -71,6 +71,7 @@ export async function ensureDatabaseTables() {
       "id" TEXT PRIMARY KEY,
       "name" TEXT UNIQUE NOT NULL,
       "phone" TEXT,
+      "subject" TEXT,
       "password" TEXT NOT NULL DEFAULT '123456',
       "isActive" BOOLEAN NOT NULL DEFAULT 1,
       "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -151,6 +152,7 @@ export async function ensureDatabaseTables() {
       "category" TEXT NOT NULL,
       "name" TEXT NOT NULL,
       "phone" TEXT,
+      "address" TEXT,
       "monthlyCost" REAL NOT NULL DEFAULT 0,
       "notes" TEXT,
       "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -169,7 +171,9 @@ export async function ensureDatabaseTables() {
   const migrations = [
     `ALTER TABLE "Student" ADD COLUMN "nationalId" TEXT;`,
     `ALTER TABLE "Student" ADD COLUMN "ageText" TEXT;`,
-    `ALTER TABLE "Teacher" ADD COLUMN "password" TEXT NOT NULL DEFAULT '123456';`
+    `ALTER TABLE "Teacher" ADD COLUMN "password" TEXT NOT NULL DEFAULT '123456';`,
+    `ALTER TABLE "Teacher" ADD COLUMN "subject" TEXT;`,
+    `ALTER TABLE "AssociationInfo" ADD COLUMN "address" TEXT;`
   ];
 
   for (const sql of migrations) {

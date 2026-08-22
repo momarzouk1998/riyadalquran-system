@@ -203,8 +203,10 @@ export async function updateStudentGrades(
 
 export async function createTeacher(formData: FormData) {
   try {
-    const name = formData.get('name') as string;
-    const phone = formData.get('phone') as string;
+    const name = (formData.get('name') as string || '').trim();
+    const phone = (formData.get('phone') as string || '').trim();
+    const subject = (formData.get('subject') as string || 'قرآن ونور بيان (عربي)').trim();
+    const password = (formData.get('password') as string || '123456').trim();
 
     if (!name) {
       return { success: false, error: 'اسم المعلمة مطلوب' };
@@ -214,13 +216,15 @@ export async function createTeacher(formData: FormData) {
       where: { name },
     });
     if (existing) {
-      return { success: false, error: 'المعلمة مسجلة بالفعل' };
+      return { success: false, error: 'اسم المعلمة مسجل بالفعل' };
     }
 
     await db.teacher.create({
       data: {
         name,
         phone: phone || null,
+        subject: subject || 'قرآن ونور بيان (عربي)',
+        password: password || '123456',
         isActive: true,
       },
     });
@@ -235,8 +239,10 @@ export async function createTeacher(formData: FormData) {
 
 export async function updateTeacher(id: string, formData: FormData) {
   try {
-    const name = formData.get('name') as string;
-    const phone = formData.get('phone') as string;
+    const name = (formData.get('name') as string || '').trim();
+    const phone = (formData.get('phone') as string || '').trim();
+    const subject = (formData.get('subject') as string || '').trim();
+    const password = (formData.get('password') as string || '').trim();
     const isActiveRaw = formData.get('isActive') as string;
 
     if (!name) {
@@ -255,6 +261,8 @@ export async function updateTeacher(id: string, formData: FormData) {
       data: {
         name,
         phone: phone || null,
+        subject: subject || null,
+        password: password || undefined,
         isActive: isActiveRaw === 'true',
       },
     });
@@ -455,6 +463,46 @@ export async function createAdminUser(formData: FormData) {
   }
 }
 
+export async function updateAdminUser(id: string, formData: FormData) {
+  try {
+    const username = (formData.get('username') as string || '').trim();
+    const password = (formData.get('password') as string || '').trim();
+    const role = (formData.get('role') as string || 'مشرف').trim();
+
+    if (!username) {
+      return { success: false, error: 'اسم المستخدم/رقم الهاتف مطلوب' };
+    }
+
+    const existing = await db.adminUser.findFirst({
+      where: { username, id: { not: id } },
+    });
+    if (existing) {
+      return { success: false, error: 'اسم المستخدم/رقم الهاتف مسجل بالفعل لمدير آخر' };
+    }
+
+    const dataToUpdate: any = {
+      username,
+      role: role || 'مشرف',
+    };
+
+    if (password) {
+      const bcrypt = await import('bcryptjs');
+      dataToUpdate.passwordHash = await bcrypt.hash(password, 10);
+    }
+
+    await db.adminUser.update({
+      where: { id },
+      data: dataToUpdate,
+    });
+
+    revalidatePath('/admin/dashboard/admins');
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error updating admin user:', error);
+    return { success: false, error: error.message || 'حدث خطأ أثناء تعديل الحساب الإداري' };
+  }
+}
+
 export async function deleteAdminUser(id: string) {
   try {
     await db.adminUser.delete({
@@ -465,5 +513,97 @@ export async function deleteAdminUser(id: string) {
   } catch (error: any) {
     console.error('Error deleting admin user:', error);
     return { success: false, error: error.message || 'حدث خطأ أثناء حذف الحساب الإداري' };
+  }
+}
+
+// ==========================================
+// 7. CHARITY ASSOCIATION (POOR / ORPHANS / SICK) ACTIONS
+// ==========================================
+
+export async function createAssociationCase(formData: FormData) {
+  try {
+    const category = (formData.get('category') as string || 'poor').trim(); // "poor" | "orphans" | "sick"
+    const name = (formData.get('name') as string || '').trim();
+    const phone = (formData.get('phone') as string || '').trim();
+    const address = (formData.get('address') as string || 'المنشأة الكبرى').trim();
+    const monthlyCostRaw = formData.get('monthlyCost') as string;
+    const notes = (formData.get('notes') as string || '').trim();
+
+    if (!name) {
+      return { success: false, error: 'اسم الحالة / عائل الأسرة مطلوب' };
+    }
+
+    const monthlyCost = monthlyCostRaw ? parseFloat(monthlyCostRaw) : 0;
+
+    await db.associationInfo.create({
+      data: {
+        category,
+        name,
+        phone: phone || null,
+        address: address || 'المنشأة الكبرى',
+        monthlyCost: isNaN(monthlyCost) ? 0 : monthlyCost,
+        notes: notes || null,
+      },
+    });
+
+    revalidatePath('/admin/dashboard/poor');
+    revalidatePath('/admin/dashboard/orphans');
+    revalidatePath('/admin/dashboard/medical');
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error creating association case:', error);
+    return { success: false, error: error.message || 'حدث خطأ أثناء إضافة الحالة' };
+  }
+}
+
+export async function updateAssociationCase(id: string, formData: FormData) {
+  try {
+    const category = (formData.get('category') as string || 'poor').trim();
+    const name = (formData.get('name') as string || '').trim();
+    const phone = (formData.get('phone') as string || '').trim();
+    const address = (formData.get('address') as string || 'المنشأة الكبرى').trim();
+    const monthlyCostRaw = formData.get('monthlyCost') as string;
+    const notes = (formData.get('notes') as string || '').trim();
+
+    if (!name) {
+      return { success: false, error: 'اسم الحالة مطلوب' };
+    }
+
+    const monthlyCost = monthlyCostRaw ? parseFloat(monthlyCostRaw) : 0;
+
+    await db.associationInfo.update({
+      where: { id },
+      data: {
+        category,
+        name,
+        phone: phone || null,
+        address: address || 'المنشأة الكبرى',
+        monthlyCost: isNaN(monthlyCost) ? 0 : monthlyCost,
+        notes: notes || null,
+      },
+    });
+
+    revalidatePath('/admin/dashboard/poor');
+    revalidatePath('/admin/dashboard/orphans');
+    revalidatePath('/admin/dashboard/medical');
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error updating association case:', error);
+    return { success: false, error: error.message || 'حدث خطأ أثناء تعديل بيانات الحالة' };
+  }
+}
+
+export async function deleteAssociationCase(id: string) {
+  try {
+    await db.associationInfo.delete({
+      where: { id },
+    });
+    revalidatePath('/admin/dashboard/poor');
+    revalidatePath('/admin/dashboard/orphans');
+    revalidatePath('/admin/dashboard/medical');
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error deleting association case:', error);
+    return { success: false, error: error.message || 'حدث خطأ أثناء حذف الحالة' };
   }
 }

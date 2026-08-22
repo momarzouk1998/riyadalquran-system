@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useState, useTransition } from 'react';
-import { Plus, Search, Edit, Trash2, X, Phone, UserCheck, Check, AlertCircle } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, X, Phone, UserCheck, Check, AlertCircle, BookOpen, Key } from 'lucide-react';
 import { createTeacher, updateTeacher, deleteTeacher } from '@/app/actions/admin';
 
 interface Teacher {
   id: string;
   name: string;
   phone: string | null;
+  subject: string | null;
+  password?: string;
   isActive: boolean;
   _count: {
     students: number;
@@ -29,7 +31,8 @@ export function TeachersClientView({ initialTeachers }: TeachersClientViewProps)
 
   const filteredTeachers = teachers.filter((t) =>
     t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (t.phone && t.phone.includes(searchTerm))
+    (t.phone && t.phone.includes(searchTerm)) ||
+    (t.subject && t.subject.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const handleOpenCreateModal = () => {
@@ -90,7 +93,7 @@ export function TeachersClientView({ initialTeachers }: TeachersClientViewProps)
           </span>
           <input
             type="text"
-            placeholder="البحث باسم المعلمة أو رقم الهاتف..."
+            placeholder="البحث باسم المعلمة، التخصص، أو رقم المحمول..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-3 pr-10 py-2.5 bg-white border border-slate-200 rounded-2xl focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 outline-none text-xs font-bold"
@@ -113,16 +116,18 @@ export function TeachersClientView({ initialTeachers }: TeachersClientViewProps)
             <thead className="bg-slate-100/70 border-b border-slate-200 text-slate-700 text-xs font-black">
               <tr>
                 <th className="px-6 py-3.5 whitespace-nowrap">اسم المعلمة</th>
-                <th className="px-6 py-3.5 whitespace-nowrap">رقم الهاتف</th>
-                <th className="px-6 py-3.5 whitespace-nowrap">عدد الطلاب المسجلين</th>
-                <th className="px-6 py-3.5 whitespace-nowrap">الحالة في الحضانة</th>
-                <th className="px-6 py-3.5 whitespace-nowrap text-center">الإجراءات</th>
+                <th className="px-6 py-3.5 whitespace-nowrap">التخصص المنهجي</th>
+                <th className="px-6 py-3.5 whitespace-nowrap">رقم المحمول</th>
+                <th className="px-6 py-3.5 whitespace-nowrap">كلمة المرور</th>
+                <th className="px-6 py-3.5 whitespace-nowrap">عدد طلاب الفصل</th>
+                <th className="px-6 py-3.5 whitespace-nowrap">الحالة بالعمل</th>
+                <th className="px-6 py-3.5 whitespace-nowrap text-center">التعديل والحذف</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700 text-xs">
               {filteredTeachers.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-slate-400 font-semibold">
+                  <td colSpan={7} className="px-6 py-12 text-center text-slate-400 font-semibold">
                     لا يوجد معلمات يطابقن البحث.
                   </td>
                 </tr>
@@ -132,8 +137,16 @@ export function TeachersClientView({ initialTeachers }: TeachersClientViewProps)
                     <td className="px-6 py-4 whitespace-nowrap font-black text-slate-900">
                       {teacher.name}
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-3 py-1 rounded-xl text-[11px] font-black bg-amber-100/80 text-amber-950 border border-amber-300">
+                        {teacher.subject || 'قرآن ونور بيان (عربي)'}
+                      </span>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap font-mono font-bold text-slate-700">
                       {teacher.phone || '—'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap font-mono font-black text-emerald-900">
+                      {teacher.password || '123456'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap font-black text-emerald-800">
                       {teacher._count.students} طلاب
@@ -152,7 +165,7 @@ export function TeachersClientView({ initialTeachers }: TeachersClientViewProps)
                         <button
                           onClick={() => handleOpenEditModal(teacher)}
                           className="text-blue-600 hover:text-blue-800 p-1.5 hover:bg-blue-50 rounded-xl transition-colors"
-                          title="تعديل"
+                          title="تعديل بيانات المعلمة"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
@@ -173,7 +186,7 @@ export function TeachersClientView({ initialTeachers }: TeachersClientViewProps)
         </div>
       </div>
 
-      {/* ── REDESIGNED CREATE/EDIT MODAL FOR TEACHERS ── */}
+      {/* ── CREATE/EDIT MODAL FOR TEACHERS ── */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md border border-slate-100 flex flex-col overflow-hidden animate-fade-in">
@@ -186,9 +199,9 @@ export function TeachersClientView({ initialTeachers }: TeachersClientViewProps)
                 </div>
                 <div>
                   <h3 className="font-black text-base text-white">
-                    {modalMode === 'create' ? 'إضافة معلمة جديدة' : 'تعديل بيانات المعلمة'}
+                    {modalMode === 'create' ? 'إضافة معلمة جديدة' : 'تعديل بيانات المعلمة والتخصص'}
                   </h3>
-                  <p className="text-[11px] text-emerald-200 mt-0.5">سجل بيانات المعلمة لحقيبة الحضانة</p>
+                  <p className="text-[11px] text-emerald-200 mt-0.5">تحديد تخصص المعلمة وكلمة مرور بوابة المعلمات</p>
                 </div>
               </div>
               <button 
@@ -220,6 +233,21 @@ export function TeachersClientView({ initialTeachers }: TeachersClientViewProps)
               </div>
 
               <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">تخصص المعلمة والمنهاج *</label>
+                <select
+                  name="subject"
+                  defaultValue={selectedTeacher?.subject || 'قرآن ونور بيان (عربي)'}
+                  className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white outline-none text-xs font-bold text-emerald-950"
+                >
+                  <option value="قرآن ونور بيان (عربي)">📖 قرآن ونور بيان (عربي)</option>
+                  <option value="لغة إنجليزية">🔤 لغة إنجليزية</option>
+                  <option value="حساب وحساب ذهني">🔢 حساب وحساب ذهني</option>
+                  <option value="محفظة قرآن متخصصة">🤲 محفظة قرآن كريم متخصصة</option>
+                  <option value="معلمة فصل شاملة">🏫 معلمة فصل شاملة (KG1 / KG2)</option>
+                </select>
+              </div>
+
+              <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">رقم المحمول والواتساب</label>
                 <input
                   type="text"
@@ -227,6 +255,17 @@ export function TeachersClientView({ initialTeachers }: TeachersClientViewProps)
                   defaultValue={selectedTeacher?.phone || ''}
                   className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-600/10 outline-none text-xs font-mono font-bold text-center"
                   placeholder="010xxxxxxxx"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">كلمة مرور دخول البوابة</label>
+                <input
+                  type="text"
+                  name="password"
+                  defaultValue={selectedTeacher?.password || '123456'}
+                  className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white outline-none text-xs font-mono text-center font-bold"
+                  placeholder="الافتراضي: 123456"
                 />
               </div>
 

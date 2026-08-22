@@ -19,7 +19,7 @@ model AdminUser {
   username     String    @unique
   passwordHash String
   imageUrl     String?
-  role         String    @default("admin") // "admin" | "staff"
+  role         String    @default("admin") // "مدير عام" | "مشرف"
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
@@ -29,6 +29,7 @@ model Teacher {
   id          String              @id @default(uuid())
   name        String              @unique // Name is unique to link with other CSV data
   phone       String?
+  subject     String?             // تخصص المعلمة: "قرآن ونور بيان" | "لغة إنجليزية" | "حساب وحساب ذهني" | "شامل"
   password    String              @default("123456")
   isActive    Boolean             @default(true)
   createdAt   DateTime            @default(now())
@@ -117,13 +118,14 @@ model NurseryBooking {
   createdAt   DateTime @default(now())
 }
 
-// 7. Charity Association General Info (بيانات الجمعية الخيرية)
+// 7. Charity Association General Info (بيانات الجمعية الخيرية والخدمات الاجتماعية)
 model AssociationInfo {
   id          String   @id @default(uuid())
   category    String   // "orphans" (الايتام) | "sick" (المرضى) | "poor" (الحالات الفقيرة)
-  name        String
-  phone       String?
-  monthlyCost Float    @default(0)
-  notes       String?
+  name        String   // اسم الحالة أو عائل الأسرة
+  phone       String?  // رقم تليفون التواصل
+  address     String?  // العنوان والقرية بالتفصيل (مثال: المنشأة الكبرى - شارع المدارس)
+  monthlyCost Float    @default(0) // المبلغ أو كفالة المساعدة الشهرية (ج.م)
+  notes       String?  // تفاصيل الحالة والاحتياجات (ترميم منزل، علاج، ملابس، مواد غذائية)
   createdAt   DateTime @default(now())
 }
