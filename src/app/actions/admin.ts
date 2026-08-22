@@ -429,19 +429,20 @@ export async function updateBookingStatus(id: string, status: 'approved' | 'reje
 
 export async function createAdminUser(formData: FormData) {
   try {
+    const name = (formData.get('name') as string || '').trim();
     const username = (formData.get('username') as string || '').trim();
     const password = (formData.get('password') as string || '').trim();
     const role = (formData.get('role') as string || 'مشرف').trim();
 
-    if (!username || !password) {
-      return { success: false, error: 'اسم المستخدم/رقم الهاتف وكلمة المرور مطلوبان' };
+    if (!name || !username || !password) {
+      return { success: false, error: 'اسم المدير، رقم المحمول/اسم الدخول، وكلمة المرور مطلوبة' };
     }
 
     const existing = await db.adminUser.findUnique({
       where: { username },
     });
     if (existing) {
-      return { success: false, error: 'اسم المستخدم/رقم الهاتف مسجل بالفعل لمدير آخر' };
+      return { success: false, error: 'رقم المحمول/اسم الدخول مسجل بالفعل لمدير آخر' };
     }
 
     const bcrypt = await import('bcryptjs');
@@ -449,6 +450,7 @@ export async function createAdminUser(formData: FormData) {
 
     await db.adminUser.create({
       data: {
+        name,
         username,
         passwordHash,
         role: role || 'مشرف',
@@ -465,22 +467,24 @@ export async function createAdminUser(formData: FormData) {
 
 export async function updateAdminUser(id: string, formData: FormData) {
   try {
+    const name = (formData.get('name') as string || '').trim();
     const username = (formData.get('username') as string || '').trim();
     const password = (formData.get('password') as string || '').trim();
     const role = (formData.get('role') as string || 'مشرف').trim();
 
-    if (!username) {
-      return { success: false, error: 'اسم المستخدم/رقم الهاتف مطلوب' };
+    if (!name || !username) {
+      return { success: false, error: 'اسم المدير ورقم المحمول/اسم الدخول مطلوبان' };
     }
 
     const existing = await db.adminUser.findFirst({
       where: { username, id: { not: id } },
     });
     if (existing) {
-      return { success: false, error: 'اسم المستخدم/رقم الهاتف مسجل بالفعل لمدير آخر' };
+      return { success: false, error: 'رقم المحمول/اسم الدخول مسجل بالفعل لمدير آخر' };
     }
 
     const dataToUpdate: any = {
+      name,
       username,
       role: role || 'مشرف',
     };

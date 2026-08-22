@@ -59,6 +59,7 @@ export async function ensureDatabaseTables() {
   const tables = [
     `CREATE TABLE IF NOT EXISTS "AdminUser" (
       "id" TEXT PRIMARY KEY,
+      "name" TEXT,
       "username" TEXT UNIQUE NOT NULL,
       "passwordHash" TEXT NOT NULL,
       "imageUrl" TEXT,
@@ -169,6 +170,7 @@ export async function ensureDatabaseTables() {
 
   // Self-heal additional columns for existing SQLite tables if created earlier
   const migrations = [
+    `ALTER TABLE "AdminUser" ADD COLUMN "name" TEXT;`,
     `ALTER TABLE "Student" ADD COLUMN "nationalId" TEXT;`,
     `ALTER TABLE "Student" ADD COLUMN "ageText" TEXT;`,
     `ALTER TABLE "Teacher" ADD COLUMN "password" TEXT NOT NULL DEFAULT '123456';`,

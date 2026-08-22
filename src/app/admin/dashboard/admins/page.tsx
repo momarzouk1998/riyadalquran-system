@@ -18,6 +18,7 @@ export default async function AdminManagementPage() {
     orderBy: { createdAt: 'desc' },
     select: {
       id: true,
+      name: true,
       username: true,
       role: true,
       createdAt: true,

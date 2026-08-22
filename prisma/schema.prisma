@@ -16,7 +16,8 @@ datasource db {
 // 1. Admin & Staff Users (المستخدمين والإداريين)
 model AdminUser {
   id           String    @id @default(uuid())
-  username     String    @unique
+  name         String?   // اسم المدير ثلاثي أو ثنائي (مثال: محمد مرزوق)
+  username     String    @unique // رقم المحمول / اسم الدخول (مثال: 01008977105)
   passwordHash String
   imageUrl     String?
   role         String    @default("admin") // "مدير عام" | "مشرف"

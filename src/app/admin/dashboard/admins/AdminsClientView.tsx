@@ -9,6 +9,7 @@ import { createAdminUser, updateAdminUser, deleteAdminUser } from '@/app/actions
 
 interface AdminUserItem {
   id: string;
+  name: string | null;
   username: string;
   role: string;
   createdAt: Date;
@@ -46,10 +47,11 @@ export function AdminsClientView({ initialAdmins, currentAdminUsername }: Admins
     setFormError(null);
 
     const formData = new FormData(e.currentTarget);
+    const name = (formData.get('name') as string || '').trim();
     const username = (formData.get('username') as string || '').trim();
 
-    if (!username) {
-      setFormError('يرجى إدخال اسم المستخدم/رقم الهاتف');
+    if (!name || !username) {
+      setFormError('يرجى إدخال اسم المدير ورقم المحمول/اسم الدخول');
       return;
     }
 
@@ -114,7 +116,8 @@ export function AdminsClientView({ initialAdmins, currentAdminUsername }: Admins
           <table className="w-full text-right table-auto" dir="rtl">
             <thead className="bg-slate-100/70 border-b border-slate-200 text-slate-800 text-xs font-black">
               <tr>
-                <th className="px-5 py-4 whitespace-nowrap">اسم المستخدم / رقم المحمول</th>
+                <th className="px-5 py-4 whitespace-nowrap">اسم المدير</th>
+                <th className="px-5 py-4 whitespace-nowrap">رقم المحمول / اسم الدخول</th>
                 <th className="px-5 py-4 whitespace-nowrap">الدور / الصلاحية</th>
                 <th className="px-5 py-4 whitespace-nowrap">تاريخ الإنشاء</th>
                 <th className="px-5 py-4 whitespace-nowrap text-center">التعديل والحذف</th>
@@ -123,7 +126,7 @@ export function AdminsClientView({ initialAdmins, currentAdminUsername }: Admins
             <tbody className="divide-y divide-slate-100 text-slate-700 text-xs">
               {admins.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-4 py-12 text-center text-slate-400 font-semibold">
+                  <td colSpan={5} className="px-4 py-12 text-center text-slate-400 font-semibold">
                     لا توجد حسابات إدارية مسجلة.
                   </td>
                 </tr>
@@ -132,14 +135,17 @@ export function AdminsClientView({ initialAdmins, currentAdminUsername }: Admins
                   <tr key={admin.id} className="hover:bg-emerald-50/30 transition-colors">
                     <td className="px-5 py-4 whitespace-nowrap font-black text-slate-900 flex items-center gap-2">
                       <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-900 flex items-center justify-center font-bold text-xs shrink-0">
-                        🛡️
+                        👑
                       </div>
-                      <span>{admin.username}</span>
+                      <span>{admin.name || admin.username}</span>
                       {admin.username === currentAdminUsername && (
                         <span className="text-[10px] bg-emerald-100 text-emerald-900 border border-emerald-300 px-2 py-0.5 rounded-full font-bold">
                           أنت (الجلسة الحالية)
                         </span>
                       )}
+                    </td>
+                    <td className="px-5 py-4 whitespace-nowrap font-mono font-bold text-slate-700">
+                      {admin.username}
                     </td>
                     <td className="px-5 py-4 whitespace-nowrap">
                       <span className={`px-3 py-1 rounded-xl text-[11px] font-black border ${
@@ -209,14 +215,26 @@ export function AdminsClientView({ initialAdmins, currentAdminUsername }: Admins
               )}
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">اسم المستخدم / رقم المحمول *</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">اسم المدير ثنائي أو ثلاثي *</label>
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  defaultValue={selectedAdmin?.name || ''}
+                  className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white outline-none text-xs font-bold"
+                  placeholder="مثال: محمد مرزوق"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">رقم المحمول / اسم الدخول *</label>
                 <input
                   type="text"
                   name="username"
                   required
                   defaultValue={selectedAdmin?.username || ''}
-                  className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white outline-none text-xs font-bold"
-                  placeholder="مثال: 01008977105 أو محمد مرزوق"
+                  className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white outline-none text-xs font-mono font-bold text-center"
+                  placeholder="مثال: 01008977105"
                 />
               </div>
 
@@ -241,8 +259,8 @@ export function AdminsClientView({ initialAdmins, currentAdminUsername }: Admins
                   defaultValue={selectedAdmin?.role || 'مدير عام'}
                   className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white outline-none text-xs font-bold"
                 >
-                  <option value="مدير عام">مدير عام (صلاحيات كاملة)</option>
-                  <option value="مشرف">مشرف لوحة التحكّم</option>
+                  <option value="مدير عام">👑 مدير عام (صلاحيات كاملة)</option>
+                  <option value="مشرف">🛡️ مشرف لوحة التحكّم</option>
                 </select>
               </div>
 
