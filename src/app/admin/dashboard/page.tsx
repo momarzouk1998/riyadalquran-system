@@ -17,6 +17,9 @@ export default async function AdminDashboardPage() {
   const pendingBookingCount = await db.nurseryBooking.count({
     where: { status: 'pending' },
   });
+  const pendingRequestCount = await db.registrationRequest.count({
+    where: { status: 'pending' },
+  });
 
   const cards = [
     {
@@ -75,6 +78,13 @@ export default async function AdminDashboardPage() {
       link: '/admin/dashboard/poor',
       color: 'bg-teal-50 text-teal-800 border-teal-100 hover:bg-teal-100/50',
     },
+    {
+      title: 'طلبات التسجيل الجديدة',
+      desc: `لديك (${pendingRequestCount}) طلب معلق — فقيرة، أيتام، مرضية، وحضانة.`,
+      emoji: '📋',
+      link: '/admin/dashboard/requests',
+      color: 'bg-lime-50 text-lime-800 border-lime-200 hover:bg-lime-100/50',
+    },
   ];
 
   return (
@@ -90,7 +100,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Quick Statistics Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="card p-6 flex items-center justify-between">
           <div className="space-y-1">
             <p className="text-xs text-slate-500 font-bold">إجمالي طلاب الحضانة</p>
@@ -113,15 +123,24 @@ export default async function AdminDashboardPage() {
 
         <div className="card p-6 flex items-center justify-between">
           <div className="space-y-1">
-            <p className="text-xs text-slate-500 font-bold">طلبات التسجيل المعلقة</p>
+            <p className="text-xs text-slate-500 font-bold">طلبات الحجز المعلقة</p>
             <p className="text-3xl font-black text-slate-800">{pendingBookingCount}</p>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
             <BookOpen className="w-6 h-6" />
           </div>
         </div>
-      </div>
 
+        <div className="card p-6 flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-xs text-slate-500 font-bold">طلبات التسجيل المعلقة</p>
+            <p className="text-3xl font-black text-slate-800">{pendingRequestCount}</p>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-lime-50 text-lime-600 flex items-center justify-center">
+            <Activity className="w-6 h-6" />
+          </div>
+        </div>
+      </div>
       {/* Grid of Section Navigation Cards */}
       <div className="space-y-4">
         <h2 className="text-base font-bold text-slate-700">أقسام ولوحات العمليات</h2>

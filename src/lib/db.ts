@@ -157,6 +157,29 @@ export async function ensureDatabaseTables() {
       "monthlyCost" REAL NOT NULL DEFAULT 0,
       "notes" TEXT,
       "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );`,
+
+    `CREATE TABLE IF NOT EXISTS "RegistrationRequest" (
+      "id" TEXT PRIMARY KEY,
+      "type" TEXT NOT NULL,
+      "status" TEXT NOT NULL DEFAULT 'pending',
+      "name" TEXT NOT NULL,
+      "nationalId" TEXT NOT NULL,
+      "phone" TEXT NOT NULL,
+      "address" TEXT,
+      "childName" TEXT,
+      "childAge" INTEGER,
+      "childNationalId" TEXT,
+      "familySize" INTEGER,
+      "monthlyIncome" REAL,
+      "needDetails" TEXT,
+      "notes" TEXT,
+      "diagnosis" TEXT,
+      "hospital" TEXT,
+      "guardianName" TEXT,
+      "orphanCount" INTEGER,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     );`
   ];
 

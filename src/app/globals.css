@@ -2,18 +2,18 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #246c74;
-  --color-secondary: #bd9d54;
-  --color-accent: #6dd400;
-  --color-danger: #d12a2a;
+  --color-primary: #1a6b2e;
+  --color-secondary: #c9a227;
+  --color-accent: #2d8a3e;
+  --color-danger: #c0392b;
   --color-muted: #6c757d;
-  --color-light: #f8f9fa;
-  --color-brand-primary: #246c74;
-  --color-brand-secondary: #bd9d54;
-  --color-brand-dark: #194e54;
-  --color-brand-light: #f0f7f7;
-  --color-brand-gold: #bd9d54;
-  --color-brand-emerald: #246c74;
+  --color-light: #f4faf6;
+  --color-brand-primary: #1a6b2e;
+  --color-brand-secondary: #c9a227;
+  --color-brand-dark: #0f4019;
+  --color-brand-light: #eef8f1;
+  --color-brand-gold: #c9a227;
+  --color-brand-emerald: #1a6b2e;
   --font-sans: 'Tajawal', 'Cairo', 'Segoe UI', Roboto, sans-serif;
   --animate-marquee: marquee 40s linear infinite;
 }
@@ -26,8 +26,8 @@
 :root {
   --background: #ffffff;
   --foreground: #111827;
-  --primary: #246c74;
-  --secondary: #bd9d54;
+  --primary: #1a6b2e;
+  --secondary: #c9a227;
   --radius: 0.5rem;
 }
 
@@ -58,24 +58,24 @@ body {
 }
 
 .glass-dark {
-  background: rgba(36, 108, 116, 0.92);
+  background: rgba(26, 107, 46, 0.92);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(189, 157, 84, 0.3);
+  border: 1px solid rgba(201, 162, 39, 0.3);
 }
 
 .card-modern {
   background-color: #ffffff;
   border-radius: 1.5rem;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 20px -2px rgba(36, 108, 116, 0.05);
+  box-shadow: 0 4px 20px -2px rgba(26, 107, 46, 0.05);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card-modern:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 35px -10px rgba(36, 108, 116, 0.15);
-  border-color: rgba(189, 157, 84, 0.5);
+  box-shadow: 0 20px 35px -10px rgba(26, 107, 46, 0.15);
+  border-color: rgba(201, 162, 39, 0.5);
 }
 
 .badge-emerald {
@@ -86,9 +86,9 @@ body {
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 700;
-  background-color: rgba(36, 108, 116, 0.1);
-  color: #246c74;
-  border: 1px solid rgba(36, 108, 116, 0.25);
+  background-color: rgba(26, 107, 46, 0.1);
+  color: #1a6b2e;
+  border: 1px solid rgba(26, 107, 46, 0.25);
 }
 
 .badge-gold {
@@ -99,9 +99,9 @@ body {
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 700;
-  background-color: rgba(189, 157, 84, 0.12);
-  color: #a48135;
-  border: 1px solid rgba(189, 157, 84, 0.3);
+  background-color: rgba(201, 162, 39, 0.12);
+  color: #a07d10;
+  border: 1px solid rgba(201, 162, 39, 0.3);
 }
 
 .form-input-modern {
@@ -116,9 +116,9 @@ body {
 }
 
 .form-input-modern:focus {
-  border-color: #246c74;
+  border-color: #1a6b2e;
   background-color: #ffffff;
-  box-shadow: 0 0 0 4px rgba(36, 108, 116, 0.15);
+  box-shadow: 0 0 0 4px rgba(26, 107, 46, 0.15);
 }
 
 /* Custom Scrollbar */
@@ -129,11 +129,11 @@ body {
   background: #f1f1f1;
 }
 ::-webkit-scrollbar-thumb {
-  background: #246c74;
+  background: #1a6b2e;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #bd9d54;
+  background: #c9a227;
 }
 
 /* Wave Divider Fixes */

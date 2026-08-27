@@ -611,3 +611,84 @@ export async function deleteAssociationCase(id: string) {
     return { success: false, error: error.message || 'حدث خطأ أثناء حذف الحالة' };
   }
 }
+
+// ==========================================
+// 8. PUBLIC REGISTRATION REQUESTS ACTIONS
+// ==========================================
+
+export async function submitRegistrationRequest(formData: FormData) {
+  try {
+    const type = (formData.get('type') as string || '').trim();
+    const name = (formData.get('name') as string || '').trim();
+    const nationalId = (formData.get('nationalId') as string || '').trim();
+    const phone = (formData.get('phone') as string || '').trim();
+    const address = (formData.get('address') as string || '').trim();
+
+    if (!type || !name || !nationalId || !phone) {
+      return { success: false, error: 'الاسم والرقم القومي والهاتف مطلوبان' };
+    }
+    if (nationalId.length !== 14 || !/^\d{14}$/.test(nationalId)) {
+      return { success: false, error: 'الرقم القومي يجب أن يكون 14 رقماً' };
+    }
+
+    const childName      = (formData.get('childName') as string || null) || null;
+    const childAgeRaw    = formData.get('childAge') as string;
+    const childAge       = childAgeRaw ? parseInt(childAgeRaw, 10) : null;
+    const childNationalId = (formData.get('childNationalId') as string || null) || null;
+    const familySizeRaw  = formData.get('familySize') as string;
+    const familySize     = familySizeRaw ? parseInt(familySizeRaw, 10) : null;
+    const monthlyIncomeRaw = formData.get('monthlyIncome') as string;
+    const monthlyIncome  = monthlyIncomeRaw ? parseFloat(monthlyIncomeRaw) : null;
+    const needDetails    = (formData.get('needDetails') as string || null) || null;
+    const notes          = (formData.get('notes') as string || null) || null;
+    const diagnosis      = (formData.get('diagnosis') as string || null) || null;
+    const hospital       = (formData.get('hospital') as string || null) || null;
+    const guardianName   = (formData.get('guardianName') as string || null) || null;
+    const orphanCountRaw = formData.get('orphanCount') as string;
+    const orphanCount    = orphanCountRaw ? parseInt(orphanCountRaw, 10) : null;
+
+    await db.registrationRequest.create({
+      data: {
+        type,
+        name,
+        nationalId,
+        phone,
+        address: address || null,
+        childName,
+        childAge: isNaN(childAge as number) ? null : childAge,
+        childNationalId,
+        familySize: isNaN(familySize as number) ? null : familySize,
+        monthlyIncome: isNaN(monthlyIncome as number) ? null : monthlyIncome,
+        needDetails,
+        notes,
+        diagnosis,
+        hospital,
+        guardianName,
+        orphanCount: isNaN(orphanCount as number) ? null : orphanCount,
+        status: 'pending',
+      },
+    });
+
+    revalidatePath('/admin/dashboard/requests');
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error submitting registration request:', error);
+    return { success: false, error: error.message || 'حدث خطأ أثناء إرسال الطلب' };
+  }
+}
+
+export async function updateRegistrationRequestStatus(
+  id: string,
+  status: 'approved' | 'rejected'
+) {
+  try {
+    await db.registrationRequest.update({
+      where: { id },
+      data: { status },
+    });
+    revalidatePath('/admin/dashboard/requests');
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'حدث خطأ' };
+  }
+}

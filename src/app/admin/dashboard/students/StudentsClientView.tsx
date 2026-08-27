@@ -1,16 +1,15 @@
 'use client';
 
 import React, { useState, useTransition } from 'react';
-import { 
-  Plus, Search, Edit, Trash2, Calendar, Phone, MapPin, 
-  BookOpen, DollarSign, Award, X, Check, Eye, User, Lock,
-  ShieldCheck, CreditCard, Sparkles, AlertCircle, Fingerprint
+import {
+  Plus, Search, Edit, Trash2,
+  Award, X, Check, User,
 } from 'lucide-react';
-import { 
-  createStudent, updateStudent, deleteStudent, updateStudentGrades 
+import {
+  createStudent, updateStudent, deleteStudent, updateStudentGrades,
 } from '@/app/actions/admin';
-import { ImageUploader } from '@/components/ImageUploader';
-import { resolveImageUrl } from '@/lib/cloudflare';
+import { StudentForm, calculateAgeFromNationalId } from '@/components/StudentForm';
+import type { StudentFormData } from '@/components/StudentForm';
 
 interface Teacher {
   id: string;
@@ -57,55 +56,6 @@ interface StudentsClientViewProps {
   initialStudents: Student[];
   teachers: Teacher[];
 }
-
-export function calculateAgeFromNationalId(nidInput: string) {
-  const nid = (nidInput || '').trim();
-  if (nid.length !== 14 || !/^\d{14}$/.test(nid)) {
-    return { ageYears: null, ageText: '' };
-  }
-
-  const centuryDigit = parseInt(nid[0], 10);
-  const yearTwoDigits = parseInt(nid.substring(1, 3), 10);
-  const month = parseInt(nid.substring(3, 5), 10);
-  const day = parseInt(nid.substring(5, 7), 10);
-
-  const fullYear = (centuryDigit === 3 ? 2000 : 1900) + yearTwoDigits;
-
-  if (month < 1 || month > 12 || day < 1 || day > 31) {
-    return { ageYears: null, ageText: '' };
-  }
-
-  const birthDate = new Date(fullYear, month - 1, day);
-  const today = new Date();
-
-  let years = today.getFullYear() - birthDate.getFullYear();
-  let months = today.getMonth() - birthDate.getMonth();
-  let days = today.getDate() - birthDate.getDate();
-
-  if (days < 0) {
-    months -= 1;
-  }
-
-  if (months < 0) {
-    years -= 1;
-    months += 12;
-  }
-
-  let ageText = '';
-  if (years > 0) {
-    ageText += `${years} ${years === 1 ? 'سنة' : years === 2 ? 'سنتان' : years <= 10 ? 'سنوات' : 'سنة'}`;
-  }
-  if (months > 0) {
-    if (ageText) ageText += ' و ';
-    ageText += `${months} ${months === 1 ? 'شهر' : months === 2 ? 'شهران' : months <= 10 ? 'أشهر' : 'شهر'}`;
-  }
-  if (!ageText) {
-    ageText = 'أقل من شهر';
-  }
-
-  return { ageYears: years, ageText };
-}
-
 export function StudentsClientView({ initialStudents, teachers }: StudentsClientViewProps) {
   const [students, setStudents] = useState<Student[]>(initialStudents);
   const [searchTerm, setSearchTerm] = useState('');
@@ -244,17 +194,15 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
     }
 
     const formData = new FormData(e.currentTarget);
+    // نضمن أن القيم المحسوبة موجودة في الـ FormData
     formData.set('nationalId', nationalIdInput);
     formData.set('ageText', computedAgeText);
     formData.set('age', computedAgeYears !== null ? String(computedAgeYears) : '');
 
     startTransition(async () => {
-      let res;
-      if (modalMode === 'create') {
-        res = await createStudent(formData);
-      } else {
-        res = await updateStudent(selectedStudent!.id, formData);
-      }
+      const res = modalMode === 'create'
+        ? await createStudent(formData)
+        : await updateStudent(selectedStudent!.id, formData);
 
       if (res.success) {
         window.location.reload();
@@ -460,9 +408,9 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
       {isStudentModalOpen && (
         <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl border border-slate-100 flex flex-col max-h-[92vh] overflow-hidden animate-fade-in">
-            
+
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-emerald-950 via-emerald-900 to-slate-900 text-white px-6 py-5 flex items-center justify-between">
+            <div className="bg-gradient-to-r from-emerald-950 via-emerald-900 to-slate-900 text-white px-6 py-5 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-emerald-800/80 rounded-2xl border border-white/10">
                   <User className="w-5 h-5 text-amber-300" />
@@ -471,235 +419,77 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
                   <h3 className="font-black text-base text-white">
                     {modalMode === 'create' ? 'إضافة طالب جديد للحضانة' : 'تعديل بيانات الطالب المسجل'}
                   </h3>
-                  <p className="text-[11px] text-emerald-200 mt-0.5">ادخل البيانات المطلوبة مع إجبارية كود الطالب والرقم القومي</p>
+                  <p className="text-[11px] text-emerald-200 mt-0.5">
+                    ادخل البيانات المطلوبة مع إجبارية كود الطالب والرقم القومي
+                  </p>
                 </div>
               </div>
-              <button 
-                onClick={() => setIsStudentModalOpen(false)} 
+              <button
+                onClick={() => setIsStudentModalOpen(false)}
                 className="text-emerald-200 hover:text-white p-1.5 rounded-xl hover:bg-white/10 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleStudentFormSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
-              
-              {formError && (
-                <div className="bg-red-50 border border-red-200 text-red-800 rounded-2xl p-4 text-xs font-bold flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
-                  <span>{formError}</span>
-                </div>
-              )}
-
-              {/* SECTION 1: Personal Info */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-xs font-black text-emerald-900 border-b border-slate-100 pb-2">
-                  <User className="w-4 h-4 text-emerald-700" />
-                  <span>1. البيانات الأساسية للطالب</span>
-                </div>
-
-                <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">اسم الطالب رباعي * (إجباري)</label>
-                    <input
-                      type="text"
-                      name="name"
-                      required
-                      defaultValue={selectedStudent?.name || ''}
-                      className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-600/10 outline-none text-xs font-bold"
-                      placeholder="ادخل الاسم الكامل للطالب"
-                    />
-                  </div>
-                </div>
-
-                {/* National ID & Automatic Age Calculator */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1">
-                      <Fingerprint className="w-3.5 h-3.5 text-emerald-700" />
-                      <span>الرقم القومي (من شهادة الميلاد - 14 رقم) * (إجباري)</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      maxLength={14}
-                      value={nationalIdInput}
-                      onChange={(e) => handleNationalIdChange(e.target.value)}
-                      className="w-full py-2.5 px-3.5 bg-white border border-slate-300 rounded-2xl focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 outline-none text-xs font-mono font-bold text-center tracking-widest text-slate-900"
-                      placeholder="32005151234567"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1.5">السن المحسوب تلقائياً من شهادة الميلاد</label>
-                    <input
-                      type="text"
-                      readOnly
-                      value={computedAgeText || 'سيتم حسابه عند إدخال 14 رقم'}
-                      className="w-full py-2.5 px-3.5 bg-emerald-100/80 border border-emerald-300 rounded-2xl text-xs font-black text-emerald-950 text-center outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">رقم محمول ولي الأمر * (إجباري)</label>
-                    <input
-                      type="text"
-                      name="phone"
-                      required
-                      defaultValue={selectedStudent?.phone || ''}
-                      className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-600/10 outline-none text-xs font-bold font-mono text-center"
-                      placeholder="010xxxxxxxx"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">العنوان المسجل (افتراضي: المنشأة الكبرى)</label>
-                    <input
-                      type="text"
-                      name="address"
-                      defaultValue={selectedStudent?.address || 'المنشأة الكبرى'}
-                      className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-600/10 outline-none text-xs font-bold"
-                      placeholder="المنشأة الكبرى"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION 2: Academic Info */}
-              <div className="space-y-3 pt-2">
-                <div className="flex items-center gap-2 text-xs font-black text-emerald-900 border-b border-slate-100 pb-2">
-                  <BookOpen className="w-4 h-4 text-emerald-700" />
-                  <span>2. التسكين والمعلمة المسؤولة</span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">المستوى الدراسي</label>
-                    <select
-                      name="category"
-                      defaultValue={selectedStudent?.category || 'KG1'}
-                      className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white outline-none text-xs font-bold"
-                    >
-                      <option value="KG1">KG1 (المستوى الأول)</option>
-                      <option value="KG2">KG2 (المستوى الثاني)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">المعلمة المسؤولة</label>
-                    <select
-                      name="teacherId"
-                      defaultValue={selectedStudent?.teacherId || ''}
-                      className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white outline-none text-xs font-bold"
-                    >
-                      <option value="">غير محدد</option>
-                      {teachers.map(t => (
-                        <option key={t.id} value={t.id}>{t.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">كلمة السر للدخول</label>
-                    <input
-                      type="text"
-                      name="password"
-                      defaultValue={selectedStudent?.password || '123456'}
-                      className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white outline-none text-xs text-center font-mono font-bold"
-                      placeholder="الافتراضي: 123456"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION 3: Financial Info */}
-              <div className="space-y-3 pt-2">
-                <div className="flex items-center gap-2 text-xs font-black text-emerald-900 border-b border-slate-100 pb-2">
-                  <CreditCard className="w-4 h-4 text-emerald-700" />
-                  <span>3. الموقف المالي وطريقة الدفع</span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">طريقة الدفع</label>
-                    <input
-                      type="text"
-                      name="paidWay"
-                      defaultValue={selectedStudent?.paidWay || 'كاش'}
-                      className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white outline-none text-xs font-bold"
-                      placeholder="كاش / فودافون كاش / انستاباي"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">المبلغ المدفوع (ج.م)</label>
-                    <input
-                      type="number"
-                      step="any"
-                      name="paidAmount"
-                      defaultValue={selectedStudent?.paidAmount || 0}
-                      className="w-full py-2.5 px-3.5 bg-emerald-50/50 border border-emerald-200 rounded-2xl text-xs text-center font-black text-emerald-700 outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">المبلغ المتبقي (ج.م)</label>
-                    <input
-                      type="number"
-                      step="any"
-                      name="remainingAmount"
-                      defaultValue={selectedStudent?.remainingAmount || 0}
-                      className="w-full py-2.5 px-3.5 bg-rose-50/50 border border-rose-200 rounded-2xl text-xs text-center font-black text-rose-600 outline-none"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION 4: Image & Notes */}
-              <div className="space-y-3 pt-2">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">صورة الطالب الشخصية (رابط Cloudflare)</label>
-                  <ImageUploader
-                    currentValue={selectedStudent?.imageUrl}
-                    inputName="imageUrl"
-                    studentId={selectedStudent?.id}
-                    label="صورة الطالب"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">ملاحظات وسجلات إضافية</label>
-                  <textarea
-                    name="notes"
-                    defaultValue={selectedStudent?.notes || ''}
-                    className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white outline-none text-xs h-20"
-                    placeholder="ملاحظات ولي الأمر أو السلوك الحسابي..."
-                  />
-                </div>
-              </div>
+            <form onSubmit={handleStudentFormSubmit} className="flex-1 overflow-y-auto p-6">
+              <StudentForm
+                mode="modal"
+                teachers={teachers}
+                isPending={isPending}
+                formError={formError}
+                nationalIdValue={nationalIdInput}
+                computedAgeText={computedAgeText}
+                onNationalIdChange={(val, ageYears, ageText) => {
+                  setNationalIdInput(val);
+                  setComputedAgeText(ageText);
+                  setComputedAgeYears(ageYears);
+                }}
+                defaultValues={
+                  selectedStudent
+                    ? {
+                        id: selectedStudent.id,
+                        name: selectedStudent.name,
+                        nationalId: selectedStudent.nationalId ?? '',
+                        phone: selectedStudent.phone ?? '',
+                        address: selectedStudent.address ?? 'المنشأة الكبرى',
+                        category: selectedStudent.category ?? 'KG1',
+                        teacherId: selectedStudent.teacherId ?? '',
+                        password: selectedStudent.password,
+                        paidWay: selectedStudent.paidWay ?? 'كاش',
+                        paidAmount: selectedStudent.paidAmount,
+                        remainingAmount: selectedStudent.remainingAmount,
+                        imageUrl: selectedStudent.imageUrl ?? '',
+                        notes: selectedStudent.notes ?? '',
+                        age: selectedStudent.age,
+                        ageText: selectedStudent.ageText ?? '',
+                      }
+                    : {}
+                }
+              />
 
               {/* Form Buttons */}
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+              <div className="pt-5 mt-5 border-t border-slate-100 flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setIsStudentModalOpen(false)}
-                  className="px-5 py-2.5 border border-slate-200 text-slate-600 rounded-2xl text-xs font-bold hover:bg-slate-50"
+                  className="px-5 py-2.5 border border-slate-200 text-slate-600 rounded-2xl text-xs font-bold hover:bg-slate-50 transition-colors"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="px-6 py-2.5 bg-emerald-700 text-white rounded-2xl text-xs font-black shadow-lg shadow-emerald-700/20 hover:bg-emerald-800 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="px-6 py-2.5 bg-emerald-700 text-white rounded-2xl text-xs font-black shadow-lg shadow-emerald-700/20 hover:bg-emerald-800 flex items-center gap-2 cursor-pointer disabled:opacity-50 transition-colors"
                 >
                   {isPending ? (
                     <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <>
-                      <Check className="w-4 h-4" />
-                      <span>حفظ البيانات</span>
-                    </>
+                    <Check className="w-4 h-4" />
                   )}
+                  <span>حفظ البيانات</span>
                 </button>
               </div>
-
             </form>
           </div>
         </div>

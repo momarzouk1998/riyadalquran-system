@@ -130,3 +130,39 @@ model AssociationInfo {
   notes       String?  // تفاصيل الحالة والاحتياجات (ترميم منزل، علاج، ملابس، مواد غذائية)
   createdAt   DateTime @default(now())
 }
+
+// 8. Public Registration Requests — طلبات التسجيل العامة من الموقع
+// type: "poor" | "nursery" | "orphan" | "medical"
+model RegistrationRequest {
+  id           String   @id @default(uuid())
+  type         String   // نوع الطلب: poor | nursery | orphan | medical
+  status       String   @default("pending") // pending | approved | rejected
+
+  // بيانات مشتركة
+  name         String   // اسم مقدم الطلب / اسم الحالة
+  nationalId   String   // الرقم القومي (14 رقم)
+  phone        String   // رقم الهاتف
+  address      String?  // العنوان
+
+  // بيانات الطفل (للحضانة)
+  childName    String?  // اسم الطفل
+  childAge     Int?     // عمر الطفل بالسنوات
+  childNationalId String? // الرقم القومي للطفل (من شهادة الميلاد)
+
+  // بيانات الحالة
+  familySize   Int?     // عدد أفراد الأسرة
+  monthlyIncome Float?  // الدخل الشهري التقريبي
+  needDetails  String?  // تفاصيل الاحتياج (ترميم، علاج، ملابس...)
+  notes        String?  // ملاحظات إضافية
+
+  // بيانات الحالة المرضية
+  diagnosis    String?  // التشخيص الطبي
+  hospital     String?  // المستشفى أو المركز الطبي
+
+  // بيانات اليتيم
+  guardianName String?  // اسم الولي / وصي اليتيم
+  orphanCount  Int?     // عدد الأيتام في الأسرة
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
