@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform } from "motion/react";
+import { motion, useScroll, useTransform, MotionValue } from "motion/react";
 import Image from "next/image";
 
 const PROJECTS = [
@@ -94,7 +94,7 @@ function FanCard({
   title: string;
   targetRotate: number;
   targetX: number;
-  spread: ReturnType<typeof useTransform>;
+  spread: MotionValue<number>;
   index: number;
 }) {
   const rotate = useTransform(spread, [0, 1], [0, targetRotate]);
