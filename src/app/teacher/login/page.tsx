@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { LogIn, ArrowRight, UserCheck, Lock, Sparkles, BookOpen } from 'lucide-react';
+import { LogIn, ArrowRight, UserCheck, Lock, GraduationCap } from 'lucide-react';
 
 export default function TeacherLoginPage() {
   const [loading, setLoading] = useState(false);
@@ -13,87 +13,70 @@ export default function TeacherLoginPage() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-
     try {
       const formData = new FormData(e.currentTarget);
-      const username = (formData.get('username') as string)?.trim();
-      const password = (formData.get('password') as string)?.trim();
-
       const res = await fetch('/api/auth/teacher-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({
+          username: (formData.get('username') as string)?.trim(),
+          password: (formData.get('password') as string)?.trim(),
+        }),
       });
-
       const data = await res.json().catch(() => ({}));
-
       if (res.ok && data.success) {
         window.location.href = '/teacher/dashboard';
       } else {
         setError(data.error || 'اسم المعلمة أو كلمة المرور غير صحيحة');
         setLoading(false);
       }
-    } catch (err: any) {
-      console.error('Teacher login request error:', err);
+    } catch {
       setError('تعذر الاتصال بالسيرفر، يرجى المحاولة مرة أخرى');
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-950 via-amber-900 to-slate-950 flex flex-col justify-center items-center p-4 relative overflow-hidden font-cairo">
-      
-      {/* Ambient Orbs */}
-      <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
-      <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 font-cairo bg-slate-50" dir="rtl">
+      <div className="w-full max-w-md space-y-6">
 
-      {/* Top Return Link */}
-      <Link 
-        href="/" 
-        className="absolute top-6 right-6 text-slate-300 hover:text-white flex items-center gap-2 text-xs font-bold bg-white/5 hover:bg-white/10 px-4 py-2 rounded-2xl backdrop-blur-md transition-all border border-white/10"
-      >
-        <ArrowRight className="w-4 h-4" />
-        <span>العودة للموقع الرئيسي</span>
-      </Link>
-
-      <div className="w-full max-w-md relative z-10 space-y-6">
-        
-        {/* Header Branding */}
+        {/* Logo + Title */}
         <div className="text-center space-y-3">
-          <div className="relative inline-block p-3 bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl glow-amber">
-            <Image 
-              src="/logo.png" 
-              alt="رياض القرآن" 
-              width={80} 
-              height={80} 
-              className="object-contain rounded-2xl" 
-            />
+          <div className="flex justify-center">
+            <div className="p-3 bg-white rounded-3xl shadow-xl border border-slate-100">
+              <Image src="/logo.png" alt="رياض القرآن" width={70} height={70} className="object-contain" />
+            </div>
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white">بوابة المعلمات — رياض القرآن</h1>
-            <p className="text-xs text-amber-200 mt-1">صفحة تقييم ورصد درجات الطلاب المباشرة لفصلك الدراسي</p>
+            <h1 className="text-2xl font-black text-emerald-950">بوابة المعلمات</h1>
+            <p className="text-slate-500 text-xs mt-1">جمعية رياض القرآن الكريم — رصد الدرجات وإدارة الفصل</p>
           </div>
         </div>
 
-        {/* Login Form */}
-        <div className="glass-dark p-8 rounded-3xl border border-amber-500/30 shadow-2xl space-y-6">
-          
+        {/* Card */}
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-xl p-8 space-y-5">
+
+          {/* Badge */}
+          <div className="flex items-center gap-2 bg-secondary/10 border border-secondary/30 rounded-2xl px-4 py-3 text-xs text-amber-800">
+            <GraduationCap className="w-4 h-4 text-secondary shrink-0" />
+            <span className="font-semibold">صفحة رصد الدرجات وإدارة فصلك الدراسي</span>
+          </div>
+
           {error && (
-            <div className="bg-red-500/20 border border-red-500/40 text-red-200 rounded-2xl p-4 text-xs font-bold">
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-3 text-xs text-red-700 font-semibold">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            
             <div>
-              <label className="block text-xs font-bold text-amber-100 mb-2">اسم المعلمة أو رقم المحمول *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-2">اسم المعلمة أو رقم المحمول *</label>
               <div className="relative">
                 <input
                   type="text"
                   name="username"
                   required
-                  className="w-full py-3.5 px-4 pr-11 rounded-2xl bg-white/10 border border-white/15 text-white placeholder-slate-400 text-xs font-bold focus:outline-none focus:border-amber-400 transition-all text-center"
+                  className="w-full py-3.5 px-4 pr-11 bg-slate-50 border border-slate-200 rounded-2xl focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/15 outline-none transition-all text-xs font-bold text-center"
                   placeholder="مثال: اسماء"
                 />
                 <UserCheck className="w-4 h-4 text-slate-400 absolute right-4 top-4" />
@@ -101,42 +84,43 @@ export default function TeacherLoginPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-amber-100 mb-2">كلمة المرور</label>
+              <label className="block text-xs font-bold text-slate-700 mb-2">كلمة المرور</label>
               <div className="relative">
                 <input
                   type="password"
                   name="password"
                   required
                   defaultValue="123456"
-                  className="w-full py-3.5 px-4 pr-11 rounded-2xl bg-white/10 border border-white/15 text-white placeholder-slate-400 text-xs font-bold focus:outline-none focus:border-amber-400 transition-all text-center tracking-widest font-mono"
-                  placeholder="••••••••"
+                  className="w-full py-3.5 px-4 pr-11 bg-slate-50 border border-slate-200 rounded-2xl focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/15 outline-none transition-all text-xs font-mono text-center"
+                  placeholder="••••••"
                 />
                 <Lock className="w-4 h-4 text-slate-400 absolute right-4 top-4" />
               </div>
-              <p className="text-[10px] text-amber-300/80 mt-1 text-center">كلمة المرور الافتراضية للنظام هي: <strong className="text-emerald-300 font-mono">123456</strong></p>
+              <p className="text-[10px] text-slate-400 mt-1">
+                كلمة المرور الافتراضية للنظام هي: <strong className="text-primary font-mono">123456</strong>
+              </p>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-2xl font-black shadow-xl shadow-emerald-600/20 text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50 mt-2"
+              className="w-full py-4 bg-primary hover:bg-emerald-800 text-white rounded-2xl font-black shadow-lg shadow-primary/20 text-sm flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50 mt-2"
             >
-              {loading ? (
-                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <>
-                  <LogIn className="w-4 h-4" />
-                  <span>دخول لوحة التقييم السريع للفصل</span>
-                </>
-              )}
+              {loading
+                ? <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                : <><LogIn className="w-4 h-4" /><span>دخول لوحة التقييم السريع للفصل</span></>
+              }
             </button>
-
           </form>
-
         </div>
 
+        <div className="text-center">
+          <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 font-bold transition-colors">
+            <ArrowRight className="w-3.5 h-3.5" />
+            العودة للموقع الرئيسي
+          </Link>
+        </div>
       </div>
-
     </div>
   );
 }
