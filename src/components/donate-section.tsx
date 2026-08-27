@@ -65,6 +65,8 @@ export function DonateSection() {
     const msg = `السلام عليكم، تبرعت لمشروع (${title}) — برجاء تأكيد الاستلام`;
     return `https://wa.me/201010453630?text=${encodeURIComponent(msg)}`;
   };
+
+  return (
     <section id="store" className="py-24 bg-white font-tajawal">
       <div className="container mx-auto px-4">
 

@@ -10,7 +10,7 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
-  title: "جمعية ونظام رياض القرآن الكريم",
+  title: "جمعية رياض القرآن الكريم",
   description: "الموقع الرسمي ونظام إدارة الحضانة والخدمات التعليمية بجمعية رياض القرآن بالمنشأة الكبرى",
   applicationName: "رياض القرآن",
   icons: {

@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "motion/react";
 import {
-  X, Home, Gift, Award, Heart, BookOpen,
+  X, Home, Gift, Award, Heart,
   Phone, User, ShieldCheck, Baby, HeartHandshake,
   Stethoscope, HandCoins, GraduationCap, Wallet, ArrowLeft,
 } from "lucide-react";
@@ -87,8 +87,7 @@ const MAIN_LINKS = [
   { title: "الرئيسية",       subtitle: "",                  icon: Home,     href: "/" },
   { title: "متجر التبرعات",  subtitle: "المشاريع الخيرية",  icon: Gift,     href: "#store" },
   { title: "نظام الحضانة",   subtitle: "البوابة التعليمية", icon: Award,    href: "/nursery" },
-  { title: "كفالات الأيتام", subtitle: "21 أسرة مسجلة",     icon: Heart,    href: "#orphans" },
-  { title: "بنك الطعام",     subtitle: "121 حالة شهرياً",   icon: BookOpen, href: "#food" },
+  { title: "كفالات الأيتام", subtitle: "21 أسرة مسجلة",     icon: Heart,    href: "#store" },
   { title: "تواصل واتساب",   subtitle: "01010453630",        icon: Phone,    href: "https://wa.me/201010453630" },
 ];
 

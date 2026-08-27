@@ -34,10 +34,7 @@ export function Navbar() {
             </div>
             <div>
               <span className="font-black text-lg text-primary tracking-wide block leading-tight">
-                رياض القرآن
-              </span>
-              <span className="text-[10px] text-secondary font-bold block">
-                منصة الجمعيات الخيرية والحضانة
+                جمعية رياض القرآن الكريم
               </span>
             </div>
           </Link>
