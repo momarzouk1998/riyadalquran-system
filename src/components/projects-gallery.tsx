@@ -1,449 +1,171 @@
 'use client';
 
-import { useState, useRef, useEffect } from "react";
-import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
+import { useRef } from "react";
+import { motion, useInView } from "motion/react";
 import Image from "next/image";
-import { 
-  Sparkles, 
-  X, 
-  ChevronLeft, 
-  ChevronRight, 
-  HeartHandshake, 
-  ArrowLeft,
-  ZoomIn
-} from "lucide-react";
 
-export interface ProjectItem {
-  id: string;
-  src: string;
-  title: string;
-  tag: string;
-  desc: string;
-  accent: string;
-}
-
-const ALL_PROJECTS: ProjectItem[] = [
+const PROJECTS = [
   {
-    id: "orphans",
-    src: "/projects/orphans.png",
+    num: "01",
     title: "كفالة الأيتام",
-    tag: "كفالة ورعاية 🤍",
-    desc: "رعاية شاملة تعليمية وصحية للأيتام وأسرهم لتوفير حياة كريمة ومستقبل مشرق.",
-    accent: "#10b981",
+    desc: "نكفل 21 أسرة يتيمة بالمنشأة الكبرى وقراها المجاورة، نوفر لهم الكفالة الشهرية وملابس العيد والمستلزمات المدرسية لضمان حياة كريمة.",
+    img: "/projects/orphans.png",
+    tag: "كفالات شهرية",
   },
   {
-    id: "brides",
-    src: "/projects/brides.png",
-    title: "تجهيز العرائس اليتيمات",
-    tag: "تيسير الزواج 💍",
-    desc: "توفير الأجهزة الكهربائية والمستلزمات الأساسية للفتيات اليتيمات وغير القادرات.",
-    accent: "#f43f5e",
+    num: "02",
+    title: "حضانة الأطفال",
+    desc: "نضم أكثر من 100 طفل في مراحل KG1 وKG2، بمناهج تحفيظ القرآن الكريم والأذكار واللغة الإنجليزية والحساب الذهني.",
+    img: "/projects/nursery.png",
+    tag: "تعليم وتحفيظ",
   },
   {
-    id: "food",
-    src: "/projects/food.jpg",
-    title: "إطعام وتوزيع المواد الغذائية",
-    tag: "إطعام وسلال 🍲",
-    desc: "توفير كراتين وسلال المواد الغذائية الشهرية ووجبات الطعام للأسر الأكثر احتياجاً.",
-    accent: "#f59e0b",
+    num: "03",
+    title: "ترميم البيوت",
+    desc: "نرمم بيوت الأسر الفقيرة الهالكة ونوفر مواد البناء والعمالة لإعادة السكن الآمن لأكثر من 15 أسرة سنوياً.",
+    img: "/projects/houses.png",
+    tag: "مساعدات اجتماعية",
   },
   {
-    id: "medical",
-    src: "/projects/medical.png",
-    title: "الرعاية والحالات الطبية",
-    tag: "علاج وشفاء 🩺",
-    desc: "المساهمة في إجراء العمليات الجراحية وتوفير العلاج والأجهزة للمرضى غير القادرين.",
-    accent: "#06b6d4",
+    num: "04",
+    title: "محطة تحلية المياه",
+    desc: "محطة تحلية مياه شرب مجانية تخدم أهالي القرية وتوفر مياهاً نقية لأكثر من 500 أسرة يومياً بتكلفة رمزية.",
+    img: "/projects/water.png",
+    tag: "سقيا ماء",
   },
   {
-    id: "nursery",
-    src: "/projects/nursery.png",
-    title: "حضانة براعم الإيمان",
-    tag: "تعليم وبناء 📖",
-    desc: "تنشئة جيل قرآني وتربية إسلامية وتعليم مبكر للأطفال بأعلى المعايير.",
-    accent: "#8b5cf6",
+    num: "05",
+    title: "الحالات المرضية",
+    desc: "نساعد الحالات المرضية الحرجة في تكاليف العلاج والأدوية والعمليات الجراحية لضمان حصول كل مريض على الرعاية اللازمة.",
+    img: "/projects/medical.png",
+    tag: "رعاية صحية",
   },
   {
-    id: "houses",
-    src: "/projects/houses.png",
-    title: "سكن كريم وترميم البيوت",
-    tag: "إيواء وأمان 🏡",
-    desc: "تسقيف المنازل وتأهيل دورات المياه وبناء جدران آمنة لحماية الأسر المستحقة.",
-    accent: "#d97706",
+    num: "06",
+    title: "تجهيز العرائس",
+    desc: "نيسّر زواج الفتيات الفقيرات بتوفير جهاز العروسة والأثاث الأساسي، تخفيفاً للعبء عن كاهل الأسر غير القادرة.",
+    img: "/projects/brides.png",
+    tag: "تيسير الزواج",
   },
   {
-    id: "water",
-    src: "/projects/water.png",
-    title: "محطة مياه الشرب (سقيا الماء)",
-    tag: "صدقة جارية 💧",
-    desc: "إنشاء وصيانة محطات تنقية المياه وتوصيل مياه الشرب النقية لأهالي القرية.",
-    accent: "#0ea5e9",
+    num: "07",
+    title: "توزيع الطعام",
+    desc: "توزيع الطرود الغذائية وسلال بنك الطعام المصري على 121 أسرة شهرياً، مع تكثيف العطاء في رمضان والمناسبات.",
+    img: "/projects/food.jpg",
+    tag: "إطعام وسلال",
   },
   {
-    id: "mosque",
-    src: "/projects/mosque.jpg",
-    title: "مسجد ودار رياض القرآن",
-    tag: "عمارة بيوت الله 🕌",
-    desc: "تجهيز وصيانة المسجد وحلقات تحفيظ القرآن الكريم لخدمة حفظة كتاب الله.",
-    accent: "#059669",
+    num: "08",
+    title: "مسجد رياض القرآن",
+    desc: "مسجد الجمعية الذي يُقام فيه تحفيظ القرآن الكريم وحلقات الذكر وصلاة الجمعة لأبناء المنشأة الكبرى.",
+    img: "/projects/mosque.jpg",
+    tag: "الشعائر الدينية",
   },
 ];
 
 export function ProjectsGallery() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
-
-  // حركة المسار الأفقي أثناء السكرول الرأسي
-  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-62%"]);
-  const progressWidth = useTransform(scrollYProgress, [0, 1], ["12.5%", "100%"]);
-
-  const openLightbox = (project: ProjectItem, idx: number) => {
-    setSelectedProject(project);
-    setSelectedIndex(idx);
-  };
-
-  const nextProject = () => {
-    const next = (selectedIndex + 1) % ALL_PROJECTS.length;
-    setSelectedIndex(next);
-    setSelectedProject(ALL_PROJECTS[next]);
-  };
-
-  const prevProject = () => {
-    const prev = (selectedIndex - 1 + ALL_PROJECTS.length) % ALL_PROJECTS.length;
-    setSelectedIndex(prev);
-    setSelectedProject(ALL_PROJECTS[prev]);
-  };
-
-  // التنقل بالكيبورد
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!selectedProject) return;
-      if (e.key === "Escape") setSelectedProject(null);
-      if (e.key === "ArrowRight") nextProject();
-      if (e.key === "ArrowLeft") prevProject();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedProject, selectedIndex]);
-
   return (
-    <section className="relative bg-slate-950 text-white font-tajawal overflow-clip" id="projects-gallery">
-      {/* الخلفية والإضاءة */}
-      <div className="absolute inset-0 pointer-events-none opacity-30">
-        <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[140px]" />
-        <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[160px]" />
-      </div>
+    <section className="py-24 bg-slate-50 font-tajawal overflow-hidden">
+      <div className="container mx-auto px-4 max-w-5xl">
 
-      {/* العنوان والمقدمة */}
-      <div className="pt-20 pb-10 px-4 max-w-7xl mx-auto text-center relative z-10">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full px-4 py-1.5 text-xs font-bold mb-4 shadow-sm"
+          className="mb-20 text-center"
         >
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>مكتبة ومسيرة العطاء — 8 مشاريع متكاملة</span>
+          <span className="inline-flex items-center gap-2 bg-primary/10 text-primary rounded-full px-4 py-1.5 text-xs font-bold mb-4 border border-primary/20">
+            مشاريعنا الخيرية
+          </span>
+          <h2 className="text-3xl md:text-4xl font-black text-slate-900">
+            نخدم أبناء <span className="text-primary">المنشأة الكبرى</span>
+          </h2>
+          <p className="text-slate-500 text-sm mt-3 max-w-lg mx-auto leading-relaxed">
+            من كفالة الأيتام إلى تحلية المياه — مشاريع متكاملة تصنع فارقاً حقيقياً في حياة الناس
+          </p>
         </motion.div>
 
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.1 }}
-          className="text-3xl md:text-5xl font-black text-white leading-tight"
-        >
-          مشاريع <span className="text-emerald-400">جمعية رياض القرآن</span> الخيرية
-        </motion.h2>
-
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.15 }}
-          className="text-slate-400 text-sm md:text-base mt-4 max-w-2xl mx-auto leading-relaxed"
-        >
-          تصفح ملصقات وتفاصيل مشاريعنا الـ 8 المستمرة في خدمة أهالي المنشأة الكبرى. تحرك مع السكرول لتجربة تفاعلية واضغط على أي مشروع لمشاهدته بالحجم الكامل.
-        </motion.p>
-
-        {/* أزرار الانتقال السريع للمشاريع */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mt-8">
-          {ALL_PROJECTS.map((p, idx) => (
-            <button
-              key={p.id}
-              onClick={() => openLightbox(p, idx)}
-              className="text-xs font-medium px-3.5 py-1.5 rounded-full bg-slate-900/90 hover:bg-emerald-600/20 text-slate-300 hover:text-emerald-300 border border-slate-800 hover:border-emerald-500/40 transition-all duration-200 cursor-pointer flex items-center gap-1.5"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <span>{p.title}</span>
-            </button>
+        {/* Projects — alternating rows */}
+        <div className="space-y-20 md:space-y-28">
+          {PROJECTS.map((p, i) => (
+            <ProjectRow key={p.num} project={p} index={i} />
           ))}
         </div>
+
       </div>
-
-      {/* مسار السكرول التفاعلي (Sticky Scroll Track) */}
-      <div ref={containerRef} className="relative h-[250vh] md:h-[300vh]">
-        <div className="sticky top-0 h-screen flex flex-col justify-center overflow-hidden z-10">
-          
-          {/* شريط الإحصائيات ونسبة التقدم */}
-          <div className="max-w-7xl w-full mx-auto px-6 mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/50 px-3 py-1 rounded-md">
-                تصفح مع السكرول ⇄
-              </span>
-              <span className="text-xs text-slate-400 hidden sm:inline-block">
-                مرر لأسفل للتنقل بين بطاقات المشاريع الـ 8 بوضوح كامل
-              </span>
-            </div>
-
-            {/* شريط تقدم السكرول */}
-            <div className="w-32 md:w-48 h-1.5 bg-slate-800 rounded-full overflow-hidden border border-slate-700/50">
-              <motion.div 
-                className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full"
-                style={{ width: progressWidth }}
-              />
-            </div>
-          </div>
-
-          {/* بطاقات المشاريع المتحركة أفقياً */}
-          <div className="w-full relative overflow-hidden py-4">
-            <motion.div
-              style={{ x }}
-              className="flex gap-6 md:gap-8 px-8 md:px-16 w-max items-center"
-            >
-              {ALL_PROJECTS.map((project, index) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  index={index}
-                  onSelect={() => openLightbox(project, index)}
-                />
-              ))}
-            </motion.div>
-          </div>
-
-          {/* تلميح سفلي */}
-          <div className="max-w-7xl w-full mx-auto px-6 mt-4 flex items-center justify-between text-xs text-slate-500">
-            <div className="flex items-center gap-2">
-              <ZoomIn className="w-4 h-4 text-emerald-400" />
-              <span>اضغط على أي بطاقة لعرض الصورة بالحجم الكامل والتفاصيل</span>
-            </div>
-            <div className="font-bold text-slate-400">
-              8 / 8 مشاريع
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      {/* نافذة العرض المكبر (Lightbox Modal) */}
-      <AnimatePresence>
-        {selectedProject && (
-          <ProjectModal
-            project={selectedProject}
-            index={selectedIndex}
-            total={ALL_PROJECTS.length}
-            onClose={() => setSelectedProject(null)}
-            onNext={nextProject}
-            onPrev={prevProject}
-          />
-        )}
-      </AnimatePresence>
     </section>
   );
 }
 
-function ProjectCard({
+function ProjectRow({
   project,
   index,
-  onSelect,
 }: {
-  project: ProjectItem;
+  project: (typeof PROJECTS)[number];
   index: number;
-  onSelect: () => void;
 }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-100px" });
+  const isEven = index % 2 === 0;
+
   return (
-    <motion.div
-      onClick={onSelect}
-      whileHover={{ y: -10, scale: 1.02 }}
-      transition={{ duration: 0.25, ease: "easeOut" }}
-      className="group relative flex-shrink-0 w-[290px] sm:w-[320px] md:w-[350px] rounded-3xl overflow-hidden bg-slate-900 border border-slate-800 shadow-2xl shadow-black/80 hover:border-emerald-500/50 cursor-pointer transition-all duration-300"
+    <div
+      ref={ref}
+      className={`flex flex-col ${
+        isEven ? "md:flex-row" : "md:flex-row-reverse"
+      } items-center gap-10 md:gap-16`}
     >
-      {/* الشارات العلوية */}
-      <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between pointer-events-none">
-        <span className="backdrop-blur-md bg-slate-900/90 text-emerald-400 border border-emerald-500/30 text-[11px] font-black px-3 py-1 rounded-full shadow-lg">
+      {/* ── Text ── */}
+      <motion.div
+        initial={{ opacity: 0, x: isEven ? -50 : 50 }}
+        animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: isEven ? -50 : 50 }}
+        transition={{ duration: 0.65, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="flex-1 space-y-4"
+      >
+        {/* Number */}
+        <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center shadow-md shadow-primary/25">
+          <span className="text-white text-xs font-black">{project.num}</span>
+        </div>
+
+        {/* Tag */}
+        <span className="inline-block text-[11px] font-bold text-secondary bg-secondary/10 border border-secondary/25 px-3 py-1 rounded-full">
           {project.tag}
         </span>
-        <span className="backdrop-blur-md bg-black/70 text-white/90 text-xs font-mono font-bold px-2.5 py-1 rounded-full border border-white/10">
-          0{index + 1}
-        </span>
-      </div>
 
-      {/* صورة الملصق */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden bg-slate-950 p-2">
-        <Image
-          src={project.src}
-          alt={project.title}
-          fill
-          className="object-contain p-2 group-hover:scale-105 transition-transform duration-500 rounded-2xl"
-          sizes="(max-width: 768px) 300px, 350px"
-          priority={index < 3}
-        />
-      </div>
-
-      {/* بيانات البطاقة بالأسفل */}
-      <div className="p-5 relative z-20 bg-slate-900 border-t border-slate-800">
-        <h3 className="text-lg font-black text-white group-hover:text-emerald-400 transition-colors line-clamp-1">
+        {/* Title */}
+        <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight">
           {project.title}
         </h3>
-        <p className="text-xs text-slate-400 mt-1.5 line-clamp-2 leading-relaxed font-medium">
+
+        {/* Description */}
+        <p className="text-slate-500 text-sm leading-relaxed max-w-xs">
           {project.desc}
         </p>
 
-        {/* زر التكبير داخل البطاقة */}
-        <div className="mt-4 flex items-center justify-between pt-3 border-t border-slate-800/80 text-xs">
-          <span className="text-emerald-400 font-bold flex items-center gap-1 group-hover:underline">
-            عرض الملصق كاملاً
-            <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
-          </span>
-          <span className="text-slate-500 text-[11px]">
-            انقر للتكبير
-          </span>
-        </div>
-      </div>
+        {/* Accent line */}
+        <div className="w-10 h-1 rounded-full bg-primary/40 mt-2" />
+      </motion.div>
 
-      {/* إطار مضيء عند التمرير */}
-      <div className="absolute inset-0 rounded-3xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 ring-2 ring-emerald-400/40" />
-    </motion.div>
-  );
-}
-
-function ProjectModal({
-  project,
-  index,
-  total,
-  onClose,
-  onNext,
-  onPrev,
-}: {
-  project: ProjectItem;
-  index: number;
-  total: number;
-  onClose: () => void;
-  onNext: () => void;
-  onPrev: () => void;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md"
-      onClick={onClose}
-    >
+      {/* ── Image ── */}
       <motion.div
-        initial={{ scale: 0.9, opacity: 0, y: 20 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="relative bg-slate-900 border border-slate-700/80 rounded-3xl max-w-4xl w-full overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh]"
-        onClick={(e) => e.stopPropagation()}
+        initial={{ opacity: 0, x: isEven ? 50 : -50 }}
+        animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: isEven ? 50 : -50 }}
+        transition={{ duration: 0.65, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.12 }}
+        className="flex-1 w-full"
       >
-        {/* زر الإغلاق */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 left-4 z-30 w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 text-white/80 hover:text-white border border-white/10 flex items-center justify-center transition-all cursor-pointer shadow-lg"
-          title="إغلاق (Esc)"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        {/* عرض الملصق بجودة كاملة */}
-        <div className="relative w-full md:w-3/5 bg-black/60 min-h-[380px] md:min-h-[550px] flex items-center justify-center p-4">
-          <div className="relative w-full h-full max-h-[75vh] aspect-[3/4]">
-            <Image
-              src={project.src}
-              alt={project.title}
-              fill
-              className="object-contain drop-shadow-2xl"
-              sizes="(max-width: 768px) 100vw, 600px"
-              priority
-            />
-          </div>
-
-          {/* أزرار التنقل السابقة والتالية */}
-          <button
-            onClick={(e) => { e.stopPropagation(); onPrev(); }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/70 hover:bg-emerald-600 text-white flex items-center justify-center transition-all border border-white/10 cursor-pointer shadow-xl z-20"
-            title="المشروع السابق"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); onNext(); }}
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/70 hover:bg-emerald-600 text-white flex items-center justify-center transition-all border border-white/10 cursor-pointer shadow-xl z-20"
-            title="المشروع التالي"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* الجانب التعريفي والتبرع */}
-        <div className="w-full md:w-2/5 p-6 md:p-8 flex flex-col justify-between bg-slate-900 border-t md:border-t-0 md:border-r border-slate-800">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <span className="inline-block bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-black px-3 py-1 rounded-full">
-                {project.tag}
-              </span>
-              <span className="text-xs font-mono font-bold text-slate-400">
-                {index + 1} من {total}
-              </span>
-            </div>
-
-            <h3 className="text-2xl font-black text-white leading-snug">
-              {project.title}
-            </h3>
-
-            <p className="text-slate-300 text-sm mt-3 leading-relaxed">
-              {project.desc}
-            </p>
-
-            <div className="mt-6 bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
-              <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold mb-2">
-                <HeartHandshake className="w-4 h-4" />
-                <span>طرق المساهمة والمشاركة</span>
-              </div>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                يمكنك التبرع لدعم هذا المشروع أو كفالة الحالات الخاصة به عبر فودافون كاش أو إنستا باي من قسم التبرعات المباشر.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-8 space-y-3">
-            <a
-              href="#donate"
-              onClick={onClose}
-              className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-2 transition-all cursor-pointer text-center"
-            >
-              <span>ساهم بالتبرع لهذا المشروع</span>
-              <ArrowLeft className="w-4 h-4" />
-            </a>
-
-            <button
-              onClick={onClose}
-              className="w-full py-2.5 text-xs text-slate-400 hover:text-white transition-colors cursor-pointer"
-            >
-              إغلاق النافذة
-            </button>
-          </div>
+        <div className="relative w-full h-64 md:h-80 rounded-3xl overflow-hidden shadow-xl shadow-slate-200/80 border border-slate-100 group">
+          <Image
+            src={project.img}
+            alt={project.title}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+            sizes="(max-width: 768px) 100vw, 50vw"
+          />
+          {/* Subtle green tint overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-transparent" />
         </div>
       </motion.div>
-    </motion.div>
+    </div>
   );
 }
