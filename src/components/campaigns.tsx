@@ -5,9 +5,9 @@ import { motion } from "motion/react";
 import { Heart, AlertCircle } from "lucide-react";
 
 const CAMPAIGNS = [
-  { id: 1, title: "كفالة ومساعدات 21 أسرة يتيمة", target: 27000, current: 22950, days: 10, image: "/images/orphans.png" },
-  { id: 2, title: "سلال وبنوك الإطعام لـ 121 حالة", target: 13800, current: 12420, days: 5, image: "/images/food.png" },
-  { id: 3, title: "محطة تحلية المياه المجانية بالقرية", target: 20000, current: 16500, days: 8, image: "/images/water.png" },
+  { id: 1, title: "كفالة ومساعدات 21 أسرة يتيمة",         target: 27000, current: 22950, days: 10, image: "/projects/orphans.png" },
+  { id: 2, title: "سلال وبنوك الإطعام لـ 121 حالة",        target: 13800, current: 12420, days: 5,  image: "/projects/food.jpg"    },
+  { id: 3, title: "محطة تحلية المياه المجانية بالقرية",     target: 20000, current: 16500, days: 8,  image: "/projects/water.png"   },
 ];
 
 export function Campaigns() {

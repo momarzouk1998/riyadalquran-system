@@ -9,47 +9,37 @@ const PROJECTS = [
   {
     title: "كفالة الأيتام والكسوة",
     category: "كفالات شهرية",
-    img: "/projects/orphans.png",
+    img: "/projects/food.jpg",       // صورة بشر/حياة
     raised: 22950,
     target: 27000,
-    color: "from-rose-600 to-rose-800",
-    accent: "#e05c5c",
   },
   {
     title: "طرود بنك الطعام المصري",
-    category: "إطعام وسلال 🍲",
-    img: "/projects/food.jpg",
+    category: "إطعام وسلال",
+    img: "/projects/medical.png",    // صورة مختلفة
     raised: 12420,
     target: 13800,
-    color: "from-amber-500 to-orange-700",
-    accent: "#e8b84b",
   },
   {
     title: "ترميم البيوت وتيسير الزواج",
-    category: "مساعدات اجتماعية 🧱",
-    img: "/projects/houses.png",
+    category: "مساعدات اجتماعية",
+    img: "/projects/brides.png",
     raised: 13000,
     target: 20000,
-    color: "from-emerald-600 to-emerald-800",
-    accent: "#1a6b2e",
   },
   {
     title: "محطة تحلية مياه الشرب",
-    category: "سقيا ماء 💧",
-    img: "/projects/water.png",
+    category: "سقيا ماء",
+    img: "/projects/mosque.jpg",     // صورة مختلفة
     raised: 15000,
     target: 15000,
-    color: "from-sky-500 to-sky-800",
-    accent: "#3b9edd",
   },
 ];
 
-
-
 const PAYMENT_ACCOUNTS = [
-  { label: "فودافون كاش",  value: "01010453630", icon: Smartphone },
-  { label: "انستا باي",    value: "01281660541", icon: Zap },
-  { label: "حساب بنكي",   value: "1300",         icon: CreditCard },
+  { label: "فودافون كاش", value: "01010453630", icon: Smartphone },
+  { label: "انستا باي",   value: "01281660541", icon: Zap },
+  { label: "حساب بنكي",  value: "1300",         icon: CreditCard },
 ];
 
 export function DonateSection() {
@@ -96,7 +86,7 @@ export function DonateSection() {
             transition={{ delay: 0.12 }}
             className="text-slate-500 text-sm mt-2"
           >
-            اختر مشروعاً، انسخ الرقم، حوّل المبلغ، وأرسل إيصال على واتساب — وخلاص ✓
+            انسخ الرقم، حوّل المبلغ، وابعت الإيصال على واتساب — وخلاص ✓
           </motion.p>
         </div>
 
@@ -140,9 +130,7 @@ export function DonateSection() {
         {/* ── كارداتـ المشاريع ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {PROJECTS.map((proj, i) => {
-            const pct = Math.min(100, Math.round((proj.raised / proj.target) * 100));
-            const completed = pct >= 100;
-
+            const completed = proj.raised >= proj.target;
             return (
               <motion.div
                 key={i}
@@ -152,7 +140,7 @@ export function DonateSection() {
                 transition={{ delay: i * 0.1 }}
                 className="bg-white rounded-3xl overflow-hidden shadow-lg border border-slate-100 flex flex-col group hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
-                {/* صورة */}
+                {/* صورة بدون overlay */}
                 <div className="relative h-48 overflow-hidden">
                   <Image
                     src={proj.img}
@@ -161,13 +149,12 @@ export function DonateSection() {
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                     sizes="320px"
                   />
-                  <div className={`absolute inset-0 bg-gradient-to-t ${proj.color} opacity-50`} />
-                  {/* category badge */}
-                  <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-slate-800 text-[10px] font-black px-2.5 py-1 rounded-full">
+                  {/* category badge فقط */}
+                  <div className="absolute top-3 right-3 bg-white/95 text-slate-800 text-[10px] font-black px-2.5 py-1 rounded-full shadow-sm">
                     {proj.category}
                   </div>
                   {completed && (
-                    <div className="absolute top-3 left-3 bg-emerald-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full">
+                    <div className="absolute top-3 left-3 bg-emerald-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-sm">
                       مكتمل ✓
                     </div>
                   )}
@@ -177,36 +164,43 @@ export function DonateSection() {
                 <div className="p-5 flex flex-col flex-1 gap-4">
                   <h3 className="font-black text-slate-800 text-sm leading-snug">{proj.title}</h3>
 
-                  {/* progress */}
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between text-[11px] font-bold text-slate-500">
-                      <span>تم جمع: <span className="text-slate-800">{proj.raised.toLocaleString()}</span></span>
-                      <span>الهدف: <span className="text-slate-800">{proj.target.toLocaleString()}</span></span>
-                    </div>
-                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${pct}%` }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1.2, ease: "easeOut", delay: i * 0.1 }}
-                        className="h-full rounded-full bg-gradient-to-r from-primary to-secondary"
-                      />
-                    </div>
-                    <p className="text-[10px] text-slate-400 text-left" dir="ltr">{pct}% completed</p>
+                  {/* الأرقام فقط — بدون progress bar */}
+                  <div className="flex justify-between text-[11px] font-bold text-slate-500 bg-slate-50 rounded-xl px-3 py-2.5">
+                    <span>تم جمع: <span className="text-primary font-black">{proj.raised.toLocaleString()}</span></span>
+                    <span>الهدف: <span className="text-slate-700 font-black">{proj.target.toLocaleString()}</span></span>
                   </div>
 
-                  {/* الزرين */}
-                  <div className="flex flex-col gap-2 mt-auto">
-                    {/* نسخ الرقم */}
-                    <button
-                      onClick={() => copy("01010453630", `card-${i}`)}
-                      className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-white text-xs font-black hover:bg-emerald-800 transition-colors cursor-pointer shadow-md"
-                    >
-                      {copiedKey === `card-${i}`
-                        ? <><Check className="w-3.5 h-3.5" /> تم نسخ الرقم — حوّل الآن</>
-                        : <><Copy className="w-3.5 h-3.5" /> انسخ رقم التحويل</>
-                      }
-                    </button>
+                  {/* أرقام الدفع + نسخ — داخل الكارد */}
+                  <div className="space-y-2 mt-auto">
+                    {/* فودافون كاش */}
+                    <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <Smartphone className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="text-[11px] text-slate-500 font-medium">فودافون كاش</span>
+                        <span className="font-mono text-xs font-black text-slate-700" dir="ltr">01010453630</span>
+                      </div>
+                      <button
+                        onClick={() => copy("01010453630", `voda-${i}`)}
+                        className="shrink-0 p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-primary hover:text-white hover:border-primary transition-colors cursor-pointer"
+                      >
+                        {copiedKey === `voda-${i}` ? <Check className="w-3 h-3 text-green-600" /> : <Copy className="w-3 h-3 text-slate-400" />}
+                      </button>
+                    </div>
+
+                    {/* انستا باي */}
+                    <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <Zap className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="text-[11px] text-slate-500 font-medium">انستا باي</span>
+                        <span className="font-mono text-xs font-black text-slate-700" dir="ltr">01281660541</span>
+                      </div>
+                      <button
+                        onClick={() => copy("01281660541", `insta-${i}`)}
+                        className="shrink-0 p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-primary hover:text-white hover:border-primary transition-colors cursor-pointer"
+                      >
+                        {copiedKey === `insta-${i}` ? <Check className="w-3 h-3 text-green-600" /> : <Copy className="w-3 h-3 text-slate-400" />}
+                      </button>
+                    </div>
 
                     {/* واتساب */}
                     <a
@@ -225,7 +219,7 @@ export function DonateSection() {
           })}
         </div>
 
-        {/* ── تعليمات التبرع ── */}
+        {/* ── خطوات التبرع ── */}
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -233,12 +227,12 @@ export function DonateSection() {
           className="mt-10 bg-slate-50 border border-slate-200 rounded-3xl p-6 text-center"
         >
           <p className="text-sm font-black text-slate-700 mb-3">📌 خطوات التبرع في 3 ثواني</p>
-          <div className="flex flex-wrap justify-center gap-4 text-xs text-slate-600 font-medium">
+          <div className="flex flex-wrap justify-center gap-3 text-xs text-slate-600 font-medium">
             {[
-              "① اختر المشروع والمبلغ",
+              "① اختر المشروع",
               "② انسخ رقم فودافون كاش أو انستا باي",
-              "③ حوّل المبلغ من موبايل بنكينج",
-              "④ ابعت صورة الإيصال على واتساب — وخلاص ✓",
+              "③ حوّل المبلغ",
+              "④ ابعت الإيصال على واتساب ✓",
             ].map((step) => (
               <span key={step} className="bg-white border border-slate-200 px-4 py-2 rounded-full shadow-sm">
                 {step}
