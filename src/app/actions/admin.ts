@@ -19,9 +19,14 @@ export async function createStudent(formData: FormData) {
     const address = formData.get('address') as string;
     const ageRaw = formData.get('age') as string;
     const ageText = formData.get('ageText') as string;
+    const startDateRaw = formData.get('startDate') as string;
+    const paymentStatus = (formData.get('paymentStatus') as string || 'unpaid').trim();
     const paidWay = formData.get('paidWay') as string;
     const paidAmountRaw = formData.get('paidAmount') as string;
     const remainingAmountRaw = formData.get('remainingAmount') as string;
+    const registrationType = (formData.get('registrationType') as string || 'new').trim();
+    const yearsInNurseryRaw = formData.get('yearsInNursery') as string;
+    const isFinalYear = formData.get('isFinalYear') === 'on' || formData.get('isFinalYear') === 'true';
     const notes = formData.get('notes') as string;
     const imageUrl = formData.get('imageUrl') as string;
 
@@ -54,12 +59,15 @@ export async function createStudent(formData: FormData) {
     const age = ageRaw ? parseInt(ageRaw, 10) : null;
     const paidAmount = paidAmountRaw ? parseFloat(paidAmountRaw) : 0;
     const remainingAmount = remainingAmountRaw ? parseFloat(remainingAmountRaw) : 0;
+    const yearsInNursery = yearsInNurseryRaw ? parseInt(yearsInNurseryRaw, 10) : 1;
+    const startDate = startDateRaw ? new Date(startDateRaw) : null;
 
     await db.student.create({
       data: {
         name,
         sequence,
         nationalId: nationalId || null,
+        startDate: startDate || null,
         password: password || '123456',
         category: category || null,
         teacherId: teacherId && teacherId !== '' ? teacherId : null,
@@ -67,9 +75,13 @@ export async function createStudent(formData: FormData) {
         address: address || 'المنشأة الكبرى',
         age: isNaN(age as number) ? null : age,
         ageText: ageText || null,
+        paymentStatus: paymentStatus || 'unpaid',
         paidWay: paidWay || null,
         paidAmount: isNaN(paidAmount) ? 0 : paidAmount,
         remainingAmount: isNaN(remainingAmount) ? 0 : remainingAmount,
+        registrationType: registrationType || 'new',
+        yearsInNursery: isNaN(yearsInNursery) ? 1 : yearsInNursery,
+        isFinalYear: isFinalYear,
         notes: notes || null,
         imageUrl: imageUrl || null,
         isActive: true,
@@ -96,9 +108,14 @@ export async function updateStudent(id: string, formData: FormData) {
     const address = formData.get('address') as string;
     const ageRaw = formData.get('age') as string;
     const ageText = formData.get('ageText') as string;
+    const startDateRaw = formData.get('startDate') as string;
+    const paymentStatus = (formData.get('paymentStatus') as string || 'unpaid').trim();
     const paidWay = formData.get('paidWay') as string;
     const paidAmountRaw = formData.get('paidAmount') as string;
     const remainingAmountRaw = formData.get('remainingAmount') as string;
+    const registrationType = (formData.get('registrationType') as string || 'new').trim();
+    const yearsInNurseryRaw = formData.get('yearsInNursery') as string;
+    const isFinalYear = formData.get('isFinalYear') === 'on' || formData.get('isFinalYear') === 'true';
     const notes = formData.get('notes') as string;
     const imageUrl = formData.get('imageUrl') as string;
 
@@ -117,6 +134,8 @@ export async function updateStudent(id: string, formData: FormData) {
     const age = ageRaw ? parseInt(ageRaw, 10) : null;
     const paidAmount = paidAmountRaw ? parseFloat(paidAmountRaw) : 0;
     const remainingAmount = remainingAmountRaw ? parseFloat(remainingAmountRaw) : 0;
+    const yearsInNursery = yearsInNurseryRaw ? parseInt(yearsInNurseryRaw, 10) : 1;
+    const startDate = startDateRaw ? new Date(startDateRaw) : null;
 
     await db.student.update({
       where: { id },
@@ -124,6 +143,7 @@ export async function updateStudent(id: string, formData: FormData) {
         name,
         sequence: sequence || undefined,
         nationalId: nationalId || null,
+        startDate: startDate || null,
         password: password || undefined,
         category: category || null,
         teacherId: teacherId && teacherId !== '' ? teacherId : null,
@@ -131,9 +151,13 @@ export async function updateStudent(id: string, formData: FormData) {
         address: address || 'المنشأة الكبرى',
         age: isNaN(age as number) ? null : age,
         ageText: ageText || null,
+        paymentStatus: paymentStatus || 'unpaid',
         paidWay: paidWay || null,
         paidAmount: isNaN(paidAmount) ? 0 : paidAmount,
         remainingAmount: isNaN(remainingAmount) ? 0 : remainingAmount,
+        registrationType: registrationType || 'new',
+        yearsInNursery: isNaN(yearsInNursery) ? 1 : yearsInNursery,
+        isFinalYear: isFinalYear,
         notes: notes || null,
         imageUrl: imageUrl || null,
       },
@@ -635,6 +659,13 @@ export async function submitRegistrationRequest(formData: FormData) {
     const childAgeRaw    = formData.get('childAge') as string;
     const childAge       = childAgeRaw ? parseInt(childAgeRaw, 10) : null;
     const childNationalId = (formData.get('childNationalId') as string || null) || null;
+    const startDateRaw   = formData.get('startDate') as string;
+    const startDate      = startDateRaw ? new Date(startDateRaw) : null;
+    const paymentStatus  = (formData.get('paymentStatus') as string || 'unpaid').trim();
+    const registrationType = (formData.get('registrationType') as string || 'new').trim();
+    const yearsInNurseryRaw = formData.get('yearsInNursery') as string;
+    const yearsInNursery = yearsInNurseryRaw ? parseInt(yearsInNurseryRaw, 10) : 1;
+    const isFinalYear    = formData.get('isFinalYear') === 'on' || formData.get('isFinalYear') === 'true';
     const familySizeRaw  = formData.get('familySize') as string;
     const familySize     = familySizeRaw ? parseInt(familySizeRaw, 10) : null;
     const monthlyIncomeRaw = formData.get('monthlyIncome') as string;
@@ -657,6 +688,11 @@ export async function submitRegistrationRequest(formData: FormData) {
         childName,
         childAge: isNaN(childAge as number) ? null : childAge,
         childNationalId,
+        startDate: startDate || null,
+        paymentStatus: paymentStatus || 'unpaid',
+        registrationType: registrationType || 'new',
+        yearsInNursery: isNaN(yearsInNursery) ? 1 : yearsInNursery,
+        isFinalYear: isFinalYear,
         familySize: isNaN(familySize as number) ? null : familySize,
         monthlyIncome: isNaN(monthlyIncome as number) ? null : monthlyIncome,
         needDetails,

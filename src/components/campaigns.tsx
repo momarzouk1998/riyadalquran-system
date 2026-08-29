@@ -5,9 +5,13 @@ import { motion } from "motion/react";
 import { Heart, AlertCircle } from "lucide-react";
 
 const CAMPAIGNS = [
-  { id: 1, title: "كفالة ومساعدات 21 أسرة يتيمة",         target: 27000, current: 22950, days: 10, image: "/projects/orphans.png" },
-  { id: 2, title: "سلال وبنوك الإطعام لـ 121 حالة",        target: 13800, current: 12420, days: 5,  image: "/projects/food.jpg"    },
-  { id: 3, title: "محطة تحلية المياه المجانية بالقرية",     target: 20000, current: 16500, days: 8,  image: "/projects/water.png"   },
+  { id: 1, title: "كفالة الأيتام",         days: 10, image: "/projects/orphans.png" },
+  { id: 2, title: "الحالات المرضية",        days: 5,  image: "/projects/medical.png"    },
+  { id: 3, title: "الحالات الفقيرة",     days: 8,  image: "/projects/Poor.png"   },
+  { id: 4, title: "توزيع الطعام", days: 7, image: "/projects/food.jpg" },
+  { id: 5, title: "محطة تحلية المياه", days: 15, image: "/projects/water.png" },
+  { id: 6, title: "مسجد رياض القرآن", days: 30, image: "/projects/mosque.jpg" },
+  { id: 7, title: "تجهيز العرائس", days: 20, image: "/projects/brides.png" },
 ];
 
 export function Campaigns() {
@@ -37,7 +41,7 @@ export function Campaigns() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
         {CAMPAIGNS.map((item, i) => (
           <motion.div
             key={item.id}
@@ -56,29 +60,9 @@ export function Campaigns() {
 
             <div className="p-8 space-y-6">
               <h3 className="text-xl font-bold leading-tight text-slate-900">{item.title}</h3>
-              
-              <div className="space-y-4">
-                <div className="flex justify-between text-xs font-bold">
-                  <span className="text-slate-500">المبلغ المتبقي</span>
-                  <span className="text-primary font-mono text-sm">{(item.target - item.current).toLocaleString()} ج.م</span>
-                </div>
-                <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    whileInView={{ width: `${(item.current / item.target) * 100}%` }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 1.5, ease: "easeOut" }}
-                    className="h-full bg-gradient-to-r from-primary to-secondary rounded-full"
-                  />
-                </div>
-                <div className="flex justify-between text-[11px] font-bold text-slate-500">
-                  <span>تم جمع: {((item.current / item.target) * 100).toFixed(0)}%</span>
-                  <span>المستهدف: {item.target.toLocaleString()} ج.م</span>
-                </div>
-              </div>
 
               <div className="flex items-center justify-between gap-4 pt-2">
-                <a 
+                <a
                   href="https://wa.me/201010453630"
                   target="_blank"
                   rel="noopener noreferrer"

@@ -5,10 +5,13 @@ import { ShoppingCart, Heart, Copy, Check, CreditCard, Sparkles, Smartphone } fr
 import { useState } from "react";
 
 const CARDS = [
-  { title: "كفالة الأيتام والكسوة", category: "كفالات شهرية", target: "27,000", raised: "22,950", imageEmoji: "🎁" },
-  { title: "طرود بنك الطعام المصري", category: "إطعام وسلال", target: "13,800", raised: "12,420", imageEmoji: "🍲" },
-  { title: "ترميم البيوت وتيسير الزواج", category: "مساعدات اجتماعية", target: "20,000", raised: "13,000", imageEmoji: "🧱" },
-  { title: "محطة تحلية مياه الشرب", category: "سقيا ماء", target: "15,000", raised: "15,000", imageEmoji: "💧" },
+  { title: "كفالة الأيتام", category: "كفالات شهرية", imageEmoji: "🎁" },
+  { title: "الحالات المرضية", category: "رعاية صحية", imageEmoji: "🏥" },
+  { title: "الحالات الفقيرة", category: "مساعدات اجتماعية", imageEmoji: "🤝" },
+  { title: "توزيع الطعام", category: "إطعام وسلال", imageEmoji: "🍲" },
+  { title: "محطة تحلية المياه", category: "سقيا ماء", imageEmoji: "💧" },
+  { title: "مسجد رياض القرآن", category: "الشعائر الدينية", imageEmoji: "🕌" },
+  { title: "تجهيز العرائس", category: "تيسير الزواج", imageEmoji: "💍" },
 ];
 
 export function GatewayGiving() {
@@ -93,7 +96,7 @@ export function GatewayGiving() {
 
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {CARDS.map((card, i) => (
             <motion.div
               key={i}
@@ -110,31 +113,14 @@ export function GatewayGiving() {
                 </div>
                 
                 <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors text-slate-900">{card.title}</h3>
-                
-                <div className="flex items-baseline justify-between text-xs text-slate-500 my-4 border-t border-slate-100 pt-3">
-                  <span>تم جمع: <strong className="text-slate-900">{card.raised}</strong></span>
-                  <span>الهدف: <strong className="text-slate-900">{card.target}</strong></span>
-                </div>
               </div>
 
               <div className="space-y-3 pt-2">
-                <div className="grid grid-cols-4 gap-1.5">
-                  {[50, 100, 250, 500].map((amt) => (
-                    <button
-                      key={amt}
-                      onClick={() => handleCopy('1300', `card-${i}-${amt}`)}
-                      className="py-1.5 px-2 bg-slate-50 hover:bg-primary hover:text-white border border-slate-200 rounded-xl text-xs font-black transition-all cursor-pointer text-center"
-                    >
-                      {amt}
-                    </button>
-                  ))}
-                </div>
-
                 <button 
                   onClick={() => handleCopy('1300', `donate-${i}`)}
                   className="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-secondary transition-all flex items-center justify-center gap-2 text-xs shadow-md cursor-pointer"
                 >
-                  {copiedKey?.startsWith(`donate-${i}`) || copiedKey?.startsWith(`card-${i}`) ? 'تم نسخ الحساب البنكي 1300 ✓' : 'تبرع الآن للمشروع'}
+                  {copiedKey?.startsWith(`donate-${i}`) ? 'تم نسخ الحساب البنكي 1300 ✓' : 'تبرع الآن للمشروع'}
                 </button>
               </div>
             </motion.div>

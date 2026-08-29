@@ -51,7 +51,7 @@ export default function RegisterPoorPage() {
               <h2 className="text-xl font-black">تسجيل حالة فقيرة</h2>
             </div>
             <p className="text-sm text-green-100 leading-relaxed">
-              للأسر غير القادرة التي تحتاج مساعدة في ترميم المنازل، ملابس العيد، المواد الغذائية، أو المستلزمات المدرسية.
+              للأسر غير القادرة التي تحتاج مساعدة في ملابس العيد، المواد الغذائية، أو المستلزمات المدرسية.
             </p>
           </div>
 
@@ -102,7 +102,7 @@ export default function RegisterPoorPage() {
                   </div>
                   <div className="space-y-1.5 sm:col-span-2">
                     <label className="text-sm font-bold text-gray-700">نوع الاحتياج</label>
-                    <input name="needDetails" placeholder="مثال: ترميم منزل، ملابس عيد، مواد غذائية..." className="form-input-modern" />
+                    <input name="needDetails" placeholder="مثال: ملابس عيد، مواد غذائية، مستلزمات مدرسية..." className="form-input-modern" />
                   </div>
                   <div className="space-y-1.5 sm:col-span-2">
                     <label className="text-sm font-bold text-gray-700">ملاحظات إضافية</label>

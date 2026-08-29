@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import {
-  User, BookOpen, CreditCard, Fingerprint, AlertCircle,
+  User, BookOpen, CreditCard, Fingerprint, AlertCircle, Calendar, GraduationCap, RefreshCw, CheckCircle2
 } from 'lucide-react';
 import { ImageUploader } from '@/components/ImageUploader';
 
@@ -10,14 +10,19 @@ export interface StudentFormData {
   id?: string;
   name?: string;
   nationalId?: string;
+  startDate?: string | Date | null;
   phone?: string;
   address?: string;
   category?: string;
   teacherId?: string;
   password?: string;
+  paymentStatus?: string;
   paidWay?: string;
   paidAmount?: number;
   remainingAmount?: number;
+  registrationType?: string;
+  yearsInNursery?: number;
+  isFinalYear?: boolean;
   imageUrl?: string;
   notes?: string;
   age?: number | null;
@@ -73,6 +78,17 @@ export function calculateAgeFromNationalId(nidInput: string) {
   return { ageYears: years, ageText };
 }
 
+function formatDateForInput(dateVal: string | Date | null | undefined): string {
+  if (!dateVal) return '';
+  if (dateVal instanceof Date) {
+    return dateVal.toISOString().split('T')[0];
+  }
+  if (typeof dateVal === 'string') {
+    return dateVal.split('T')[0];
+  }
+  return '';
+}
+
 /**
  * StudentForm — مكوّن فورم الطالب المشترك
  * يعمل داخل مودال الإدارة (mode="modal") أو كصفحة عامة (mode="page")
@@ -90,6 +106,11 @@ export function StudentForm({
   // إذا لم يُمرَّر تحكم خارجي نستخدم state داخلي
   const [internalNid, setInternalNid] = useState(defaultValues.nationalId || '');
   const [internalAgeText, setInternalAgeText] = useState(defaultValues.ageText || '');
+
+  // حالة نوع القيد والتجديد
+  const [regType, setRegType] = useState<string>(defaultValues.registrationType || 'new');
+  const [isFinal, setIsFinal] = useState<boolean>(defaultValues.isFinalYear || false);
+  const [payStatus, setPayStatus] = useState<string>(defaultValues.paymentStatus || 'unpaid');
 
   const nid = nationalIdValue !== undefined ? nationalIdValue : internalNid;
   const ageText = computedAgeText !== undefined ? computedAgeText : internalAgeText;
@@ -190,10 +211,74 @@ export function StudentForm({
         </div>
       </div>
 
-      {/* ══ القسم 2: التسكين والمعلمة ══ */}
+      {/* ══ القسم 2: القيد وتاريخ الدخول والتسكين ══ */}
       <div className="space-y-4">
-        <SectionHeader icon={<BookOpen className="w-4 h-4 text-emerald-700" />} label="٢. التسكين والمعلمة المسؤولة" />
+        <SectionHeader icon={<BookOpen className="w-4 h-4 text-emerald-700" />} label="٢. بيانات القيد وتاريخ دخول الحضانة" />
 
+        {/* تاريخ بدء دخول الحضانة + نوع القيد */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <Label required icon={<Calendar className="w-3.5 h-3.5 text-emerald-700" />}>
+              تاريخ بدء دخول الحضانة (تاريخ الالتحاق)
+            </Label>
+            <input
+              type="date"
+              name="startDate"
+              defaultValue={formatDateForInput(defaultValues.startDate)}
+              className={inputCls}
+            />
+          </div>
+
+          <div>
+            <Label icon={<RefreshCw className="w-3.5 h-3.5 text-emerald-700" />}>
+              نوع القيد (تسجيل جديد أم تجديد اشتراك)
+            </Label>
+            <select
+              name="registrationType"
+              value={regType}
+              onChange={(e) => setRegType(e.target.value)}
+              className={inputCls}
+            >
+              <option value="new">تسجيل جديد (أول مرة في الحضانة)</option>
+              <option value="renewal">تجديد اشتراك طالب مستمر</option>
+            </select>
+          </div>
+        </div>
+
+        {/* عدد السنوات بالحضانة + آخر سنة (مرحلة تخرج) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+          <div>
+            <Label>عدد سنوات قيد الطالب في الحضانة (كم سنة معنا؟)</Label>
+            <select
+              name="yearsInNursery"
+              defaultValue={defaultValues.yearsInNursery || (regType === 'renewal' ? 2 : 1)}
+              className={inputCls}
+            >
+              <option value="1">السنة الأولى (أول سنة بالحضانة)</option>
+              <option value="2">السنة الثانية (مستمر للعام الثاني)</option>
+              <option value="3">السنة الثالثة (مستمر للعام الثالث)</option>
+              <option value="4">السنة الرابعة (٤ سنوات بالحضانة)</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col justify-end">
+            <label className="flex items-center gap-3 p-2.5 bg-amber-50/70 border border-amber-200/80 rounded-2xl cursor-pointer hover:bg-amber-100/50 transition-colors">
+              <input
+                type="checkbox"
+                name="isFinalYear"
+                checked={isFinal}
+                onChange={(e) => setIsFinal(e.target.checked)}
+                className="w-4 h-4 text-emerald-700 rounded focus:ring-emerald-600 accent-emerald-700"
+              />
+              <div className="flex items-center gap-1.5 text-xs font-black text-amber-950">
+                <GraduationCap className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>آخر سنة للطالب في الحضانة (مرحلة التخرج للمدرسة)</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        {/* المستوى الدراسي والمعلمة وكلمة المرور */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {/* المستوى الدراسي */}
           <div>
@@ -239,10 +324,44 @@ export function StudentForm({
         </div>
       </div>
 
-      {/* ══ القسم 3: الموقف المالي — يظهر في الوضع الداخلي فقط ══ */}
+      {/* ══ القسم 3: الموقف المالي وسداد المصروفات ══ */}
       {mode === 'modal' && (
         <div className="space-y-4">
-          <SectionHeader icon={<CreditCard className="w-4 h-4 text-emerald-700" />} label="٣. الموقف المالي وطريقة الدفع" />
+          <SectionHeader icon={<CreditCard className="w-4 h-4 text-emerald-700" />} label="٣. الموقف المالي وسداد المصروفات" />
+
+          {/* بند تم سداد المصروفات */}
+          <div className="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100">
+            <Label required icon={<CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />}>
+              حالة سداد المصروفات الدراسية
+            </Label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-1.5">
+              {[
+                { id: 'paid', label: 'تم السداد بالكامل ✅', activeCls: 'bg-emerald-700 text-white border-emerald-800' },
+                { id: 'partial', label: 'سداد جزئي ⏳', activeCls: 'bg-amber-600 text-white border-amber-700' },
+                { id: 'unpaid', label: 'لم يسدد (مستحق) ❌', activeCls: 'bg-rose-600 text-white border-rose-700' },
+                { id: 'exempt', label: 'معفى (كفالة أيتام) 🤍', activeCls: 'bg-blue-600 text-white border-blue-700' },
+              ].map((item) => (
+                <label
+                  key={item.id}
+                  className={`flex items-center justify-center py-2 px-2.5 rounded-xl border text-xs font-black cursor-pointer transition-all text-center ${
+                    payStatus === item.id
+                      ? item.activeCls + ' shadow-sm'
+                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentStatus"
+                    value={item.id}
+                    checked={payStatus === item.id}
+                    onChange={(e) => setPayStatus(e.target.value)}
+                    className="sr-only"
+                  />
+                  <span>{item.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>

@@ -15,6 +15,11 @@ interface Request {
   childName: string | null;
   childAge: number | null;
   childNationalId: string | null;
+  startDate?: Date | string | null;
+  paymentStatus?: string | null;
+  registrationType?: string | null;
+  yearsInNursery?: number | null;
+  isFinalYear?: boolean | null;
   familySize: number | null;
   monthlyIncome: number | null;
   needDetails: string | null;
@@ -180,6 +185,16 @@ export function RequestsClientView({ initialRequests }: { initialRequests: Reque
                       {r.childName    && <Detail label="اسم الطفل"         value={r.childName} />}
                       {r.childAge     && <Detail label="عمر الطفل"         value={`${r.childAge} سنوات`} />}
                       {r.childNationalId && <Detail label="ر.ق. الطفل"     value={r.childNationalId} dir="ltr" />}
+                      {r.startDate    && <Detail label="تاريخ بدء الدخول" value={new Date(r.startDate).toISOString().split('T')[0]} dir="ltr" />}
+                      {r.registrationType && (
+                        <Detail 
+                          label="نوع القيد بالحضانة" 
+                          value={`${r.registrationType === 'renewal' ? 'تجديد اشتراك' : 'تسجيل جديد'} (السنة ${r.yearsInNursery || 1})`} 
+                        />
+                      )}
+                      {r.isFinalYear && (
+                        <Detail label="مرحلة التخرج" value="🎓 آخر سنة بالحضانة" />
+                      )}
                       {r.guardianName && <Detail label="الوصي"             value={r.guardianName} />}
                       {r.orphanCount  && <Detail label="عدد الأيتام"       value={`${r.orphanCount}`} />}
                       {r.notes        && <Detail label="ملاحظات" value={r.notes} fullWidth />}

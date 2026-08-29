@@ -73,7 +73,7 @@ export default async function AdminDashboardPage() {
     },
     {
       title: 'الحالات الفقيرة',
-      desc: 'مساعدات الأسر غير القادرة وترميم المنازل وتوزيع الملابس.',
+      desc: 'مساعدات الأسر غير القادرة وتوزيع الملابس والمستلزمات.',
       emoji: '💸',
       link: '/admin/dashboard/poor',
       color: 'bg-teal-50 text-teal-800 border-teal-100 hover:bg-teal-100/50',

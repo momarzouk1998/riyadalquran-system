@@ -44,7 +44,7 @@ model Student {
   uid              String?         @unique // AppSheet UID (e.g. 1ec86d83)
   sequence         String          @unique // Student number (e.g. 1102)
   nationalId       String?         // الرقم القومي 14 رقم من شهادة الميلاد
-  startDate        DateTime?
+  startDate        DateTime?       // تاريخ بدء دخول الحضانة (تاريخ الالتحاق)
   category         String?         // Level: "KG1" | "KG2" | etc.
   name             String
   phone            String?         // Parent phone number
@@ -54,9 +54,13 @@ model Student {
   imageUrl         String?
   birthCertUrl     String?
   password         String          @default("123456") // Password for parents login
+  paymentStatus    String?         @default("unpaid") // "paid" (تم السداد بالكامل) | "partial" (سداد جزئي) | "unpaid" (لم يسدد) | "exempt" (معفى)
   paidWay          String?
   paidAmount       Float           @default(0)
   remainingAmount  Float           @default(0)
+  registrationType String?         @default("new") // "new" (تسجيل جديد أول مرة) | "renewal" (تجديد اشتراك)
+  yearsInNursery   Int?            @default(1) // عدد السنوات في الحضانة (1, 2, 3, ...)
+  isFinalYear      Boolean         @default(false) // هل هي آخر سنة له في الحضانة (مرحلة تمهيدي/تخرج للمدرسة)
   notes            String?
   isActive         Boolean         @default(true)
   createdAt        DateTime        @default(now())
@@ -79,7 +83,6 @@ model StudentGrades {
   nourAlbian Int      @default(0)
   math       Int      @default(0)
   english    Int      @default(0)
-
   @@unique([studentId, month])
 }
 
@@ -127,7 +130,7 @@ model AssociationInfo {
   phone       String?  // رقم تليفون التواصل
   address     String?  // العنوان والقرية بالتفصيل (مثال: المنشأة الكبرى - شارع المدارس)
   monthlyCost Float    @default(0) // المبلغ أو كفالة المساعدة الشهرية (ج.م)
-  notes       String?  // تفاصيل الحالة والاحتياجات (ترميم منزل، علاج، ملابس، مواد غذائية)
+  notes       String?  // تفاصيل الحالة والاحتياجات (علاج، ملابس، مواد غذائية)
   createdAt   DateTime @default(now())
 }
 
@@ -145,14 +148,19 @@ model RegistrationRequest {
   address      String?  // العنوان
 
   // بيانات الطفل (للحضانة)
-  childName    String?  // اسم الطفل
-  childAge     Int?     // عمر الطفل بالسنوات
-  childNationalId String? // الرقم القومي للطفل (من شهادة الميلاد)
+  childName        String?   // اسم الطفل
+  childAge         Int?      // عمر الطفل بالسنوات
+  childNationalId  String?   // الرقم القومي للطفل (من شهادة الميلاد)
+  startDate        DateTime? // تاريخ بدء الدخول / الالتحاق المطلوب
+  paymentStatus    String?   @default("unpaid") // موقف السداد
+  registrationType String?   @default("new") // "new" (تسجيل جديد) | "renewal" (تجديد)
+  yearsInNursery   Int?      @default(1) // عدد السنوات بالحضانة
+  isFinalYear      Boolean   @default(false) // آخر سنة بالحضانة
 
   // بيانات الحالة
   familySize   Int?     // عدد أفراد الأسرة
   monthlyIncome Float?  // الدخل الشهري التقريبي
-  needDetails  String?  // تفاصيل الاحتياج (ترميم، علاج، ملابس...)
+  needDetails  String?  // تفاصيل الاحتياج (علاج، ملابس، مواد غذائية...)
   notes        String?  // ملاحظات إضافية
 
   // بيانات الحالة المرضية

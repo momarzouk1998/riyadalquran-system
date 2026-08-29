@@ -4,35 +4,35 @@ import { motion } from "motion/react";
 import { HeartHandshake, Users, Flame, Droplets } from "lucide-react";
 
 const DOORS = [
-  { 
-    title: "المشاريع الخيرية", 
-    desc: "كفالة الأيتام - تحلية المياه - المساعدات الطبية", 
-    color: "bg-primary", 
-    btn: "تبرع للمشاريع", 
+  {
+    title: "المشاريع الخيرية",
+    desc: "كفالة الأيتام - الحالات المرضية - الحالات الفقيرة - توزيع الطعام - محطة المياه - المسجد - تجهيز العرائس",
+    color: "bg-primary",
+    btn: "تبرع للمشاريع",
     href: "#store",
     icon: Droplets
   },
-  { 
-    title: "الكفالات", 
-    desc: "21 أسرة يتيمة - طلاب الحضانة - أسر متعففة", 
-    color: "bg-secondary", 
-    btn: "اكفل الآن", 
+  {
+    title: "الكفالات",
+    desc: "21 أسرة يتيمة - طلاب الحضانة - أسر متعففة",
+    color: "bg-secondary",
+    btn: "اكفل الآن",
     href: "#orphans",
     icon: Users
   },
-  { 
-    title: "التبرعات العاجلة", 
-    desc: "صدقة عامة - بنك الطعام المصري - إطعام الطعام", 
-    color: "bg-primary", 
-    btn: "تبرع الآن", 
+  {
+    title: "التبرعات العاجلة",
+    desc: "صدقة عامة - بنك الطعام المصري - إطعام الطعام",
+    color: "bg-primary",
+    btn: "تبرع الآن",
     href: "#donations",
     icon: Flame
   },
-  { 
-    title: "الحالات الطارئة", 
-    desc: "علاجية - ترميم بيوت - تيسير زواج الفتيات", 
-    color: "bg-secondary", 
-    btn: "شارك في الخير", 
+  {
+    title: "الحالات الطارئة",
+    desc: "علاجية - تيسير زواج الفتيات",
+    color: "bg-secondary",
+    btn: "شارك في الخير",
     href: "#campaigns",
     icon: HeartHandshake
   },

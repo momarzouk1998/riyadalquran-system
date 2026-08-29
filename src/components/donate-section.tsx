@@ -7,32 +7,39 @@ import { Copy, Check, MessageCircle, CreditCard, Smartphone, Zap } from "lucide-
 
 const PROJECTS = [
   {
-    title: "كفالة الأيتام والكسوة",
+    title: "كفالة الأيتام",
     category: "كفالات شهرية",
-    img: "/projects/food.jpg",       // صورة بشر/حياة
-    raised: 22950,
-    target: 27000,
+    img: "/projects/orphans.png",
   },
   {
-    title: "طرود بنك الطعام المصري",
-    category: "إطعام وسلال",
-    img: "/projects/medical.png",    // صورة مختلفة
-    raised: 12420,
-    target: 13800,
+    title: "الحالات المرضية",
+    category: "رعاية صحية",
+    img: "/projects/medical.png",
   },
   {
-    title: "ترميم البيوت وتيسير الزواج",
+    title: "الحالات الفقيرة",
     category: "مساعدات اجتماعية",
-    img: "/projects/brides.png",
-    raised: 13000,
-    target: 20000,
+    img: "/projects/Poor.png",
   },
   {
-    title: "محطة تحلية مياه الشرب",
+    title: "توزيع الطعام",
+    category: "إطعام وسلال",
+    img: "/projects/food.jpg",
+  },
+  {
+    title: "محطة تحلية المياه",
     category: "سقيا ماء",
-    img: "/projects/mosque.jpg",     // صورة مختلفة
-    raised: 15000,
-    target: 15000,
+    img: "/projects/water.png",
+  },
+  {
+    title: "مسجد رياض القرآن",
+    category: "الشعائر الدينية",
+    img: "/projects/mosque.jpg",
+  },
+  {
+    title: "تجهيز العرائس",
+    category: "تيسير الزواج",
+    img: "/projects/brides.png",
   },
 ];
 
@@ -128,9 +135,8 @@ export function DonateSection() {
         </motion.div>
 
         {/* ── كارداتـ المشاريع ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {PROJECTS.map((proj, i) => {
-            const completed = proj.raised >= proj.target;
             return (
               <motion.div
                 key={i}
@@ -153,22 +159,11 @@ export function DonateSection() {
                   <div className="absolute top-3 right-3 bg-white/95 text-slate-800 text-[10px] font-black px-2.5 py-1 rounded-full shadow-sm">
                     {proj.category}
                   </div>
-                  {completed && (
-                    <div className="absolute top-3 left-3 bg-emerald-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-sm">
-                      مكتمل ✓
-                    </div>
-                  )}
                 </div>
 
                 {/* محتوى */}
                 <div className="p-5 flex flex-col flex-1 gap-4">
                   <h3 className="font-black text-slate-800 text-sm leading-snug">{proj.title}</h3>
-
-                  {/* الأرقام فقط — بدون progress bar */}
-                  <div className="flex justify-between text-[11px] font-bold text-slate-500 bg-slate-50 rounded-xl px-3 py-2.5">
-                    <span>تم جمع: <span className="text-primary font-black">{proj.raised.toLocaleString()}</span></span>
-                    <span>الهدف: <span className="text-slate-700 font-black">{proj.target.toLocaleString()}</span></span>
-                  </div>
 
                   {/* أرقام الدفع + نسخ — داخل الكارد */}
                   <div className="space-y-2 mt-auto">

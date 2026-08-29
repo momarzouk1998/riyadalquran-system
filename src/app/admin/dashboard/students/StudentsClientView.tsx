@@ -3,13 +3,12 @@
 import React, { useState, useTransition } from 'react';
 import {
   Plus, Search, Edit, Trash2,
-  Award, X, Check, User,
+  Award, X, Check, User, Calendar, GraduationCap, RefreshCw, CheckCircle2, DollarSign
 } from 'lucide-react';
 import {
   createStudent, updateStudent, deleteStudent, updateStudentGrades,
 } from '@/app/actions/admin';
 import { StudentForm, calculateAgeFromNationalId } from '@/components/StudentForm';
-import type { StudentFormData } from '@/components/StudentForm';
 
 interface Teacher {
   id: string;
@@ -42,9 +41,13 @@ interface Student {
   imageUrl: string | null;
   birthCertUrl: string | null;
   password: string;
+  paymentStatus: string | null;
   paidWay: string | null;
   paidAmount: number;
   remainingAmount: number;
+  registrationType: string | null;
+  yearsInNursery: number | null;
+  isFinalYear: boolean;
   notes: string | null;
   isActive: boolean;
   teacherId: string | null;
@@ -56,10 +59,54 @@ interface StudentsClientViewProps {
   initialStudents: Student[];
   teachers: Teacher[];
 }
+
+function formatDate(date: Date | string | null | undefined): string {
+  if (!date) return '—';
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return '—';
+  return d.toISOString().split('T')[0];
+}
+
+function PaymentBadge({ status }: { status: string | null | undefined }) {
+  const s = status || 'unpaid';
+  if (s === 'paid') {
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+        تم السداد بالكامل
+      </span>
+    );
+  }
+  if (s === 'partial') {
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-black bg-amber-100 text-amber-800 border border-amber-300">
+        <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
+        سداد جزئي
+      </span>
+    );
+  }
+  if (s === 'exempt') {
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-black bg-blue-100 text-blue-800 border border-blue-300">
+        <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+        معفى (كفالة)
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-black bg-rose-100 text-rose-800 border border-rose-300">
+      <span className="w-1.5 h-1.5 rounded-full bg-rose-600" />
+      لم يسدد
+    </span>
+  );
+}
+
 export function StudentsClientView({ initialStudents, teachers }: StudentsClientViewProps) {
   const [students, setStudents] = useState<Student[]>(initialStudents);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [paymentFilter, setPaymentFilter] = useState('ALL');
+  const [statusTypeFilter, setStatusTypeFilter] = useState('ALL');
   
   // Modals state
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
@@ -88,7 +135,7 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
     english: 0,
   });
 
-  // Filter students based on search and category
+  // Filter students based on search, category, payment and type
   const filteredStudents = students.filter((student) => {
     const matchesSearch = 
       student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -98,16 +145,18 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
     
     const matchesCategory = 
       categoryFilter === 'ALL' || student.category === categoryFilter;
-    
-    return matchesSearch && matchesCategory;
-  });
 
-  const handleNationalIdChange = (val: string) => {
-    setNationalIdInput(val);
-    const { ageYears, ageText } = calculateAgeFromNationalId(val);
-    setComputedAgeText(ageText);
-    setComputedAgeYears(ageYears);
-  };
+    const matchesPayment =
+      paymentFilter === 'ALL' || (student.paymentStatus || 'unpaid') === paymentFilter;
+
+    const matchesStatusType =
+      statusTypeFilter === 'ALL' ||
+      (statusTypeFilter === 'final' && student.isFinalYear) ||
+      (statusTypeFilter === 'renewal' && student.registrationType === 'renewal') ||
+      (statusTypeFilter === 'new' && (student.registrationType === 'new' || !student.registrationType));
+    
+    return matchesSearch && matchesCategory && matchesPayment && matchesStatusType;
+  });
 
   const handleOpenCreateModal = () => {
     setModalMode('create');
@@ -194,7 +243,6 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
     }
 
     const formData = new FormData(e.currentTarget);
-    // نضمن أن القيم المحسوبة موجودة في الـ FormData
     formData.set('nationalId', nationalIdInput);
     formData.set('ageText', computedAgeText);
     formData.set('age', computedAgeYears !== null ? String(computedAgeYears) : '');
@@ -259,11 +307,11 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
   return (
     <div className="space-y-4 font-cairo">
       {/* Top action buttons & filters */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-3">
         
-        {/* Search & Level Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 flex-1 max-w-2xl">
-          <div className="relative flex-1">
+        {/* Row 1: Search & Add */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="relative flex-1 max-w-xl">
             <span className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400">
               <Search className="w-4 h-4 text-emerald-700" />
             </span>
@@ -276,65 +324,104 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
             />
           </div>
 
-          <div className="flex items-center gap-1 bg-slate-200/60 p-1 rounded-2xl">
-            <button
-              onClick={() => setCategoryFilter('ALL')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                categoryFilter === 'ALL' ? 'bg-emerald-800 text-white shadow-md' : 'text-slate-600'
-              }`}
-            >
-              الكل
-            </button>
-            <button
-              onClick={() => setCategoryFilter('KG1')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                categoryFilter === 'KG1' ? 'bg-emerald-800 text-white shadow-md' : 'text-slate-600'
-              }`}
-            >
-              KG1
-            </button>
-            <button
-              onClick={() => setCategoryFilter('KG2')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                categoryFilter === 'KG2' ? 'bg-emerald-800 text-white shadow-md' : 'text-slate-600'
-              }`}
-            >
-              KG2
-            </button>
-          </div>
+          {/* Add Student Button */}
+          <button
+            onClick={handleOpenCreateModal}
+            className="flex items-center justify-center gap-2 py-2.5 px-5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-2xl text-xs font-black shadow-lg shadow-emerald-700/20 transition-all cursor-pointer whitespace-nowrap"
+          >
+            <Plus className="w-4 h-4" />
+            <span>إضافة طالب جديد للحضانة</span>
+          </button>
         </div>
 
-        {/* Add Student Button */}
-        <button
-          onClick={handleOpenCreateModal}
-          className="flex items-center justify-center gap-2 py-2.5 px-5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-2xl text-xs font-black shadow-lg shadow-emerald-700/20 transition-all cursor-pointer whitespace-nowrap"
-        >
-          <Plus className="w-4 h-4" />
-          <span>إضافة طالب جديد</span>
-        </button>
+        {/* Row 2: Filter Badges Bar */}
+        <div className="flex flex-wrap items-center gap-2.5 bg-slate-100/80 p-2 rounded-2xl border border-slate-200/80">
+          
+          {/* Level Filter */}
+          <div className="flex items-center gap-1 bg-white p-1 rounded-xl shadow-xs border border-slate-200">
+            <span className="text-[11px] font-bold text-slate-400 px-2">المستوى:</span>
+            {['ALL', 'KG1', 'KG2'].map((lvl) => (
+              <button
+                key={lvl}
+                onClick={() => setCategoryFilter(lvl)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                  categoryFilter === lvl ? 'bg-emerald-800 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                {lvl === 'ALL' ? 'الكل' : lvl}
+              </button>
+            ))}
+          </div>
+
+          {/* Payment Status Filter */}
+          <div className="flex items-center gap-1 bg-white p-1 rounded-xl shadow-xs border border-slate-200">
+            <span className="text-[11px] font-bold text-slate-400 px-2">المصروفات:</span>
+            {[
+              { id: 'ALL', label: 'الكل' },
+              { id: 'paid', label: 'مسدد ✅' },
+              { id: 'partial', label: 'جزئي ⏳' },
+              { id: 'unpaid', label: 'لم يسدد ❌' },
+              { id: 'exempt', label: 'معفى 🤍' },
+            ].map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setPaymentFilter(p.id)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                  paymentFilter === p.id ? 'bg-emerald-800 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Registration / Final Year Filter */}
+          <div className="flex items-center gap-1 bg-white p-1 rounded-xl shadow-xs border border-slate-200">
+            <span className="text-[11px] font-bold text-slate-400 px-2">نوع القيد:</span>
+            {[
+              { id: 'ALL', label: 'الكل' },
+              { id: 'new', label: 'جديد' },
+              { id: 'renewal', label: 'تجديد' },
+              { id: 'final', label: '🎓 آخر سنة (تخرج)' },
+            ].map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setStatusTypeFilter(t.id)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                  statusTypeFilter === t.id ? 'bg-emerald-800 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+        </div>
+
       </div>
 
       {/* Students Table */}
-      <div className="card overflow-hidden border border-slate-200/80 rounded-3xl shadow-sm">
+      <div className="card overflow-hidden border border-slate-200/80 rounded-3xl shadow-sm bg-white">
         <div className="overflow-x-auto">
           <table className="w-full text-right table-auto" dir="rtl">
             <thead className="bg-slate-100/70 border-b border-slate-200 text-slate-700 text-xs font-black">
               <tr>
-                <th className="px-4 py-3.5 whitespace-nowrap">كود الطالب *</th>
-                <th className="px-4 py-3.5 whitespace-nowrap">الاسم بالكامل</th>
-                <th className="px-4 py-3.5 whitespace-nowrap">الرقم القومي</th>
-                <th className="px-4 py-3.5 whitespace-nowrap">السن المحسوب</th>
-                <th className="px-4 py-3.5 whitespace-nowrap">المستوى</th>
-                <th className="px-4 py-3.5 whitespace-nowrap">المعلمة</th>
-                <th className="px-4 py-3.5 whitespace-nowrap">المدفوع</th>
-                <th className="px-4 py-3.5 whitespace-nowrap">المتبقي</th>
-                <th className="px-4 py-3.5 whitespace-nowrap text-center">العمليات والدرجات</th>
+                <th className="px-3.5 py-3.5 whitespace-nowrap">كود الطالب</th>
+                <th className="px-3.5 py-3.5 whitespace-nowrap">الاسم بالكامل</th>
+                <th className="px-3.5 py-3.5 whitespace-nowrap">الرقم القومي والسن</th>
+                <th className="px-3.5 py-3.5 whitespace-nowrap">المستوى</th>
+                <th className="px-3.5 py-3.5 whitespace-nowrap">تاريخ الدخول</th>
+                <th className="px-3.5 py-3.5 whitespace-nowrap">القيد والسنوات</th>
+                <th className="px-3.5 py-3.5 whitespace-nowrap">المعلمة</th>
+                <th className="px-3.5 py-3.5 whitespace-nowrap text-center">سداد المصروفات</th>
+                <th className="px-3.5 py-3.5 whitespace-nowrap text-center">المدفوع / المتبقي</th>
+                <th className="px-3.5 py-3.5 whitespace-nowrap text-center">العمليات والدرجات</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700 text-xs">
               {filteredStudents.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-12 text-center text-slate-400 font-semibold">
+                  <td colSpan={10} className="px-4 py-12 text-center text-slate-400 font-semibold">
                     لا يوجد طلاب يطابقون خيارات البحث الحالية.
                   </td>
                 </tr>
@@ -345,40 +432,61 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
                     className="hover:bg-emerald-50/30 transition-colors cursor-pointer"
                     onClick={() => handleOpenDetailsModal(student)}
                   >
-                    <td className="px-4 py-4 whitespace-nowrap font-black text-emerald-950">
+                    <td className="px-3.5 py-3.5 whitespace-nowrap font-black text-emerald-950">
                       {student.sequence}
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap font-bold text-slate-900">
-                      {student.name}
+                    <td className="px-3.5 py-3.5 whitespace-nowrap font-bold text-slate-900">
+                      <div className="flex items-center gap-1.5">
+                        <span>{student.name}</span>
+                        {student.isFinalYear && (
+                          <span title="آخر سنة للطالب في الحضانة (مرحلة تخرج)" className="px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-900 text-[10px] font-black border border-amber-300 flex items-center gap-1">
+                            🎓 تخرج
+                          </span>
+                        )}
+                      </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap font-mono font-bold text-slate-600">
-                      {student.nationalId || '—'}
+                    <td className="px-3.5 py-3.5 whitespace-nowrap">
+                      <div className="font-mono text-[11px] font-bold text-slate-600">{student.nationalId || '—'}</div>
+                      <div className="text-[11px] font-bold text-emerald-900 mt-0.5">{student.ageText || (student.age ? `${student.age} سنوات` : '—')}</div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap font-bold text-emerald-900">
-                      {student.ageText || (student.age ? `${student.age} سنوات` : '—')}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <span className="px-2.5 py-1 rounded-xl text-[11px] font-extrabold bg-emerald-100/80 text-emerald-900 border border-emerald-200">
+                    <td className="px-3.5 py-3.5 whitespace-nowrap">
+                      <span className="px-2 py-0.5 rounded-lg text-[11px] font-extrabold bg-emerald-100/80 text-emerald-900 border border-emerald-200">
                         {student.category || 'غير محدد'}
                       </span>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap font-semibold">
+                    <td className="px-3.5 py-3.5 whitespace-nowrap font-mono text-xs text-slate-700 font-bold">
+                      {formatDate(student.startDate)}
+                    </td>
+                    <td className="px-3.5 py-3.5 whitespace-nowrap">
+                      <div className="flex flex-col gap-0.5">
+                        <span className={`text-[11px] font-bold ${student.registrationType === 'renewal' ? 'text-blue-700' : 'text-slate-700'}`}>
+                          {student.registrationType === 'renewal' ? 'تجديد اشتراك' : 'تسجيل جديد'}
+                        </span>
+                        <span className="text-[10px] text-slate-500 font-semibold">
+                          السنة {student.yearsInNursery || 1} بالحضانة
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-3.5 py-3.5 whitespace-nowrap font-semibold">
                       {student.teacher?.name || 'غير محدد'}
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap font-black text-emerald-600">
-                      {student.paidAmount} ج.م
+                    <td className="px-3.5 py-3.5 whitespace-nowrap text-center">
+                      <PaymentBadge status={student.paymentStatus} />
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap font-black text-rose-600">
-                      {student.remainingAmount} ج.م
+                    <td className="px-3.5 py-3.5 whitespace-nowrap text-center">
+                      <div className="font-black text-emerald-600">{student.paidAmount} ج.م</div>
+                      {student.remainingAmount > 0 && (
+                        <div className="font-bold text-[11px] text-rose-600 mt-0.5">باقي {student.remainingAmount} ج.م</div>
+                      )}
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                    <td className="px-3.5 py-3.5 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => handleOpenGradesModal(student)}
-                          className="flex items-center gap-1 py-1.5 px-3 rounded-xl bg-amber-400/15 text-amber-900 hover:bg-amber-400/25 border border-amber-300 transition-colors text-[10px] font-black"
+                          className="flex items-center gap-1 py-1.5 px-2.5 rounded-xl bg-amber-400/15 text-amber-900 hover:bg-amber-400/25 border border-amber-300 transition-colors text-[10px] font-black"
                         >
                           <Award className="w-3.5 h-3.5 text-amber-600" />
-                          <span>رصد الدرجات</span>
+                          <span>الدرجات</span>
                         </button>
                         <button
                           onClick={() => handleOpenEditModal(student)}
@@ -404,7 +512,7 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
         </div>
       </div>
 
-      {/* ── 1. REDESIGNED STUDENT ADD/EDIT MODAL ── */}
+      {/* ── 1. STUDENT ADD/EDIT MODAL ── */}
       {isStudentModalOpen && (
         <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl border border-slate-100 flex flex-col max-h-[92vh] overflow-hidden animate-fade-in">
@@ -420,7 +528,7 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
                     {modalMode === 'create' ? 'إضافة طالب جديد للحضانة' : 'تعديل بيانات الطالب المسجل'}
                   </h3>
                   <p className="text-[11px] text-emerald-200 mt-0.5">
-                    ادخل البيانات المطلوبة مع إجبارية كود الطالب والرقم القومي
+                    سجل بيانات الطالب كاملة وتاريخ بدء الدخول وحالة سداد المصروفات
                   </p>
                 </div>
               </div>
@@ -451,14 +559,19 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
                         id: selectedStudent.id,
                         name: selectedStudent.name,
                         nationalId: selectedStudent.nationalId ?? '',
+                        startDate: selectedStudent.startDate,
                         phone: selectedStudent.phone ?? '',
                         address: selectedStudent.address ?? 'المنشأة الكبرى',
                         category: selectedStudent.category ?? 'KG1',
                         teacherId: selectedStudent.teacherId ?? '',
                         password: selectedStudent.password,
+                        paymentStatus: selectedStudent.paymentStatus ?? 'unpaid',
                         paidWay: selectedStudent.paidWay ?? 'كاش',
                         paidAmount: selectedStudent.paidAmount,
                         remainingAmount: selectedStudent.remainingAmount,
+                        registrationType: selectedStudent.registrationType ?? 'new',
+                        yearsInNursery: selectedStudent.yearsInNursery ?? 1,
+                        isFinalYear: selectedStudent.isFinalYear ?? false,
                         imageUrl: selectedStudent.imageUrl ?? '',
                         notes: selectedStudent.notes ?? '',
                         age: selectedStudent.age,
@@ -609,9 +722,16 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
                     '👶'
                   )}
                 </div>
-                <div>
-                  <h4 className="font-black text-slate-900 text-base">{selectedStudent.name}</h4>
-                  <p className="text-xs font-bold text-emerald-700 mt-0.5">المستوى: {selectedStudent.category || 'غير محدد'}</p>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-black text-slate-900 text-base">{selectedStudent.name}</h4>
+                    {selectedStudent.isFinalYear && (
+                      <span className="px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 text-[10px] font-black border border-amber-300">
+                        🎓 آخر سنة (تخرج)
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs font-bold text-emerald-700">المستوى: {selectedStudent.category || 'غير محدد'}</p>
                 </div>
               </div>
 
@@ -623,11 +743,23 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
                 </div>
                 <div className="space-y-1">
                   <span className="text-slate-400 block font-bold">السن المحسوب</span>
-                  <span className="font-bold text-emerald-900 bg-emerald-50 py-1.5 px-3 rounded-xl block text-center">{selectedStudent.ageText || (selectedStudent.age ? `${selectedStudent.age} سنوات` : '—')}</span>
+                  <span className="font-bold text-emerald-900 bg-emerald-50 py-1.5 px-3 rounded-xl block text-center">{selectedStudent.ageText || (studentAge(selectedStudent))}</span>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-slate-400 block font-bold">كلمة المرور</span>
-                  <span className="font-mono font-black text-emerald-900 bg-emerald-50 py-1.5 px-3 rounded-xl block text-center">{selectedStudent.password}</span>
+                  <span className="text-slate-400 block font-bold">تاريخ بدء دخول الحضانة</span>
+                  <span className="font-mono font-bold text-slate-800 py-1.5 px-3 bg-slate-50 rounded-xl block text-center">{formatDate(selectedStudent.startDate)}</span>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-slate-400 block font-bold">نوع القيد والسنوات</span>
+                  <span className="font-bold text-emerald-900 bg-emerald-50 py-1.5 px-3 rounded-xl block text-center">
+                    {selectedStudent.registrationType === 'renewal' ? 'تجديد اشتراك' : 'تسجيل جديد'} (السنة {selectedStudent.yearsInNursery || 1})
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-slate-400 block font-bold">حالة سداد المصروفات</span>
+                  <div className="py-1 text-center">
+                    <PaymentBadge status={selectedStudent.paymentStatus} />
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <span className="text-slate-400 block font-bold">المعلمة المسؤولة</span>
@@ -643,7 +775,7 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
                 </div>
                 <div className="space-y-1">
                   <span className="text-slate-400 block font-bold">المبلغ المدفوع</span>
-                  <span className="font-black text-emerald-600 py-1.5 px-3 bg-emerald-50 rounded-xl block text-center">{selectedStudent.paidAmount} ج.م</span>
+                  <span className="font-black text-emerald-600 py-1.5 px-3 bg-emerald-50 rounded-xl block text-center">{selectedStudent.paidAmount} ج.م ({selectedStudent.paidWay || 'كاش'})</span>
                 </div>
                 <div className="space-y-1">
                   <span className="text-slate-400 block font-bold">المبلغ المتبقي</span>
@@ -651,12 +783,19 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
                 </div>
               </div>
 
+              {selectedStudent.notes && (
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-xs">
+                  <span className="text-slate-400 block font-bold mb-1">ملاحظات:</span>
+                  <p className="text-slate-700 font-medium leading-relaxed">{selectedStudent.notes}</p>
+                </div>
+              )}
+
             </div>
 
             <div className="px-6 py-4 border-t border-slate-100 flex justify-end">
               <button
                 onClick={() => setIsDetailsModalOpen(false)}
-                className="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors"
+                className="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors cursor-pointer"
               >
                 إغلاق
               </button>
@@ -667,4 +806,8 @@ export function StudentsClientView({ initialStudents, teachers }: StudentsClient
 
     </div>
   );
+}
+
+function studentAge(student: Student) {
+  return student.age ? `${student.age} سنوات` : '—';
 }

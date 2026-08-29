@@ -304,7 +304,7 @@ export function CharityCasesClientView({
                   name="notes"
                   defaultValue={selectedCase?.notes || ''}
                   className="w-full py-2.5 px-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-600 focus:bg-white outline-none text-xs h-24"
-                  placeholder="مثال: ترميم منزل وهيكل السقف، ملابس وأدوات مدرسية للأطفال، مساعدة علاجية..."
+                  placeholder="مثال: ملابس وأدوات مدرسية للأطفال، مساعدة علاجية، مواد غذائية..."
                 />
               </div>
 

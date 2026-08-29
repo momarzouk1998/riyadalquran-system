@@ -5,7 +5,6 @@ import { HeroSlider }       from "@/components/hero-slider";
 import { ProjectsGallery }  from "@/components/projects-gallery";
 import { DonateSection }    from "@/components/donate-section";
 import { Achievements }     from "@/components/achievements";
-import { Campaigns }        from "@/components/campaigns";
 import { EServices }        from "@/components/e-services";
 
 export default function Home() {
@@ -23,10 +22,7 @@ export default function Home() {
       {/* 4. الإنجازات */}
       <Achievements />
 
-      {/* 5. الحالات العاجلة */}
-      <Campaigns />
-
-      {/* 6. الخدمات الإلكترونية */}
+      {/* 5. الخدمات الإلكترونية */}
       <EServices />
     </div>
   );
