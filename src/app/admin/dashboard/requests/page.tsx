@@ -11,6 +11,8 @@ export default async function AdminRequestsPage() {
     orderBy: { createdAt: 'desc' },
   });
 
+  const serializedRequests = JSON.parse(JSON.stringify(requests));
+
   return (
     <div className="space-y-6">
       <div>
@@ -21,7 +23,7 @@ export default async function AdminRequestsPage() {
           مراجعة وقبول أو رفض طلبات التسجيل الواردة من الموقع العام — حالات فقيرة، أيتام، مرضية، وحضانة.
         </p>
       </div>
-      <RequestsClientView initialRequests={requests} />
+      <RequestsClientView initialRequests={serializedRequests} />
     </div>
   );
 }

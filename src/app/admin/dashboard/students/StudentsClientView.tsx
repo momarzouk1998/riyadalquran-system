@@ -31,7 +31,7 @@ interface Student {
   uid: string | null;
   sequence: string;
   nationalId: string | null;
-  startDate: Date | null;
+  startDate: Date | string | null;
   category: string | null;
   name: string;
   phone: string | null;

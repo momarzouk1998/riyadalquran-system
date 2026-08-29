@@ -21,6 +21,9 @@ export default async function AdminStudentsPage() {
     orderBy: { name: 'asc' },
   });
 
+  const serializedStudents = JSON.parse(JSON.stringify(students));
+  const serializedTeachers = JSON.parse(JSON.stringify(teachers));
+
   return (
     <div className="space-y-6">
       <div>
@@ -33,7 +36,7 @@ export default async function AdminStudentsPage() {
       </div>
 
       {/* Interactive client-side table with modal filters */}
-      <StudentsClientView initialStudents={students} teachers={teachers} />
+      <StudentsClientView initialStudents={serializedStudents} teachers={serializedTeachers} />
     </div>
   );
 }
