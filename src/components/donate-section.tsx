@@ -8,37 +8,30 @@ import { Copy, Check, MessageCircle, CreditCard, Smartphone, Zap } from "lucide-
 const PROJECTS = [
   {
     title: "كفالة الأيتام",
-    category: "كفالات شهرية",
     img: "/projects/orphans.png",
   },
   {
     title: "الحالات المرضية",
-    category: "رعاية صحية",
     img: "/projects/medical.png",
   },
   {
     title: "الحالات الفقيرة",
-    category: "مساعدات اجتماعية",
     img: "/projects/Poor.png",
   },
   {
     title: "توزيع الطعام",
-    category: "إطعام وسلال",
     img: "/projects/food.jpg",
   },
   {
     title: "محطة تحلية المياه",
-    category: "سقيا ماء",
     img: "/projects/water.png",
   },
   {
     title: "مسجد رياض القرآن",
-    category: "الشعائر الدينية",
     img: "/projects/mosque.jpg",
   },
   {
     title: "تجهيز العرائس",
-    category: "تيسير الزواج",
     img: "/projects/brides.png",
   },
 ];
@@ -155,10 +148,6 @@ export function DonateSection() {
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                     sizes="320px"
                   />
-                  {/* category badge فقط */}
-                  <div className="absolute top-3 right-3 bg-white/95 text-slate-800 text-[10px] font-black px-2.5 py-1 rounded-full shadow-sm">
-                    {proj.category}
-                  </div>
                 </div>
 
                 {/* محتوى */}
