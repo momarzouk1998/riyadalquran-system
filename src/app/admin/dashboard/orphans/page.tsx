@@ -12,9 +12,11 @@ export default async function AdminOrphansPage() {
     orderBy: { createdAt: 'desc' },
   });
 
+  const serializedCases = JSON.parse(JSON.stringify(cases));
+
   return (
     <CharityCasesClientView
-      initialCases={cases}
+      initialCases={serializedCases}
       category="orphans"
       title="كفالة الأيتام والرعاية الاجتماعية"
       subtitle="إدارة بيانات الأيتام المسجلين بالجمعية، تخصيص الكفالات الشهرية، ومتابعة الاحتياجات المعيشية والتعليمية بالمنشأة الكبرى."

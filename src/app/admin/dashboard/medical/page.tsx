@@ -12,9 +12,11 @@ export default async function AdminMedicalPage() {
     orderBy: { createdAt: 'desc' },
   });
 
+  const serializedCases = JSON.parse(JSON.stringify(cases));
+
   return (
     <CharityCasesClientView
-      initialCases={cases}
+      initialCases={serializedCases}
       category="sick"
       title="المساعدات الطبية والحالات المرضية"
       subtitle="إعانة الحالات المرضية والصحية المسجلة بالجمعية، دعم العلاج الشهري، وتوفير الأجهزة والمستلزمات الطبية بالحالات الحارجة."

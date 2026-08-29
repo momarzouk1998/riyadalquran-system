@@ -16,6 +16,8 @@ export default async function AdminTeachersPage() {
     },
   });
 
+  const serializedTeachers = JSON.parse(JSON.stringify(teachers));
+
   return (
     <div className="space-y-6">
       <div>
@@ -27,7 +29,7 @@ export default async function AdminTeachersPage() {
         </p>
       </div>
 
-      <TeachersClientView initialTeachers={teachers} />
+      <TeachersClientView initialTeachers={serializedTeachers} />
     </div>
   );
 }

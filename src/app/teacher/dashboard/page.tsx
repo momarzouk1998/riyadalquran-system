@@ -14,10 +14,12 @@ export default async function TeacherDashboardPage() {
     redirect('/teacher/login');
   }
 
+  const serializedTeacher = JSON.parse(JSON.stringify(teacher));
+
   return (
     <div className="min-h-screen bg-slate-50 font-cairo py-6 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-6">
-        <TeacherDashboardClientView teacher={teacher} />
+        <TeacherDashboardClientView teacher={serializedTeacher} />
       </div>
     </div>
   );

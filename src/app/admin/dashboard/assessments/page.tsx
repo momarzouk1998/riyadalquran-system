@@ -19,6 +19,9 @@ export default async function AdminAssessmentsPage() {
     orderBy: { name: 'asc' },
   });
 
+  const serializedAssessments = JSON.parse(JSON.stringify(assessments));
+  const serializedTeachers = JSON.parse(JSON.stringify(teachers));
+
   return (
     <div className="space-y-6">
       <div>
@@ -30,7 +33,7 @@ export default async function AdminAssessmentsPage() {
         </p>
       </div>
 
-      <AssessmentsClientView initialAssessments={assessments} teachers={teachers} />
+      <AssessmentsClientView initialAssessments={serializedAssessments} teachers={serializedTeachers} />
     </div>
   );
 }

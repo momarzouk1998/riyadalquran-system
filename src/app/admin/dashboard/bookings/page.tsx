@@ -11,6 +11,8 @@ export default async function AdminBookingsPage() {
     orderBy: { createdAt: 'desc' },
   });
 
+  const serializedBookings = JSON.parse(JSON.stringify(bookings));
+
   return (
     <div className="space-y-6">
       <div>
@@ -22,7 +24,7 @@ export default async function AdminBookingsPage() {
         </p>
       </div>
 
-      <BookingsClientView initialBookings={bookings} />
+      <BookingsClientView initialBookings={serializedBookings} />
     </div>
   );
 }

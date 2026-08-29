@@ -12,9 +12,11 @@ export default async function AdminPoorPage() {
     orderBy: { createdAt: 'desc' },
   });
 
+  const serializedCases = JSON.parse(JSON.stringify(cases));
+
   return (
     <CharityCasesClientView
-      initialCases={cases}
+      initialCases={serializedCases}
       category="poor"
       title="رعاية الحالات الفقيرة والمساعدات الاجتماعية"
       subtitle="إدارة ودعم الأسر غير القادرة، توزيع ملابس العيد والبطاطين، والمستلزمات المدرسية بالمنشأة الكبرى والقرى المجاورة."

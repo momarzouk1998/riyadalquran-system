@@ -25,6 +25,8 @@ export default async function AdminManagementPage() {
     },
   });
 
+  const serializedAdmins = JSON.parse(JSON.stringify(admins));
+
   return (
     <div className="space-y-6 font-cairo">
       <div>
@@ -36,7 +38,7 @@ export default async function AdminManagementPage() {
         </p>
       </div>
 
-      <AdminsClientView initialAdmins={admins} currentAdminUsername={currentAdmin.username} />
+      <AdminsClientView initialAdmins={serializedAdmins} currentAdminUsername={currentAdmin.username} />
     </div>
   );
 }
