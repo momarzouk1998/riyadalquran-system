@@ -211,76 +211,123 @@ export function StudentForm({
         </div>
       </div>
 
-      {/* ══ القسم 2: القيد وتاريخ الدخول والتسكين ══ */}
-      <div className="space-y-4">
-        <SectionHeader icon={<BookOpen className="w-4 h-4 text-emerald-700" />} label="٢. بيانات القيد وتاريخ دخول الحضانة" />
+      {/* ══ القسم 2: القيد وتاريخ الدخول والتسكين (للأدمن فقط) ══ */}
+      {mode === 'modal' ? (
+        <div className="space-y-4">
+          <SectionHeader icon={<BookOpen className="w-4 h-4 text-emerald-700" />} label="٢. بيانات القيد وتاريخ دخول الحضانة والتسكين" />
 
-        {/* تاريخ بدء دخول الحضانة + نوع القيد */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <Label required icon={<Calendar className="w-3.5 h-3.5 text-emerald-700" />}>
-              تاريخ بدء دخول الحضانة (تاريخ الالتحاق)
-            </Label>
-            <input
-              type="date"
-              name="startDate"
-              defaultValue={formatDateForInput(defaultValues.startDate)}
-              className={inputCls}
-            />
-          </div>
-
-          <div>
-            <Label icon={<RefreshCw className="w-3.5 h-3.5 text-emerald-700" />}>
-              نوع القيد (تسجيل جديد أم تجديد اشتراك)
-            </Label>
-            <select
-              name="registrationType"
-              value={regType}
-              onChange={(e) => setRegType(e.target.value)}
-              className={inputCls}
-            >
-              <option value="new">تسجيل جديد (أول مرة في الحضانة)</option>
-              <option value="renewal">تجديد اشتراك طالب مستمر</option>
-            </select>
-          </div>
-        </div>
-
-        {/* عدد السنوات بالحضانة + آخر سنة (مرحلة تخرج) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
-          <div>
-            <Label>عدد سنوات قيد الطالب في الحضانة (كم سنة معنا؟)</Label>
-            <select
-              name="yearsInNursery"
-              defaultValue={defaultValues.yearsInNursery || (regType === 'renewal' ? 2 : 1)}
-              className={inputCls}
-            >
-              <option value="1">السنة الأولى (أول سنة بالحضانة)</option>
-              <option value="2">السنة الثانية (مستمر للعام الثاني)</option>
-              <option value="3">السنة الثالثة (مستمر للعام الثالث)</option>
-              <option value="4">السنة الرابعة (٤ سنوات بالحضانة)</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col justify-end">
-            <label className="flex items-center gap-3 p-2.5 bg-amber-50/70 border border-amber-200/80 rounded-2xl cursor-pointer hover:bg-amber-100/50 transition-colors">
+          {/* تاريخ بدء دخول الحضانة + نوع القيد */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <Label required icon={<Calendar className="w-3.5 h-3.5 text-emerald-700" />}>
+                تاريخ بدء دخول الحضانة (تاريخ الالتحاق)
+              </Label>
               <input
-                type="checkbox"
-                name="isFinalYear"
-                checked={isFinal}
-                onChange={(e) => setIsFinal(e.target.checked)}
-                className="w-4 h-4 text-emerald-700 rounded focus:ring-emerald-600 accent-emerald-700"
+                type="date"
+                name="startDate"
+                defaultValue={formatDateForInput(defaultValues.startDate)}
+                className={inputCls}
               />
-              <div className="flex items-center gap-1.5 text-xs font-black text-amber-950">
-                <GraduationCap className="w-4 h-4 text-amber-600 shrink-0" />
-                <span>آخر سنة للطالب في الحضانة (مرحلة التخرج للمدرسة)</span>
+            </div>
+
+            <div>
+              <Label icon={<RefreshCw className="w-3.5 h-3.5 text-emerald-700" />}>
+                نوع القيد (تسجيل جديد أم تجديد اشتراك)
+              </Label>
+              <select
+                name="registrationType"
+                value={regType}
+                onChange={(e) => setRegType(e.target.value)}
+                className={inputCls}
+              >
+                <option value="new">تسجيل جديد (أول مرة في الحضانة)</option>
+                <option value="renewal">تجديد اشتراك طالب مستمر</option>
+              </select>
+            </div>
+          </div>
+
+          {/* عدد السنوات بالحضانة + آخر سنة (مرحلة تخرج) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+            <div>
+              <Label>عدد سنوات قيد الطالب في الحضانة (كم سنة معنا؟)</Label>
+              <select
+                name="yearsInNursery"
+                defaultValue={defaultValues.yearsInNursery || (regType === 'renewal' ? 2 : 1)}
+                className={inputCls}
+              >
+                <option value="1">السنة الأولى (أول سنة بالحضانة)</option>
+                <option value="2">السنة الثانية (مستمر للعام الثاني)</option>
+                <option value="3">السنة الثالثة (مستمر للعام الثالث)</option>
+                <option value="4">السنة الرابعة (٤ سنوات بالحضانة)</option>
+              </select>
+            </div>
+
+            <div className="flex flex-col justify-end">
+              <label className="flex items-center gap-3 p-2.5 bg-amber-50/70 border border-amber-200/80 rounded-2xl cursor-pointer hover:bg-amber-100/50 transition-colors">
+                <input
+                  type="checkbox"
+                  name="isFinalYear"
+                  checked={isFinal}
+                  onChange={(e) => setIsFinal(e.target.checked)}
+                  className="w-4 h-4 text-emerald-700 rounded focus:ring-emerald-600 accent-emerald-700"
+                />
+                <div className="flex items-center gap-1.5 text-xs font-black text-amber-950">
+                  <GraduationCap className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>آخر سنة للطالب في الحضانة (مرحلة التخرج للمدرسة)</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {/* المستوى الدراسي والمعلمة وكلمة المرور */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* المستوى الدراسي */}
+            <div>
+              <Label>المستوى الدراسي</Label>
+              <select
+                name="category"
+                defaultValue={defaultValues.category || 'KG1'}
+                className={inputCls}
+              >
+                <option value="KG1">KG1 (المستوى الأول)</option>
+                <option value="KG2">KG2 (المستوى الثاني)</option>
+              </select>
+            </div>
+
+            {/* المعلمة — تظهر فقط إذا كانت متاحة */}
+            {teachers.length > 0 && (
+              <div>
+                <Label>المعلمة المسؤولة</Label>
+                <select
+                  name="teacherId"
+                  defaultValue={defaultValues.teacherId || ''}
+                  className={inputCls}
+                >
+                  <option value="">غير محدد</option>
+                  {teachers.map((t) => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </select>
               </div>
-            </label>
+            )}
+
+            {/* كلمة السر */}
+            <div>
+              <Label>كلمة السر للدخول</Label>
+              <input
+                type="text"
+                name="password"
+                defaultValue={defaultValues.password || '123456'}
+                className={`${inputCls} text-center font-mono`}
+                placeholder="الافتراضي: 123456"
+              />
+            </div>
           </div>
         </div>
-
-        {/* المستوى الدراسي والمعلمة وكلمة المرور */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {/* المستوى الدراسي */}
+      ) : (
+        /* في الوضع الخارجي (mode="page") يظهر فقط المستوى الدراسي */
+        <div className="space-y-4">
+          <SectionHeader icon={<BookOpen className="w-4 h-4 text-emerald-700" />} label="٢. المستوى الدراسي المطلوب" />
           <div>
             <Label>المستوى الدراسي</Label>
             <select
@@ -292,37 +339,8 @@ export function StudentForm({
               <option value="KG2">KG2 (المستوى الثاني)</option>
             </select>
           </div>
-
-          {/* المعلمة — تظهر فقط إذا كانت متاحة */}
-          {teachers.length > 0 && (
-            <div>
-              <Label>المعلمة المسؤولة</Label>
-              <select
-                name="teacherId"
-                defaultValue={defaultValues.teacherId || ''}
-                className={inputCls}
-              >
-                <option value="">غير محدد</option>
-                {teachers.map((t) => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {/* كلمة السر */}
-          <div>
-            <Label>كلمة السر للدخول</Label>
-            <input
-              type="text"
-              name="password"
-              defaultValue={defaultValues.password || '123456'}
-              className={`${inputCls} text-center font-mono`}
-              placeholder="الافتراضي: 123456"
-            />
-          </div>
         </div>
-      </div>
+      )}
 
       {/* ══ القسم 3: الموقف المالي وسداد المصروفات ══ */}
       {mode === 'modal' && (

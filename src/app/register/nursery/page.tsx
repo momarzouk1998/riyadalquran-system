@@ -70,10 +70,10 @@ export default function RegisterNurseryPage() {
               <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
                 <Baby className="w-5 h-5" />
               </div>
-              <h2 className="text-xl font-black">تسجيل / تجديد قيد طالب بالحضانة</h2>
+              <h2 className="text-xl font-black">تسجيل طالب حضانة</h2>
             </div>
             <p className="text-sm text-green-100 leading-relaxed">
-              أدخل بيانات ولي الأمر والطفل بدقة وتاريخ بدء الدخول المطلوب. سيتم التواصل معك لتأكيد الموعد وإتمام إجراءات القبول.
+              أدخل بيانات ولي الأمر والطفل بدقة. سيتم التواصل معك لتأكيد موعد المقابلة وإتمام إجراءات القبول.
             </p>
           </div>
 
